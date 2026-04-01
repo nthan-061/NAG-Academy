@@ -34,34 +34,22 @@ export function Sidebar() {
   const navItemStyle = (isActive: boolean): React.CSSProperties => ({
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
-    padding: '10px 16px',
-    borderRadius: '8px',
+    gap: '12px',
+    padding: '12px 14px',
+    borderRadius: '12px',
     fontSize: '14px',
     fontWeight: isActive ? 500 : 400,
     cursor: 'pointer',
     backgroundColor: isActive ? '#EBF0FA' : 'transparent',
     color: isActive ? '#0D1B3E' : '#6B7280',
-    transition: 'background-color 0.15s',
+    transition: 'background-color 0.15s, transform 0.15s',
     textDecoration: 'none',
   })
 
   return (
-    <aside style={{
-      position: 'fixed',
-      left: 0,
-      top: 0,
-      height: '100vh',
-      zIndex: 40,
-      display: 'flex',
-      flexDirection: 'column',
-      width: '240px',
-      backgroundColor: '#FFFFFF',
-      borderRight: '1px solid #E8ECF2',
-      paddingTop: '56px',
-    }}>
+    <aside className="app-sidebar">
       {/* Navegação */}
-      <nav style={{ flex: 1, overflowY: 'auto', padding: '16px 8px 12px 8px' }}>
+      <nav style={{ flex: 1, overflowY: 'auto', padding: '18px 10px 14px 10px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
           {NAV.map(({ to, label, icon: Icon }) => (
             <NavLink key={to} to={to} end={to === '/'}>

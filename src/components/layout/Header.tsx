@@ -11,20 +11,7 @@ export function Header() {
     : 'NA'
 
   return (
-    <header style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      height: '56px',
-      backgroundColor: '#0A1628',
-      zIndex: 50,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0 24px',
-      borderBottom: '1px solid rgba(255,255,255,0.08)',
-    }}>
+    <header className="app-header">
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <img
           src="/logo-white.png"

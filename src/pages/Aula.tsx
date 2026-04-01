@@ -422,18 +422,20 @@ export function Aula() {
   }
 
   const pageWrap: React.CSSProperties = {
-    marginLeft: '240px',
-    paddingTop: '56px',
-    height: '100vh',
+    marginLeft: '236px',
+    paddingTop: '64px',
+    minHeight: '100vh',
     boxSizing: 'border-box',
     display: 'flex',
-    overflow: 'hidden',
+    alignItems: 'flex-start',
+    gap: '24px',
+    padding: '24px 24px 32px 24px',
     backgroundColor: '#F5F6FA',
   }
 
   if (loading) {
     return (
-      <div style={{ ...pageWrap, gap: '24px', padding: '80px 24px 24px 24px' }}>
+      <div style={{ ...pageWrap }}>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className="animate-pulse rounded-xl" style={{ aspectRatio: '16/9', backgroundColor: '#E8ECF2' }} />
           <div className="animate-pulse h-8 w-2/3 rounded-lg" style={{ backgroundColor: '#E8ECF2' }} />
@@ -463,11 +465,21 @@ export function Aula() {
   return (
     <div style={{ ...pageWrap }}>
       {/* Coluna principal — player */}
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: '24px 24px 0 24px' }}>
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <VideoPlayer youtubeId={aula.youtube_id} />
 
         {/* Conteúdo abaixo do player — scrollável */}
-        <div style={{ overflowY: 'auto', flex: 1, paddingTop: '20px', paddingBottom: '24px' }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px',
+          padding: '28px',
+          borderRadius: '20px',
+          border: '1px solid #E8ECF2',
+          backgroundColor: 'rgba(255,255,255,0.88)',
+          boxShadow: '0 16px 40px rgba(10,22,40,0.06)',
+          backdropFilter: 'blur(14px)',
+        }}>
           {/* Breadcrumb */}
           {trilha && modulo && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#9CA3AF', marginBottom: '12px', flexWrap: 'wrap' }}>
@@ -487,18 +499,18 @@ export function Aula() {
             </div>
           )}
 
-          <h1 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1F2E', margin: '0 0 20px 0', lineHeight: '1.4' }}>
+          <h1 style={{ fontSize: 'clamp(26px, 3vw, 34px)', fontWeight: 700, color: '#1A1F2E', margin: '0 0 8px 0', lineHeight: '1.18', letterSpacing: '-0.03em' }}>
             {aula.titulo}
           </h1>
 
           {/* Navegação + botão assistida */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', paddingTop: '20px', borderTop: '1px solid #E8ECF2' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', paddingTop: '20px', borderTop: '1px solid #E8ECF2' }}>
             {aulaAnterior && (
               <button
                 onClick={() => navigate(`/aula/${aulaAnterior.id}`)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '6px',
-                  padding: '8px 16px', borderRadius: '8px',
+                  padding: '10px 16px', borderRadius: '10px',
                   border: '1px solid #E8ECF2', backgroundColor: '#FFFFFF',
                   color: '#6B7280', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
                 }}
@@ -518,7 +530,7 @@ export function Aula() {
                   title="Clique para desmarcar"
                   style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
-                    padding: '8px 16px', borderRadius: '8px',
+                    padding: '10px 16px', borderRadius: '10px',
                     border: '1px solid #BBF7D0', backgroundColor: '#F0FDF4',
                     color: '#16A34A', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
                     opacity: toggling ? 0.5 : 1,
@@ -543,7 +555,7 @@ export function Aula() {
                   disabled={toggling}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
-                    padding: '8px 16px', borderRadius: '8px',
+                    padding: '10px 16px', borderRadius: '10px',
                     border: '1px solid #E8ECF2', backgroundColor: '#FFFFFF',
                     color: '#6B7280', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
                     opacity: toggling ? 0.5 : 1,
@@ -562,7 +574,7 @@ export function Aula() {
                 onClick={() => navigate(`/aula/${proximaAula.id}`)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '6px',
-                  padding: '8px 16px', borderRadius: '8px',
+                  padding: '10px 18px', borderRadius: '10px',
                   border: 'none', backgroundColor: '#0D1B3E',
                   color: '#FFFFFF', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
                   marginLeft: 'auto',
@@ -578,16 +590,16 @@ export function Aula() {
           {/* CTA Quiz — aparece sempre que assistida */}
           {assistida && (
             <div style={{
-              marginTop: '20px', padding: '20px 24px',
-              backgroundColor: '#EBF0FA', border: '1px solid #2E5FD4',
-              borderRadius: '12px', display: 'flex',
-              alignItems: 'center', justifyContent: 'space-between', gap: '16px',
+              marginTop: '4px', padding: '22px 24px',
+              background: 'linear-gradient(135deg, #EDF3FF 0%, #F8FBFF 100%)', border: '1px solid rgba(46,95,212,0.32)',
+              borderRadius: '16px', display: 'flex',
+              alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap',
             }}>
               <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: '#0D1B3E', margin: '0 0 2px 0' }}>
+                <p style={{ fontSize: '16px', fontWeight: 700, color: '#0D1B3E', margin: '0 0 4px 0' }}>
                   {quizCompletado ? 'Quiz concluído' : 'Quiz disponível'}
                 </p>
-                <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
+                <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>
                   {quizCompletado
                     ? `Você acertou ${progresso?.acertos ?? 0} de ${progresso?.total_perguntas ?? 0} — clique para refazer`
                     : 'Teste seu conhecimento sobre esta aula'}
@@ -596,9 +608,9 @@ export function Aula() {
               <button
                 onClick={() => navigate(`/aula/${aula.id}/quiz`)}
                 style={{
-                  padding: '8px 20px', borderRadius: '8px',
+                  padding: '12px 20px', borderRadius: '10px',
                   border: 'none', backgroundColor: '#0D1B3E',
-                  color: '#FFFFFF', fontSize: '13px', fontWeight: 500,
+                  color: '#FFFFFF', fontSize: '14px', fontWeight: 600,
                   cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1E3A6E' }}
@@ -613,17 +625,21 @@ export function Aula() {
 
       {/* Painel direito — abas */}
       <div style={{
-        width: '340px',
+        width: 'min(360px, 32vw)',
         flexShrink: 0,
-        borderLeft: '1px solid #E8ECF2',
-        backgroundColor: '#FFFFFF',
+        border: '1px solid #E8ECF2',
+        backgroundColor: 'rgba(255,255,255,0.92)',
         display: 'flex',
         flexDirection: 'column',
-        height: '100%',
         overflow: 'hidden',
+        borderRadius: '20px',
+        boxShadow: '0 16px 40px rgba(10,22,40,0.06)',
+        position: 'sticky',
+        top: '80px',
+        maxHeight: 'calc(100vh - 104px)',
       }}>
         {/* Tabs */}
-        <div style={{ display: 'flex', borderBottom: '2px solid #E8ECF2', backgroundColor: '#FFFFFF', flexShrink: 0, minHeight: '56px' }}>
+        <div style={{ display: 'flex', borderBottom: '1px solid #E8ECF2', backgroundColor: '#FFFFFF', flexShrink: 0, minHeight: '64px', padding: '0 8px' }}>
           {ABAS.map(({ key, label, icon: Icon }) => {
             const active = aba === key
             return (
@@ -632,13 +648,13 @@ export function Aula() {
                 onClick={() => setAba(key)}
                 style={{
                   flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-                  justifyContent: 'center', gap: '5px', padding: '12px 8px',
+                  justifyContent: 'center', gap: '6px', padding: '14px 8px',
                   border: 'none', cursor: 'pointer', fontFamily: 'inherit',
                   backgroundColor: 'transparent',
                   borderBottom: active ? '2px solid #0D1B3E' : '2px solid transparent',
-                  marginBottom: '-2px',
+                  marginBottom: '-1px',
                   color: active ? '#0D1B3E' : '#9CA3AF',
-                  fontSize: '12px', fontWeight: active ? 600 : 400,
+                  fontSize: '12px', fontWeight: active ? 700 : 500,
                   transition: 'color 0.15s',
                 }}
               >
