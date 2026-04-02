@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useNavigate, Link, useParams } from 'react-router-dom'
 import { Target } from 'lucide-react'
 import { XPToast } from '@/components/ui/Toast'
@@ -11,6 +12,9 @@ import { getQuizProgressPercent } from '../utils'
 export function QuizScreen() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const [viewportWidth, setViewportWidth] = useState(() =>
+    typeof window === 'undefined' ? 1440 : window.innerWidth
+  )
   const {
     aula,
     perguntas,
@@ -28,6 +32,17 @@ export function QuizScreen() {
     confirmAnswer,
     advanceQuiz,
   } = useQuiz(id)
+
+  useEffect(() => {
+    function handleResize() {
+      setViewportWidth(window.innerWidth)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const mobileLayout = viewportWidth <= 900
 
   if (loading) {
     return (
@@ -53,7 +68,14 @@ export function QuizScreen() {
   const progressPercent = getQuizProgressPercent(indice, totalPerguntas, status === 'confirmado')
 
   return (
-    <div style={{ marginLeft: '236px', paddingTop: '64px', minHeight: '100vh', backgroundColor: '#F5F6FA' }}>
+    <div
+      style={{
+        marginLeft: mobileLayout ? 0 : '236px',
+        paddingTop: '64px',
+        minHeight: '100vh',
+        backgroundColor: '#F5F6FA',
+      }}
+    >
       <QuizHeader
         aulaTitulo={aula.titulo}
         indice={indice}
@@ -66,14 +88,16 @@ export function QuizScreen() {
         }}
       />
 
-      <div style={{ padding: '36px 20px', display: 'flex', justifyContent: 'center' }}>
+      <div style={{ padding: mobileLayout ? '20px 12px 28px' : '36px 20px', display: 'flex', justifyContent: 'center' }}>
         <div
           className="animate-slideUp"
           style={{
             width: '100%',
             maxWidth: status === 'resultado' ? '700px' : '760px',
             borderRadius: '24px',
-            padding: status === 'resultado' ? '38px 36px' : '40px',
+            padding: mobileLayout
+              ? (status === 'resultado' ? '26px 18px' : '24px 18px')
+              : (status === 'resultado' ? '38px 36px' : '40px'),
             backgroundColor: '#FFFFFF',
             boxShadow: '0 20px 50px rgba(10,22,40,0.08)',
             border: '1px solid #E8ECF2',
@@ -94,7 +118,16 @@ export function QuizScreen() {
                 </span>
               </div>
 
-              <p style={{ fontSize: '24px', fontWeight: 700, color: '#1A1F2E', margin: '0 0 32px 0', lineHeight: '1.45', letterSpacing: '-0.02em' }}>
+              <p
+                style={{
+                  fontSize: mobileLayout ? '21px' : '24px',
+                  fontWeight: 700,
+                  color: '#1A1F2E',
+                  margin: '0 0 32px 0',
+                  lineHeight: '1.45',
+                  letterSpacing: '-0.02em',
+                }}
+              >
                 {perguntaAtual?.pergunta}
               </p>
 
