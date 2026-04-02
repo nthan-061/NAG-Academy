@@ -93,11 +93,11 @@ export function QuizScreen() {
           className="animate-slideUp"
           style={{
             width: '100%',
-            maxWidth: status === 'resultado' ? '700px' : '760px',
+            maxWidth: status === 'resultado' ? '640px' : '760px',
             borderRadius: '24px',
             padding: mobileLayout
               ? (status === 'resultado' ? '26px 18px' : '24px 18px')
-              : (status === 'resultado' ? '38px 36px' : '40px'),
+              : (status === 'resultado' ? '34px 32px' : '40px'),
             backgroundColor: '#FFFFFF',
             boxShadow: '0 20px 50px rgba(10,22,40,0.08)',
             border: '1px solid #E8ECF2',
