@@ -1,25 +1,37 @@
-import type { ReactNode, CSSProperties } from 'react'
+import type { HTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
+import { theme } from '@/design/theme'
 
-interface CardProps {
-  children: ReactNode
-  className?: string
-  style?: CSSProperties
-  padding?: string
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  padding?: 'none' | 'sm' | 'md' | 'lg' | '0'
+  tone?: 'default' | 'muted' | 'interactive'
 }
 
-export function Card({ children, className = '', style, padding = '24px' }: CardProps) {
+const paddingClasses = {
+  none: '',
+  0: '',
+  sm: 'p-4',
+  md: 'p-6',
+  lg: 'p-8',
+} as const
+
+const toneClasses = {
+  default: theme.tailwind.card.base,
+  muted: theme.tailwind.card.muted,
+  interactive: theme.tailwind.card.interactive,
+} as const
+
+export function Card({
+  className,
+  padding = 'md',
+  tone = 'default',
+  children,
+  ...props
+}: CardProps) {
   return (
     <div
-      className={cn(className)}
-      style={{
-        backgroundColor: '#FFFFFF',
-        borderRadius: '12px',
-        border: '1px solid #E8ECF2',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-        padding,
-        ...style,
-      }}
+      className={cn(toneClasses[tone], paddingClasses[padding], className)}
+      {...props}
     >
       {children}
     </div>

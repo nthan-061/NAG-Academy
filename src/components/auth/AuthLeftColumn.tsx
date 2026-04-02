@@ -28,14 +28,9 @@ function LockIcon() {
 
 export function AuthLeftColumn({ headline, subtitle, bullets }: AuthLeftColumnProps) {
   return (
-    <div
-      className="hidden md:flex md:w-1/2 min-h-screen flex-col items-center justify-center relative overflow-hidden"
-      style={{ backgroundColor: '#0D1B3E', padding: '48px' }}
-    >
-      {/* Grid de fundo */}
+    <aside className="auth-column hidden min-h-screen w-1/2 flex-col justify-center overflow-hidden bg-primary-deep px-12 lg:flex">
       <svg
-        className="absolute inset-0 w-full h-full"
-        style={{ opacity: 0.04 }}
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.04]"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
@@ -46,60 +41,35 @@ export function AuthLeftColumn({ headline, subtitle, bullets }: AuthLeftColumnPr
         <rect width="100%" height="100%" fill="url(#auth-grid)" />
       </svg>
 
-      <div className="relative z-10 flex flex-col items-start" style={{ maxWidth: '380px', width: '100%' }}>
-        {/* Logo */}
+      <div className="relative z-10 mx-auto flex w-full max-w-[24rem] flex-col items-start">
         <img
           src="/logo-white.png"
           alt="Nathan Alves Group"
-          style={{ height: '80px', width: 'auto', objectFit: 'contain', marginBottom: '40px' }}
+          className="mb-10 h-20 w-auto object-contain"
         />
 
-        {/* Headline */}
-        <h1 style={{
-          fontSize: '32px',
-          fontWeight: 700,
-          color: '#FFFFFF',
-          lineHeight: 1.25,
-          marginBottom: '12px',
-          whiteSpace: 'pre-line',
-        }}>
+        <h1 className="mb-3 whitespace-pre-line text-[2rem] font-bold leading-[1.25] tracking-[-0.03em] text-white">
           {headline}
         </h1>
 
-        {/* Subtítulo */}
-        <p style={{
-          fontSize: '15px',
-          color: 'rgba(255,255,255,0.65)',
-          lineHeight: 1.6,
-          marginBottom: '36px',
-          maxWidth: '320px',
-        }}>
+        <p className="mb-9 max-w-[20rem] text-[15px] leading-7 text-white/65">
           {subtitle}
         </p>
 
-        {/* Bullets */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {bullets.map((b) => (
-            <div key={b.text} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255,255,255,0.12)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}>
-                {b.icon === 'lock' ? <LockIcon /> : <CheckIcon />}
+        <div className="flex flex-col gap-4">
+          {bullets.map((bullet) => (
+            <div key={bullet.text} className="flex items-center gap-3">
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/12">
+                {bullet.icon === 'lock' ? <LockIcon /> : <CheckIcon />}
               </div>
-              <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>
-                {b.text}
+
+              <span className="text-sm font-medium text-white/80">
+                {bullet.text}
               </span>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </aside>
   )
 }
