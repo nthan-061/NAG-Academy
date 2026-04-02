@@ -1,5 +1,4 @@
-import { CheckCircle2, XCircle } from 'lucide-react'
-import { cn } from '@/lib/cn'
+import { CheckCircle, XCircle } from 'lucide-react'
 import type { QuizStatus } from '../types'
 
 interface QuizOptionProps {
@@ -23,43 +22,74 @@ export function QuizOption({
 }: QuizOptionProps) {
   const confirmado = status === 'confirmado'
 
-  const stateClass =
-    confirmado && selecionada && correta
-      ? 'border-[#16A34A] bg-[#F0FDF4] text-[#16A34A]'
-      : confirmado && selecionada && !correta
-        ? 'border-[#DC2626] bg-[#FEF2F2] text-[#DC2626]'
-        : confirmado && correta
-          ? 'border-[#16A34A] bg-[#F0FDF4] text-[#16A34A]'
-          : !confirmado && selecionada
-            ? 'border-[#2E5FD4] bg-[#EBF0FA] text-[#1A1F2E]'
-            : 'border-[#E8ECF2] bg-white text-[#1A1F2E]'
+  let bg = '#FFFFFF'
+  let borderColor = '#E8ECF2'
+  let textColor = '#1A1F2E'
+  let icon = null
 
-  const letterClass =
-    selecionada || (confirmado && correta)
-      ? confirmado && !correta && selecionada
-        ? 'bg-[#DC2626] text-white'
-        : confirmado && correta
-          ? 'bg-[#16A34A] text-white'
-          : 'bg-[#2E5FD4] text-white'
-      : 'bg-[#E8ECF2] text-[#9CA3AF]'
+  if (confirmado && selecionada && correta) {
+    bg = '#F0FDF4'
+    borderColor = '#16A34A'
+    textColor = '#16A34A'
+    icon = <CheckCircle size={18} strokeWidth={1.5} style={{ color: '#16A34A', flexShrink: 0 }} />
+  } else if (confirmado && selecionada && !correta) {
+    bg = '#FEF2F2'
+    borderColor = '#DC2626'
+    textColor = '#DC2626'
+    icon = <XCircle size={18} strokeWidth={1.5} style={{ color: '#DC2626', flexShrink: 0 }} />
+  } else if (confirmado && correta) {
+    bg = '#F0FDF4'
+    borderColor = '#16A34A'
+    textColor = '#16A34A'
+    icon = <CheckCircle size={18} strokeWidth={1.5} style={{ color: '#16A34A', flexShrink: 0 }} />
+  } else if (!confirmado && selecionada) {
+    bg = '#EBF0FA'
+    borderColor = '#2E5FD4'
+  }
+
+  const letterBg = selecionada || (confirmado && correta) ? borderColor : '#E8ECF2'
+  const letterColor = selecionada || (confirmado && correta) ? '#FFFFFF' : '#9CA3AF'
 
   return (
     <button
       type="button"
       onClick={confirmado ? undefined : onSelect}
       disabled={confirmado}
-      className={cn(
-        'flex w-full items-center gap-3 rounded-2xl border px-5 py-4 text-left text-sm leading-[1.65] transition',
-        stateClass,
-        !confirmado && 'hover:border-[#C9D7F7] hover:shadow-[0_12px_28px_rgba(46,95,212,0.08)]',
-      )}
+      style={{
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        padding: '16px 20px',
+        borderRadius: '14px',
+        textAlign: 'left',
+        border: `1px solid ${borderColor}`,
+        backgroundColor: bg,
+        color: textColor,
+        cursor: confirmado ? 'default' : 'pointer',
+        fontFamily: 'inherit',
+        transition: 'border-color 0.15s, transform 0.15s',
+      }}
     >
-      <span className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold', letterClass)}>
+      <span
+        style={{
+          width: '34px',
+          height: '34px',
+          borderRadius: '10px',
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '12px',
+          fontWeight: 700,
+          backgroundColor: letterBg,
+          color: letterColor,
+        }}
+      >
         {LETTERS[index]}
       </span>
-      <span className="flex-1">{texto}</span>
-      {confirmado && correta && <CheckCircle2 size={18} strokeWidth={1.5} className="shrink-0 text-[#16A34A]" />}
-      {confirmado && selecionada && !correta && <XCircle size={18} strokeWidth={1.5} className="shrink-0 text-[#DC2626]" />}
+      <span style={{ flex: 1, fontSize: '14px', lineHeight: '1.65' }}>{texto}</span>
+      {icon}
     </button>
   )
 }

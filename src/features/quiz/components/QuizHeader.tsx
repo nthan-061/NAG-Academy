@@ -1,5 +1,4 @@
 import { X } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
 
 interface QuizHeaderProps {
   aulaTitulo: string
@@ -21,27 +20,60 @@ export function QuizHeader({
   onExit,
 }: QuizHeaderProps) {
   return (
-    <div className="sticky top-16 z-10 flex h-16 items-center gap-4 border-b border-[#E8ECF2] bg-white px-5 shadow-[0_1px_3px_rgba(0,0,0,0.06)] md:px-7">
-      <Button type="button" variant="ghost" onClick={onExit} className="h-10 w-10 rounded-xl bg-[#F8FAFC] p-0 text-[#6B7280] hover:bg-[#EEF2F7]">
-        <X size={20} strokeWidth={1.5} />
-      </Button>
+    <div
+      style={{
+        position: 'sticky',
+        top: '64px',
+        zIndex: 10,
+        height: '64px',
+        padding: '0 28px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        backgroundColor: '#FFFFFF',
+        borderBottom: '1px solid #E8ECF2',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+      }}
+    >
+      <button
+        onClick={onExit}
+        style={{
+          width: '36px',
+          height: '36px',
+          borderRadius: '10px',
+          border: 'none',
+          backgroundColor: '#F8FAFC',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'inherit',
+        }}
+      >
+        <X size={20} strokeWidth={1.5} style={{ color: '#6B7280' }} />
+      </button>
 
-      <div className="flex flex-1 flex-col gap-1.5">
-        <p className="text-xs font-semibold text-[#9CA3AF]">
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <p style={{ fontSize: '12px', fontWeight: 600, color: '#9CA3AF', margin: 0 }}>
           {statusLabel || `Pergunta ${indice + 1} de ${totalPerguntas}`}
         </p>
 
         {showProgress && (
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#E8ECF2]">
+          <div style={{ width: '100%', borderRadius: '999px', overflow: 'hidden', height: '6px', backgroundColor: '#E8ECF2' }}>
             <div
-              className="h-full rounded-full bg-[#0D1B3E] transition-all duration-300"
-              style={{ width: `${progressPercent}%` }}
+              style={{
+                width: `${progressPercent}%`,
+                height: '100%',
+                borderRadius: '999px',
+                backgroundColor: '#0D1B3E',
+                transition: 'width 0.3s',
+              }}
             />
           </div>
         )}
       </div>
 
-      <span className="hidden text-xs font-semibold text-[#9CA3AF] md:block">
+      <span style={{ fontSize: '12px', fontWeight: 600, color: '#9CA3AF' }}>
         {aulaTitulo.slice(0, 36)}{aulaTitulo.length > 36 ? '...' : ''}
       </span>
     </div>
