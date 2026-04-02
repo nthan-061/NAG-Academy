@@ -13,8 +13,8 @@ interface AuthenticatedRequest {
     id: string
     email?: string
   }
-  authClient: ReturnType<typeof createClient>
-  serviceClient: ReturnType<typeof createClient>
+  authClient: any
+  serviceClient: any
   env: ServerAuthContext
 }
 
@@ -91,7 +91,7 @@ export async function requireAdmin(
     return null
   }
 
-  if (profile?.role !== 'admin') {
+  if (!profile || profile.role !== 'admin') {
     res.status(403).json({ error: 'Acesso restrito.' })
     return null
   }
@@ -100,7 +100,7 @@ export async function requireAdmin(
 }
 
 export async function logAdminAction(
-  serviceClient: ReturnType<typeof createClient>,
+  serviceClient: any,
   userId: string,
   action: string,
   context: Record<string, unknown>,

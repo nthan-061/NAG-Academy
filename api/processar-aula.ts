@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
 import Groq from 'groq-sdk'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { logAdminAction, requireAdmin } from './_lib/auth'
+import { logAdminAction, requireAdmin } from './_lib/auth.js'
 
 function extrairYoutubeId(url: string): string | null {
   const patterns = [
