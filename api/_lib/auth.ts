@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 interface ServerAuthContext {
   supabaseUrl: string
@@ -13,8 +13,8 @@ interface AuthenticatedRequest {
     id: string
     email?: string
   }
-  authClient: any
-  serviceClient: any
+  authClient: SupabaseClient
+  serviceClient: SupabaseClient
   env: ServerAuthContext
 }
 
@@ -100,7 +100,7 @@ export async function requireAdmin(
 }
 
 export async function logAdminAction(
-  serviceClient: any,
+  serviceClient: SupabaseClient,
   userId: string,
   action: string,
   context: Record<string, unknown>,

@@ -3,6 +3,7 @@ import { Home, BookOpen, Layers, BarChart2, ShieldCheck } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { useFlashcards } from '@/hooks/useFlashcards'
+import { MentorSidebar } from '@/features/mentor/components'
 import { getNivel, NIVEIS } from '@/lib/xp'
 
 const NAV = [
@@ -85,6 +86,8 @@ export function Sidebar() {
               )}
             </NavLink>
           ))}
+
+          <MentorSidebar navItemStyle={navItemStyle} />
 
           {isAdmin && (
             <NavLink to="/admin">

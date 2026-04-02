@@ -7,7 +7,7 @@
  * A senha fica em: Supabase Dashboard > Settings > Database > Database password
  */
 import pg from 'pg'
-import { readFileSync } from 'fs'
+import { readFileSync, readdirSync } from 'fs'
 import path from 'path'
 
 const { Client } = pg
@@ -202,12 +202,14 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 `
 
-const SECURITY_SQL = readFileSync(
-  path.resolve(process.cwd(), 'supabase/migrations/20260402_roles_rls.sql'),
-  'utf8'
-)
+const MIGRATIONS_DIR = path.resolve(process.cwd(), 'supabase/migrations')
+const migrationsSql = readdirSync(MIGRATIONS_DIR)
+  .filter((file) => file.endsWith('.sql'))
+  .sort()
+  .map((file) => readFileSync(path.join(MIGRATIONS_DIR, file), 'utf8'))
+  .join('\n\n')
 
-const SQL = `${BASE_SQL}\n\n${SECURITY_SQL}`
+const SQL = `${BASE_SQL}\n\n${migrationsSql}`
 
 async function migrate() {
   console.log('Conectando ao Supabase...')
