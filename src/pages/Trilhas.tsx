@@ -40,6 +40,13 @@ interface TrilhaCardProps {
 
 function TrilhaCard({ trilha, modulosCount, aulasCount }: TrilhaCardProps) {
   const cores = NIVEL_COLORS[trilha.nivel] ?? NIVEL_COLORS.iniciante
+  const [expandida, setExpandida] = useState(false)
+  const limiteDescricao = 120
+  const descricaoCompleta = trilha.descricao?.trim() ?? ''
+  const precisaExpandir = descricaoCompleta.length > limiteDescricao
+  const descricaoVisivel = expandida || !precisaExpandir
+    ? descricaoCompleta
+    : `${descricaoCompleta.slice(0, limiteDescricao).trim()}...`
 
   return (
     <div
@@ -83,18 +90,31 @@ function TrilhaCard({ trilha, modulosCount, aulasCount }: TrilhaCardProps) {
           <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#1A1F2E', margin: '0 0 6px 0', lineHeight: '1.4' }}>
             {trilha.titulo}
           </h3>
-          {trilha.descricao && (
-            <p
-              style={{
-                fontSize: '13px', color: '#6B7280', lineHeight: '1.6', margin: 0,
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-              }}
-            >
-              {trilha.descricao}
-            </p>
+          {descricaoCompleta && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <p style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.6', margin: 0 }}>
+                {descricaoVisivel}
+              </p>
+              {precisaExpandir && (
+                <button
+                  type="button"
+                  onClick={() => setExpandida((valor) => !valor)}
+                  style={{
+                    alignSelf: 'flex-start',
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    color: '#2E5FD4',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  {expandida ? 'Ver menos' : 'Ver mais'}
+                </button>
+              )}
+            </div>
           )}
         </div>
 

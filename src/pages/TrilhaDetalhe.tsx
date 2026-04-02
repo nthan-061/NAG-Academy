@@ -148,6 +148,7 @@ export function TrilhaDetalhe() {
   const [modulos, setModulos] = useState<ModuloComAulas[]>([])
   const [progressoMap, setProgressoMap] = useState<Record<string, UserProgresso>>({})
   const [loading, setLoading] = useState(true)
+  const [descricaoExpandida, setDescricaoExpandida] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -232,6 +233,12 @@ export function TrilhaDetalhe() {
     (p) => p.assistida && p.quiz_completado
   ).length
   const pct = totalAulas > 0 ? Math.round((aulasCompletas / totalAulas) * 100) : 0
+  const limiteDescricao = 280
+  const descricaoCompleta = trilha.descricao?.trim() ?? ''
+  const precisaExpandirDescricao = descricaoCompleta.length > limiteDescricao
+  const descricaoVisivel = descricaoExpandida || !precisaExpandirDescricao
+    ? descricaoCompleta
+    : `${descricaoCompleta.slice(0, limiteDescricao).trim()}...`
 
   return (
     <div className="p-8 max-w-3xl mx-auto">
@@ -262,10 +269,32 @@ export function TrilhaDetalhe() {
           <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 8px 0', lineHeight: 1.3 }}>
             {trilha.titulo}
           </h1>
-          {trilha.descricao && (
-            <p style={{ fontSize: '14px', lineHeight: 1.6, color: 'rgba(255,255,255,0.72)', margin: '0 0 16px 0' }}>
-              {trilha.descricao}
-            </p>
+          {descricaoCompleta && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '0 0 16px 0' }}>
+              <p style={{ fontSize: '14px', lineHeight: 1.6, color: 'rgba(255,255,255,0.72)', margin: 0 }}>
+                {descricaoVisivel}
+              </p>
+              {precisaExpandirDescricao && (
+                <button
+                  type="button"
+                  onClick={() => setDescricaoExpandida((valor) => !valor)}
+                  style={{
+                    alignSelf: 'flex-start',
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    color: '#FFFFFF',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    opacity: 0.92,
+                  }}
+                >
+                  {descricaoExpandida ? 'Ver menos' : 'Ver mais'}
+                </button>
+              )}
+            </div>
           )}
           <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
             {aulasCompletas} de {totalAulas} aulas completadas

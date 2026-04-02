@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Plus, Trash2, ToggleLeft, ToggleRight, ShieldAlert, Star, Flame, Zap, ChevronDown, ChevronUp, CheckCircle, XCircle } from 'lucide-react'
+import { Plus, Trash2, ToggleLeft, ToggleRight, ShieldAlert, Star, Flame, Zap, ChevronDown, ChevronUp, CheckCircle, XCircle, Pencil, Save, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Input } from '@/components/ui/Input'
 import type { Trilha, Modulo } from '@/types'
@@ -249,6 +249,14 @@ function AbaGerenciarTrilhas() {
   const [loadingTrilha, setLoadingTrilha] = useState(false)
   const [loadingModulo, setLoadingModulo] = useState(false)
   const [expandedTrilha, setExpandedTrilha] = useState<string | null>(null)
+  const [editingTrilhaId, setEditingTrilhaId] = useState<string | null>(null)
+  const [editTitulo, setEditTitulo] = useState('')
+  const [editDescricao, setEditDescricao] = useState('')
+  const [editCategoria, setEditCategoria] = useState('')
+  const [editNivel, setEditNivel] = useState<'iniciante' | 'intermediario' | 'avancado'>('iniciante')
+  const [editThumbnail, setEditThumbnail] = useState('')
+  const [editThumbnailNome, setEditThumbnailNome] = useState('')
+  const [savingEdit, setSavingEdit] = useState(false)
   const [toast, setToast] = useState<ToastMsg | null>(null)
 
   async function load() {
@@ -324,6 +332,89 @@ function AbaGerenciarTrilhas() {
       showToast({ ok: true, msg: 'Trilha criada com sucesso!' })
     }
     setLoadingTrilha(false)
+  }
+
+  function iniciarEdicao(trilha: Trilha) {
+    setEditingTrilhaId(trilha.id)
+    setEditTitulo(trilha.titulo)
+    setEditDescricao(trilha.descricao ?? '')
+    setEditCategoria(trilha.categoria ?? '')
+    setEditNivel(trilha.nivel)
+    setEditThumbnail(trilha.thumbnail_url ?? '')
+    setEditThumbnailNome(trilha.thumbnail_url ? 'Imagem atual' : '')
+  }
+
+  function cancelarEdicao() {
+    setEditingTrilhaId(null)
+    setEditTitulo('')
+    setEditDescricao('')
+    setEditCategoria('')
+    setEditNivel('iniciante')
+    setEditThumbnail('')
+    setEditThumbnailNome('')
+  }
+
+  async function handleEditThumbnailUpload(file: File | null) {
+    if (!file) return
+
+    const tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp']
+    const tamanhoMaximo = 1.5 * 1024 * 1024
+
+    if (!tiposPermitidos.includes(file.type)) {
+      showToast({ ok: false, msg: 'Use uma imagem JPG, PNG ou WEBP.' })
+      return
+    }
+
+    if (file.size > tamanhoMaximo) {
+      showToast({ ok: false, msg: 'A thumb deve ter no maximo 1,5 MB.' })
+      return
+    }
+
+    setThumbnailLoading(true)
+
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(String(reader.result ?? ''))
+        reader.onerror = () => reject(new Error('Nao foi possivel ler a imagem.'))
+        reader.readAsDataURL(file)
+      })
+
+      setEditThumbnail(dataUrl)
+      setEditThumbnailNome(file.name)
+      showToast({ ok: true, msg: 'Nova thumb carregada.' })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Erro ao carregar imagem.'
+      showToast({ ok: false, msg: message })
+    } finally {
+      setThumbnailLoading(false)
+    }
+  }
+
+  async function salvarEdicaoTrilha() {
+    if (!editingTrilhaId || !editTitulo.trim()) return
+    setSavingEdit(true)
+
+    const { error } = await supabase
+      .from('trilhas')
+      .update({
+        titulo: editTitulo.trim(),
+        descricao: editDescricao.trim() || null,
+        categoria: editCategoria.trim() || null,
+        nivel: editNivel,
+        thumbnail_url: editThumbnail || null,
+      })
+      .eq('id', editingTrilhaId)
+
+    if (error) {
+      showToast({ ok: false, msg: `Erro ao salvar trilha: ${error.message}` })
+    } else {
+      await load()
+      cancelarEdicao()
+      showToast({ ok: true, msg: 'Trilha atualizada com sucesso.' })
+    }
+
+    setSavingEdit(false)
   }
 
   async function criarModulo() {
@@ -614,6 +705,13 @@ function AbaGerenciarTrilhas() {
                   </p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <button
+                    onClick={() => iniciarEdicao(t)}
+                    title="Editar trilha"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex' }}
+                  >
+                    <Pencil size={16} style={{ color: '#2E5FD4' }} />
+                  </button>
                   {modulosDaTrilha.length > 0 && (
                     <button
                       onClick={() => setExpandedTrilha(expanded ? null : t.id)}
@@ -644,6 +742,170 @@ function AbaGerenciarTrilhas() {
                   </button>
                 </div>
               </div>
+              {editingTrilhaId === t.id && (
+                <div style={{ borderTop: '1px solid #E8ECF2', backgroundColor: '#F9FAFB', padding: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                    <Input label="Titulo" value={editTitulo} onChange={(e) => setEditTitulo(e.target.value)} />
+                    <SelectField label="Nivel" value={editNivel} onChange={(v) => setEditNivel(v as typeof editNivel)}>
+                      <option value="iniciante">Iniciante</option>
+                      <option value="intermediario">Intermediario</option>
+                      <option value="avancado">Avancado</option>
+                    </SelectField>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <Input label="Categoria" value={editCategoria} onChange={(e) => setEditCategoria(e.target.value)} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <label style={{ fontSize: '13px', fontWeight: 500, color: '#1A1F2E' }}>Descricao</label>
+                      <textarea
+                        value={editDescricao}
+                        onChange={(e) => setEditDescricao(e.target.value)}
+                        rows={4}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          boxSizing: 'border-box',
+                          border: '1.5px solid #E8ECF2',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          color: '#1A1F2E',
+                          backgroundColor: '#FFFFFF',
+                          outline: 'none',
+                          fontFamily: 'inherit',
+                          resize: 'vertical',
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <label style={{ fontSize: '13px', fontWeight: 500, color: '#1A1F2E' }}>Thumbnail da trilha</label>
+                      <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
+                        Ideal: proporcao 16:9. Recomendado 1280 x 720 px.
+                      </p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                        <label
+                          htmlFor={`editar-thumbnail-${t.id}`}
+                          style={{
+                            height: '40px',
+                            padding: '0 16px',
+                            borderRadius: '10px',
+                            border: '1px solid #D8E1F2',
+                            backgroundColor: '#FFFFFF',
+                            color: '#0D1B3E',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            cursor: thumbnailLoading ? 'not-allowed' : 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            opacity: thumbnailLoading ? 0.6 : 1,
+                          }}
+                        >
+                          {thumbnailLoading ? 'Carregando imagem...' : 'Trocar imagem'}
+                        </label>
+                        <input
+                          id={`editar-thumbnail-${t.id}`}
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp"
+                          style={{ display: 'none' }}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] ?? null
+                            void handleEditThumbnailUpload(file)
+                            e.currentTarget.value = ''
+                          }}
+                        />
+                        <span style={{ fontSize: '12px', color: '#6B7280' }}>
+                          {editThumbnailNome || 'Nenhuma imagem selecionada'}
+                        </span>
+                        {editThumbnail && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditThumbnail('')
+                              setEditThumbnailNome('')
+                            }}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#DC2626',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              fontFamily: 'inherit',
+                            }}
+                          >
+                            Remover imagem
+                          </button>
+                        )}
+                      </div>
+                      {editThumbnail && (
+                        <div
+                          style={{
+                            width: '100%',
+                            maxWidth: '320px',
+                            aspectRatio: '16 / 9',
+                            borderRadius: '14px',
+                            overflow: 'hidden',
+                            border: '1px solid #E8ECF2',
+                            backgroundColor: '#FFFFFF',
+                          }}
+                        >
+                          <img
+                            src={editThumbnail}
+                            alt="Preview da thumb"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => { void salvarEdicaoTrilha() }}
+                        disabled={!editTitulo.trim() || savingEdit}
+                        style={{
+                          height: '42px',
+                          padding: '0 16px',
+                          borderRadius: '10px',
+                          border: 'none',
+                          backgroundColor: '#0D1B3E',
+                          color: '#FFFFFF',
+                          fontSize: '13px',
+                          fontWeight: 600,
+                          cursor: !editTitulo.trim() || savingEdit ? 'not-allowed' : 'pointer',
+                          opacity: !editTitulo.trim() || savingEdit ? 0.6 : 1,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                        }}
+                      >
+                        <Save size={15} strokeWidth={1.6} />
+                        {savingEdit ? 'Salvando...' : 'Salvar alteracoes'}
+                      </button>
+                      <button
+                        onClick={cancelarEdicao}
+                        disabled={savingEdit}
+                        style={{
+                          height: '42px',
+                          padding: '0 16px',
+                          borderRadius: '10px',
+                          border: '1px solid #D8E1F2',
+                          backgroundColor: '#FFFFFF',
+                          color: '#6B7280',
+                          fontSize: '13px',
+                          fontWeight: 600,
+                          cursor: savingEdit ? 'not-allowed' : 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                        }}
+                      >
+                        <X size={15} strokeWidth={1.6} />
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
               {expanded && modulosDaTrilha.length > 0 && (
                 <div style={{ borderTop: '1px solid #E8ECF2', backgroundColor: '#F9FAFB', padding: '8px 16px' }}>
                   {modulosDaTrilha.map((m, i) => (
