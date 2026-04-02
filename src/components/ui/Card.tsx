@@ -1,4 +1,5 @@
 import type { ReactNode, CSSProperties } from 'react'
+import { cn } from '@/lib/cn'
 
 interface CardProps {
   children: ReactNode
@@ -10,12 +11,11 @@ interface CardProps {
 export function Card({ children, className = '', style, padding = '24px' }: CardProps) {
   return (
     <div
-      className={className}
+      className={cn(
+        'rounded-2xl border border-[#E8ECF2] bg-white shadow-[0_16px_40px_rgba(10,22,40,0.06)]',
+        className,
+      )}
       style={{
-        backgroundColor: '#FFFFFF',
-        borderRadius: '12px',
-        border: '1px solid #E8ECF2',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
         padding,
         ...style,
       }}
