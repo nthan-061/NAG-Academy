@@ -52,7 +52,7 @@ export function MentorInsights({
     <div className="flex flex-col gap-7">
       <Card className="overflow-hidden border-border/70 p-0 shadow-[0_18px_44px_rgba(10,22,40,0.07)]">
         <div className="grid gap-0 xl:grid-cols-[minmax(0,1.18fr),380px]">
-          <div className="border-b border-border/70 px-7 py-7 md:px-8 md:py-8 xl:border-b-0 xl:border-r">
+          <div className="px-7 py-7 md:px-8 md:py-8">
             <div className="flex flex-wrap items-start gap-3">
               <Badge variant={analysis ? statusVariant[analysis.status] : 'default'}>
                 {analysis?.status === 'critical' ? 'Estado critico' : analysis?.status === 'attention' ? 'Momento de atencao' : 'Bom momento'}
@@ -82,18 +82,20 @@ export function MentorInsights({
           </div>
 
           {profile && (
-            <div className="grid gap-px bg-border/70 p-px sm:grid-cols-2 xl:grid-cols-2">
+            <div className="px-7 pb-7 md:px-8 md:pb-8 xl:pl-0 xl:pr-8 xl:pt-8">
+              <div className="grid gap-4 sm:grid-cols-2">
               {[
                 ['Nivel estimado', profile.estimatedLevel.label],
                 ['Consistencia', `${profile.consistency.consistencyScore}%`],
                 ['Acuracia recente', `${Math.round(profile.studyVelocity.recentAccuracy * 100)}%`],
                 ['Flashcards pendentes', String(profile.recentEngagement.pendingFlashcards)],
               ].map(([label, value]) => (
-                <div key={label} className="bg-surface px-6 py-6">
+                <div key={label} className="rounded-[1.2rem] border border-border/70 bg-background-elevated px-5 py-5">
                   <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">{label}</p>
                   <p className="mt-4 text-[1.85rem] font-bold capitalize tracking-[-0.04em] text-foreground">{value}</p>
                 </div>
               ))}
+              </div>
             </div>
           )}
         </div>

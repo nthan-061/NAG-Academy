@@ -83,18 +83,18 @@ export function MentorScreen() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1340px] flex-col gap-10">
+    <div className="mx-auto flex w-full max-w-[1340px] flex-col gap-8 md:gap-10">
       <Card className="overflow-hidden border-border/70 bg-surface p-0 shadow-[0_26px_70px_rgba(10,22,40,0.10)]">
-        <div className="bg-[linear-gradient(135deg,rgba(13,27,62,1)_0%,rgba(30,58,110,1)_58%,rgba(46,95,212,0.92)_100%)] px-8 py-10 text-white md:px-10 md:py-12">
+        <div className="bg-[linear-gradient(135deg,rgba(13,27,62,1)_0%,rgba(30,58,110,1)_58%,rgba(46,95,212,0.92)_100%)] px-8 py-10 text-white md:px-12 md:py-12">
           <div className="flex flex-wrap items-start justify-between gap-6">
-            <div className="max-w-[780px] space-y-5">
+            <div className="max-w-[780px] space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/16 bg-white/10 px-4 py-2 text-sm font-semibold text-white/95 backdrop-blur">
                 <Brain size={16} />
                 Mentor IA contextual
               </div>
 
-              <div className="space-y-4">
-                <h1 className="max-w-[940px] !text-white text-[2.3rem] font-bold leading-[1.06] tracking-[-0.04em] md:text-[3rem]">
+              <div className="space-y-5">
+                <h1 className="max-w-[940px] !text-white text-[2.3rem] font-bold leading-[1.08] tracking-[-0.04em] md:text-[3rem]">
                   Seu mentor interpreta comportamento e transforma historico em direcao pratica.
                 </h1>
                 <p className="max-w-[760px] text-[1rem] leading-8 text-white/84 md:text-[1.05rem]">
@@ -115,39 +115,39 @@ export function MentorScreen() {
             </div>
           </div>
         </div>
-
-        {!!summaryMetrics.length && (
-          <div className="grid gap-5 border-t border-border/70 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] px-6 py-7 md:grid-cols-2 xl:grid-cols-4 xl:px-8">
-            {summaryMetrics.map((metric, index) => {
-              const style = metricStyles[index]
-              const Icon = style.icon
-
-              return (
-                <div
-                  key={metric.label}
-                  className={`rounded-[1.5rem] border px-6 py-6 shadow-[0_16px_30px_rgba(10,22,40,0.06)] ${style.ringClass}`}
-                >
-                  <div className="mb-5 flex items-center justify-between gap-3">
-                    <p className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-text-secondary">
-                      {metric.label}
-                    </p>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/80 text-primary shadow-sm">
-                      <Icon size={18} />
-                    </div>
-                  </div>
-
-                  <p className={`text-[2rem] font-bold capitalize tracking-[-0.04em] ${style.valueClass}`}>
-                    {metric.value}
-                  </p>
-                  <p className="mt-3 text-sm leading-6 text-text-secondary">
-                    {metric.helper}
-                  </p>
-                </div>
-              )
-            })}
-          </div>
-        )}
       </Card>
+
+      {!!summaryMetrics.length && (
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          {summaryMetrics.map((metric, index) => {
+            const style = metricStyles[index]
+            const Icon = style.icon
+
+            return (
+              <Card
+                key={metric.label}
+                className={`rounded-[1.6rem] border px-6 py-6 shadow-[0_16px_30px_rgba(10,22,40,0.06)] ${style.ringClass}`}
+              >
+                <div className="mb-5 flex items-center justify-between gap-3">
+                  <p className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-text-secondary">
+                    {metric.label}
+                  </p>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/85 text-primary shadow-sm">
+                    <Icon size={18} />
+                  </div>
+                </div>
+
+                <p className={`text-[2rem] font-bold capitalize tracking-[-0.04em] ${style.valueClass}`}>
+                  {metric.value}
+                </p>
+                <p className="mt-3 text-sm leading-7 text-text-secondary">
+                  {metric.helper}
+                </p>
+              </Card>
+            )
+          })}
+        </div>
+      )}
 
       {error && (
         <Card className="border-danger/20 bg-danger-soft px-5 py-4">
