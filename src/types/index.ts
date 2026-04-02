@@ -1,7 +1,10 @@
+import type { UserRole } from '@/features/auth/types'
+
 export interface Profile {
   id: string
   full_name: string | null
   avatar_url: string | null
+  role: UserRole
   xp: number
   streak_days: number
   last_activity_date: string | null

@@ -13,11 +13,11 @@ const NAV = [
 ]
 
 export function Sidebar() {
-  const { user } = useAuth()
+  const { role } = useAuth()
   const { profile } = useProfile()
   const { pendingCount } = useFlashcards()
 
-  const isAdmin = user?.email === import.meta.env.VITE_ADMIN_EMAIL
+  const isAdmin = role === 'admin'
 
   const xp = profile?.xp ?? 0
   const nivel = getNivel(xp)

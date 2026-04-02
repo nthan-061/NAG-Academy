@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import type { Session } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
+import { RequireAdminRoute } from '@/components/auth/RequireAdminRoute'
 import { Header } from '@/components/layout/Header'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { PageLayout } from '@/components/layout/PageLayout'
@@ -45,7 +45,7 @@ function SplashScreen() {
 // ---------- Rotas protegidas com layout ----------
 function AppRoutes({ session, isPasswordRecovery }: { session: Session; isPasswordRecovery: boolean }) {
   const { profile } = useProfile(session.user)
-  const userEmail = session.user.email ?? ''
+  const { role, loading: authLoading } = useAuth()
 
   return (
     <>
@@ -59,7 +59,14 @@ function AppRoutes({ session, isPasswordRecovery }: { session: Session; isPasswo
         <Route path="/aula/:id/quiz" element={<Quiz />} />
         <Route path="/flashcards" element={<PageLayout><Flashcards /></PageLayout>} />
         <Route path="/progresso"  element={<PageLayout><Progresso /></PageLayout>} />
-        <Route path="/admin"      element={<PageLayout><Admin userEmail={userEmail} /></PageLayout>} />
+        <Route
+          path="/admin"
+          element={
+            <RequireAdminRoute role={role} loading={authLoading}>
+              <PageLayout><Admin role={role} /></PageLayout>
+            </RequireAdminRoute>
+          }
+        />
         {isPasswordRecovery && (
           <Route path="/reset-password" element={<ResetPassword />} />
         )}
@@ -87,25 +94,7 @@ function PublicRoutes({ session }: { session: Session | null }) {
 
 // ---------- Root ----------
 export default function App() {
-  const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false)
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      setLoading(false)
-    })
-
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session)
-      setLoading(false)
-      if (event === 'PASSWORD_RECOVERY') setIsPasswordRecovery(true)
-      if (event === 'SIGNED_OUT') setIsPasswordRecovery(false)
-    })
-
-    return () => listener.subscription.unsubscribe()
-  }, [])
+  const { session, loading, isPasswordRecovery } = useAuth()
 
   if (loading) return <SplashScreen />
 

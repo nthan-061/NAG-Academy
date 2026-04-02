@@ -3,8 +3,7 @@ import { Plus, Trash2, ToggleLeft, ToggleRight, ShieldAlert, Star, Flame, Zap, C
 import { supabase } from '@/lib/supabase'
 import { Input } from '@/components/ui/Input'
 import type { Trilha, Modulo, Aula } from '@/types'
-
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL as string
+import type { UserRole } from '@/features/auth/types'
 
 type Aba = 'aulas' | 'trilhas' | 'usuarios'
 
@@ -1233,10 +1232,10 @@ function AbaUsuarios() {
 }
 
 // ---------- Página Admin ----------
-export function Admin({ userEmail }: { userEmail: string }) {
+export function Admin({ role }: { role: UserRole | null }) {
   const [aba, setAba] = useState<Aba>('aulas')
 
-  if (userEmail !== ADMIN_EMAIL) {
+  if (role !== 'admin') {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: '16px' }}>
         <ShieldAlert size={48} style={{ color: '#DC2626' }} />

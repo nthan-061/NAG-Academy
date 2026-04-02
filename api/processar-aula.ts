@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
 import Groq from 'groq-sdk'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { logAdminAction, requireAdmin } from './_lib/auth'
 
 function extrairYoutubeId(url: string): string | null {
   const patterns = [
@@ -175,43 +176,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const SUPABASE_URL = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL
-  const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY
-  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
   const GROQ_KEY = process.env.GROQ_API_KEY ?? process.env.VITE_GROQ_API_KEY
   const GEMINI_KEY = process.env.GEMINI_API_KEY ?? process.env.VITE_GEMINI_API_KEY
   const YOUTUBE_KEY = process.env.YOUTUBE_API_KEY ?? process.env.VITE_YOUTUBE_API_KEY
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? process.env.VITE_ADMIN_EMAIL
 
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_KEY) {
-    return res.status(500).json({ error: 'Configuracao Supabase ausente no servidor.' })
-  }
   if (!GROQ_KEY && !GEMINI_KEY) {
     return res.status(500).json({ error: 'Chave de API de IA nao configurada.' })
   }
   if (!YOUTUBE_KEY) {
     return res.status(500).json({ error: 'YOUTUBE_API_KEY nao configurada.' })
   }
-  if (!ADMIN_EMAIL) {
-    return res.status(500).json({ error: 'ADMIN_EMAIL nao configurado.' })
-  }
 
-  const authHeader = req.headers.authorization
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
-  if (!token) {
-    return res.status(401).json({ error: 'Autenticacao obrigatoria.' })
-  }
-
-  const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-  })
-  const { data: authData, error: authError } = await authClient.auth.getUser()
-  if (authError || !authData.user) {
-    return res.status(401).json({ error: 'Sessao invalida ou expirada.' })
-  }
-  if ((authData.user.email ?? '').toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-    return res.status(403).json({ error: 'Acesso restrito.' })
-  }
+  const auth = await requireAdmin(req, res)
+  if (!auth) return
 
   const { youtube_url, modulo_id, ordem } = req.body as {
     youtube_url: string
@@ -273,7 +250,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+    const supabase = createClient(auth.env.supabaseUrl, auth.env.supabaseServiceKey)
 
     const { data: aulaData, error: aulaError } = await supabase
       .from('aulas')
@@ -311,6 +288,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (perguntasError) {
       return res.status(500).json({ error: `Erro ao salvar perguntas: ${perguntasError.message}` })
     }
+
+    await logAdminAction(auth.serviceClient, auth.user.id, 'aula.processar', {
+      aula_id: aulaData.id,
+      modulo_id,
+      youtube_id: youtubeId,
+      youtube_url,
+      perguntas_count: perguntas.length,
+    })
 
     return res.status(200).json({
       success: true,

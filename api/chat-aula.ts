@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { createClient } from '@supabase/supabase-js'
+import { requireAuthenticatedUser } from './_lib/auth'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -21,34 +21,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const GROQ_KEY = process.env.GROQ_API_KEY ?? process.env.VITE_GROQ_API_KEY
     const GEMINI_KEY = process.env.GEMINI_API_KEY ?? process.env.VITE_GEMINI_API_KEY
-    const SUPABASE_URL = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL
-    const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY
-    const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
-
     if (!GROQ_KEY && !GEMINI_KEY) {
       return res.status(500).json({ error: 'Nenhuma chave de IA configurada no servidor.' })
     }
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_KEY) {
-      return res.status(500).json({ error: 'Configuracao Supabase ausente.' })
-    }
+    const auth = await requireAuthenticatedUser(req, res)
+    if (!auth) return
 
-    const authHeader = req.headers.authorization
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
-    if (!token) {
-      return res.status(401).json({ error: 'Autenticacao obrigatoria.' })
-    }
-
-    const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: `Bearer ${token}` } },
-    })
-
-    const { data: authData, error: authError } = await authClient.auth.getUser()
-    if (authError || !authData.user) {
-      return res.status(401).json({ error: 'Sessao invalida ou expirada.' })
-    }
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
-    const { data: aula, error: aulaError } = await supabase
+    const { data: aula, error: aulaError } = await auth.authClient
       .from('aulas')
       .select('titulo, resumo, topicos, transcricao')
       .eq('id', aula_id)
