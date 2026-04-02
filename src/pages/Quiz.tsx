@@ -123,6 +123,7 @@ function TelaResultado({
   const navigate = useNavigate()
 
   useEffect(() => {
+    setScore(0)
     onShowToast()
 
     const step = Math.max(1, Math.ceil(acertos / 24))
@@ -134,7 +135,9 @@ function TelaResultado({
     }, 32)
 
     return () => clearInterval(interval)
-  }, [acertos, onShowToast])
+    // O resultado deve animar apenas ao entrar nesta tela, sem reiniciar a cada re-render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [acertos])
 
   const pct = total > 0 ? Math.round((acertos / total) * 100) : 0
   const titulo =
@@ -149,49 +152,82 @@ function TelaResultado({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: '28px',
-        padding: '8px 0',
+        gap: '32px',
+        width: '100%',
+        padding: '12px 0',
         textAlign: 'center',
       }}
     >
       <div
         style={{
-          width: '164px',
-          height: '164px',
+          width: '188px',
+          height: '188px',
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: `conic-gradient(#0D1B3E ${pct * 3.6}deg, #E8ECF2 0deg)`,
-          boxShadow: '0 18px 40px rgba(13,27,62,0.12)',
+          background: `conic-gradient(#0D1B3E ${pct * 3.6}deg, #D9E1F0 0deg)`,
+          boxShadow: '0 24px 60px rgba(13,27,62,0.16)',
+          position: 'relative',
         }}
       >
         <div
           style={{
-            width: '120px',
-            height: '120px',
+            position: 'absolute',
+            inset: '-14px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(46,95,212,0.12) 0%, rgba(46,95,212,0) 70%)',
+            zIndex: 0,
+          }}
+        />
+        <div
+          style={{
+            width: '136px',
+            height: '136px',
             borderRadius: '50%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: '#FFFFFF',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9)',
+            position: 'relative',
+            zIndex: 1,
           }}
         >
-          <span style={{ fontSize: '42px', fontWeight: 700, color: '#1A1F2E', lineHeight: 1 }}>
+          <span style={{ fontSize: '48px', fontWeight: 800, color: '#1A1F2E', lineHeight: 1 }}>
             {score}
           </span>
-          <span style={{ fontSize: '13px', color: '#9CA3AF', marginTop: '4px' }}>
+          <span style={{ fontSize: '14px', color: '#9CA3AF', marginTop: '6px', fontWeight: 500 }}>
             de {total}
           </span>
         </div>
       </div>
 
-      <div style={{ maxWidth: '440px' }}>
-        <h2 style={{ fontSize: '38px', fontWeight: 700, margin: '0 0 10px 0', lineHeight: 1.05 }}>
+      <div style={{ maxWidth: '520px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <span
+          style={{
+            alignSelf: 'center',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '34px',
+            padding: '0 16px',
+            borderRadius: '999px',
+            backgroundColor: '#EEF4FF',
+            color: '#2E5FD4',
+            fontSize: '12px',
+            fontWeight: 700,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Resultado Final
+        </span>
+        <h2 style={{ fontSize: '44px', fontWeight: 800, margin: 0, lineHeight: 1.02, letterSpacing: '-0.04em' }}>
           {titulo}
         </h2>
-        <p style={{ fontSize: '18px', color: '#6B7280', margin: 0 }}>
+        <p style={{ fontSize: '19px', color: '#6B7280', margin: 0, lineHeight: 1.6 }}>
           Voce acertou {acertos} de {total} questoes.
         </p>
       </div>
@@ -199,49 +235,57 @@ function TelaResultado({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: flashcardsCount > 0 ? 'repeat(2, minmax(180px, 1fr))' : 'minmax(220px, 1fr)',
-          gap: '16px',
+          gridTemplateColumns: flashcardsCount > 0 ? 'repeat(auto-fit, minmax(220px, 1fr))' : 'minmax(240px, 1fr)',
+          gap: '18px',
           width: '100%',
-          maxWidth: flashcardsCount > 0 ? '520px' : '260px',
+          maxWidth: flashcardsCount > 0 ? '620px' : '280px',
         }}
       >
         <div
           style={{
-            padding: '18px 20px',
-            borderRadius: '18px',
+            padding: '22px 22px',
+            borderRadius: '22px',
             background: 'linear-gradient(135deg, #FFF8DB 0%, #FFF0B5 100%)',
             border: '1px solid #FDE68A',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '6px',
+            gap: '8px',
+            boxShadow: '0 20px 36px rgba(212, 160, 23, 0.12)',
           }}
         >
-          <Sparkles size={20} style={{ color: '#D97706' }} />
-          <span style={{ fontSize: '36px', fontWeight: 700, color: '#D4A017', lineHeight: 1 }}>
+          <Sparkles size={22} style={{ color: '#D97706' }} />
+          <span style={{ fontSize: '40px', fontWeight: 800, color: '#D4A017', lineHeight: 1 }}>
             +{xpGanho}
           </span>
-          <span style={{ fontSize: '13px', color: '#B45309', fontWeight: 600 }}>XP ganhos</span>
+          <span style={{ fontSize: '14px', color: '#B45309', fontWeight: 700 }}>XP ganhos</span>
+          <span style={{ fontSize: '12px', color: '#B45309', opacity: 0.84 }}>
+            Recompensa pela sua performance
+          </span>
         </div>
 
         {flashcardsCount > 0 && (
           <div
             style={{
-              padding: '18px 20px',
-              borderRadius: '18px',
+              padding: '22px 22px',
+              borderRadius: '22px',
               background: 'linear-gradient(135deg, #EEF4FF 0%, #E4EEFF 100%)',
               border: '1px solid #BFD1FF',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '6px',
+              gap: '8px',
+              boxShadow: '0 20px 36px rgba(46,95,212,0.10)',
             }}
           >
-            <Layers size={20} style={{ color: '#2E5FD4' }} />
-            <span style={{ fontSize: '36px', fontWeight: 700, color: '#2E5FD4', lineHeight: 1 }}>
+            <Layers size={22} style={{ color: '#2E5FD4' }} />
+            <span style={{ fontSize: '40px', fontWeight: 800, color: '#2E5FD4', lineHeight: 1 }}>
               {flashcardsCount}
             </span>
-            <span style={{ fontSize: '13px', color: '#2E5FD4', fontWeight: 600 }}>Flashcards criados</span>
+            <span style={{ fontSize: '14px', color: '#2E5FD4', fontWeight: 700 }}>Flashcards criados</span>
+            <span style={{ fontSize: '12px', color: '#2E5FD4', opacity: 0.82 }}>
+              Erros convertidos em revisao pratica
+            </span>
           </div>
         )}
       </div>
@@ -249,9 +293,9 @@ function TelaResultado({
       <div
         style={{
           width: '100%',
-          maxWidth: '560px',
+          maxWidth: '640px',
           display: 'flex',
-          gap: '12px',
+          gap: '14px',
           flexWrap: 'wrap',
           justifyContent: 'center',
         }}
@@ -260,20 +304,21 @@ function TelaResultado({
           <button
             onClick={() => navigate('/flashcards')}
             style={{
-              flex: '1 1 240px',
-              minHeight: '50px',
+              flex: '1 1 260px',
+              minHeight: '56px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '10px',
-              padding: '0 18px',
-              borderRadius: '12px',
+              padding: '0 22px',
+              borderRadius: '16px',
               border: '1px solid #2E5FD4',
-              backgroundColor: '#EEF4FF',
+              background: 'linear-gradient(180deg, #F7FAFF 0%, #EAF1FF 100%)',
               color: '#2E5FD4',
               fontSize: '15px',
-              fontWeight: 600,
+              fontWeight: 700,
               cursor: 'pointer',
+              boxShadow: '0 12px 26px rgba(46,95,212,0.10)',
             }}
           >
             <Layers size={16} strokeWidth={1.5} />
@@ -284,19 +329,20 @@ function TelaResultado({
         <Link
           to={`/aula/${aulaId}`}
           style={{
-            flex: '1 1 240px',
-            minHeight: '50px',
+            flex: '1 1 260px',
+            minHeight: '56px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '10px',
-            padding: '0 18px',
-            borderRadius: '12px',
-            backgroundColor: '#0D1B3E',
+            padding: '0 22px',
+            borderRadius: '16px',
+            background: 'linear-gradient(135deg, #16254F 0%, #0D1B3E 100%)',
             color: '#FFFFFF',
             fontSize: '15px',
-            fontWeight: 600,
+            fontWeight: 700,
             textDecoration: 'none',
+            boxShadow: '0 18px 34px rgba(13,27,62,0.22)',
           }}
         >
           <BookOpen size={16} strokeWidth={1.5} />
