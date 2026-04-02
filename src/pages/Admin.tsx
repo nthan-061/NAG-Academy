@@ -354,12 +354,35 @@ function AbaGerenciarTrilhas() {
 
   async function deletarTrilha(id: string) {
     if (!confirm('Deletar esta trilha e todos os seus módulos e aulas?')) return
-    const { error } = await supabase.from('trilhas').delete().eq('id', id)
-    if (error) {
-      showToast({ ok: false, msg: 'Erro ao deletar trilha.' })
-    } else {
+
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.access_token) {
+      showToast({ ok: false, msg: 'Sua sessao expirou. Faca login novamente.' })
+      return
+    }
+
+    try {
+      const res = await fetch('/api/deletar-trilha', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ trilha_id: id }),
+      })
+
+      const json = await res.json().catch(() => ({ error: 'Falha ao processar resposta do servidor.' }))
+
+      if (!res.ok) {
+        showToast({ ok: false, msg: json.error ?? 'Erro ao deletar trilha.' })
+        return
+      }
+
       await load()
       showToast({ ok: true, msg: 'Trilha deletada.' })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Erro de conexao.'
+      showToast({ ok: false, msg: message })
     }
   }
 
