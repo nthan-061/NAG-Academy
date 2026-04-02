@@ -20,7 +20,7 @@ interface UserRow {
 
 interface ToastMsg { ok: boolean; msg: string }
 
-type AulaOrdemMap = Record<string, string>
+type AulasPorModuloMap = Record<string, Aula[]>
 
 function Toast({ toast, onClose }: { toast: ToastMsg; onClose: () => void }) {
   useEffect(() => {
@@ -266,7 +266,8 @@ function AbaGerenciarTrilhas() {
   const [loadingModulo, setLoadingModulo] = useState(false)
   const [expandedTrilha, setExpandedTrilha] = useState<string | null>(null)
   const [editingModuloId, setEditingModuloId] = useState<string | null>(null)
-  const [aulaOrdens, setAulaOrdens] = useState<AulaOrdemMap>({})
+  const [aulasEmEdicao, setAulasEmEdicao] = useState<AulasPorModuloMap>({})
+  const [draggingAulaId, setDraggingAulaId] = useState<string | null>(null)
   const [savingAulas, setSavingAulas] = useState(false)
   const [editingTrilhaId, setEditingTrilhaId] = useState<string | null>(null)
   const [editTitulo, setEditTitulo] = useState('')
@@ -460,29 +461,24 @@ function AbaGerenciarTrilhas() {
       .filter((aula) => aula.modulo_id === moduloId)
       .sort((a, b) => a.ordem - b.ordem)
 
-    const ordensIniciais = aulasDoModulo.reduce<AulaOrdemMap>((acc, aula) => {
-      acc[aula.id] = String(aula.ordem)
-      return acc
-    }, {})
-
     setEditingModuloId(moduloId)
-    setAulaOrdens(ordensIniciais)
+    setAulasEmEdicao((prev) => ({ ...prev, [moduloId]: aulasDoModulo }))
   }
 
   function cancelarEdicaoModulo() {
     setEditingModuloId(null)
-    setAulaOrdens({})
+    setDraggingAulaId(null)
   }
 
   async function salvarOrdemAulas() {
     if (!editingModuloId) return
 
-    const aulasDoModulo = aulas.filter((aula) => aula.modulo_id === editingModuloId)
+    const aulasDoModulo = aulasEmEdicao[editingModuloId] ?? []
     setSavingAulas(true)
 
-    const updates = aulasDoModulo.map((aula) => ({
+    const updates = aulasDoModulo.map((aula, index) => ({
       id: aula.id,
-      ordem: Math.max(1, parseInt(aulaOrdens[aula.id] ?? String(aula.ordem), 10) || aula.ordem),
+      ordem: index + 1,
     }))
 
     const resultados = await Promise.all(
@@ -502,6 +498,24 @@ function AbaGerenciarTrilhas() {
     }
 
     setSavingAulas(false)
+  }
+
+  function moverAulaNoModulo(moduloId: string, origemId: string, destinoId: string) {
+    if (origemId === destinoId) return
+
+    setAulasEmEdicao((prev) => {
+      const listaAtual = prev[moduloId] ?? []
+      const origemIndex = listaAtual.findIndex((aula) => aula.id === origemId)
+      const destinoIndex = listaAtual.findIndex((aula) => aula.id === destinoId)
+
+      if (origemIndex === -1 || destinoIndex === -1) return prev
+
+      const novaLista = [...listaAtual]
+      const [item] = novaLista.splice(origemIndex, 1)
+      novaLista.splice(destinoIndex, 0, item)
+
+      return { ...prev, [moduloId]: novaLista }
+    })
   }
 
   async function togglePublicada(t: Trilha) {
@@ -979,9 +993,11 @@ function AbaGerenciarTrilhas() {
               {expanded && modulosDaTrilha.length > 0 && (
                 <div style={{ borderTop: '1px solid #E8ECF2', backgroundColor: '#F9FAFB', padding: '10px 16px' }}>
                   {modulosDaTrilha.map((m, i) => {
-                    const aulasDoModulo = aulas
-                      .filter((aula) => aula.modulo_id === m.id)
-                      .sort((a, b) => a.ordem - b.ordem)
+                    const aulasDoModulo = moduloEmEdicao
+                      ? (aulasEmEdicao[m.id] ?? [])
+                      : aulas
+                        .filter((aula) => aula.modulo_id === m.id)
+                        .sort((a, b) => a.ordem - b.ordem)
 
                     const moduloEmEdicao = editingModuloId === m.id
 
@@ -1020,43 +1036,62 @@ function AbaGerenciarTrilhas() {
                             {aulasDoModulo.map((aula) => (
                               <div
                                 key={aula.id}
+                                draggable={moduloEmEdicao}
+                                onDragStart={() => {
+                                  if (!moduloEmEdicao) return
+                                  setDraggingAulaId(aula.id)
+                                }}
+                                onDragOver={(e) => {
+                                  if (!moduloEmEdicao || !draggingAulaId) return
+                                  e.preventDefault()
+                                }}
+                                onDrop={(e) => {
+                                  if (!moduloEmEdicao || !draggingAulaId) return
+                                  e.preventDefault()
+                                  moverAulaNoModulo(m.id, draggingAulaId, aula.id)
+                                  setDraggingAulaId(null)
+                                }}
+                                onDragEnd={() => setDraggingAulaId(null)}
                                 style={{
                                   display: 'grid',
-                                  gridTemplateColumns: moduloEmEdicao ? '72px minmax(0, 1fr)' : 'minmax(0, 1fr)',
+                                  gridTemplateColumns: moduloEmEdicao ? '44px minmax(0, 1fr)' : 'minmax(0, 1fr)',
                                   gap: '12px',
                                   alignItems: 'center',
                                   padding: '10px 12px',
                                   borderRadius: '10px',
-                                  backgroundColor: '#FFFFFF',
+                                  backgroundColor: draggingAulaId === aula.id ? '#EDF3FF' : '#FFFFFF',
                                   border: '1px solid #E8ECF2',
+                                  cursor: moduloEmEdicao ? 'grab' : 'default',
                                 }}
                               >
                                 {moduloEmEdicao && (
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    value={aulaOrdens[aula.id] ?? String(aula.ordem)}
-                                    onChange={(e) => {
-                                      const value = e.target.value
-                                      setAulaOrdens((prev) => ({ ...prev, [aula.id]: value }))
-                                    }}
+                                  <div
                                     style={{
                                       width: '100%',
-                                      padding: '8px 10px',
+                                      height: '40px',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
                                       borderRadius: '8px',
                                       border: '1px solid #D8E1F2',
                                       fontSize: '13px',
                                       color: '#1A1F2E',
-                                      backgroundColor: '#FFFFFF',
-                                      outline: 'none',
+                                      backgroundColor: '#F8FBFF',
+                                      fontWeight: 700,
                                     }}
-                                  />
+                                  >
+                                    ::
+                                  </div>
                                 )}
                                 <div style={{ minWidth: 0 }}>
                                   <p style={{ fontSize: '13px', color: '#1A1F2E', margin: 0, fontWeight: 500 }}>
                                     {aula.titulo}
                                   </p>
-                                  {!moduloEmEdicao && (
+                                  {moduloEmEdicao ? (
+                                    <p style={{ fontSize: '12px', color: '#2E5FD4', margin: '4px 0 0 0' }}>
+                                      Segure e arraste para reorganizar
+                                    </p>
+                                  ) : (
                                     <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '4px 0 0 0' }}>
                                       Ordem atual: {aula.ordem}
                                     </p>
