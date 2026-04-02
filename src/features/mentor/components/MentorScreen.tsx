@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { AlertCircle, Brain, RefreshCcw, ShieldAlert, Sparkles, TrendingUp, Zap } from 'lucide-react'
+import { AlertCircle, BookOpen, RefreshCcw, Target, Timer, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { useMentor } from '../hooks'
@@ -8,24 +8,24 @@ import { MentorInsights } from './MentorInsights'
 
 const metricStyles = [
   {
-    valueClass: 'text-primary',
-    ringClass: 'border-secondary/18 bg-secondary-soft/70',
     icon: TrendingUp,
+    iconColor: 'text-secondary',
+    iconBg: 'bg-secondary-soft',
   },
   {
-    valueClass: 'text-foreground',
-    ringClass: 'border-success/18 bg-success-soft/80',
-    icon: Sparkles,
+    icon: Timer,
+    iconColor: 'text-success',
+    iconBg: 'bg-success-soft',
   },
   {
-    valueClass: 'text-warning',
-    ringClass: 'border-warning/20 bg-warning-soft/90',
-    icon: ShieldAlert,
+    icon: Target,
+    iconColor: 'text-warning',
+    iconBg: 'bg-warning-soft',
   },
   {
-    valueClass: 'text-danger',
-    ringClass: 'border-danger/20 bg-danger-soft/90',
-    icon: Zap,
+    icon: BookOpen,
+    iconColor: 'text-danger',
+    iconBg: 'bg-danger-soft',
   },
 ] as const
 
@@ -54,22 +54,22 @@ export function MentorScreen() {
       {
         label: 'Nivel estimado',
         value: profile.estimatedLevel.label,
-        helper: `${Math.round(profile.estimatedLevel.confidence * 100)}% de confianca no diagnostico`,
+        helper: `${Math.round(profile.estimatedLevel.confidence * 100)}% de confianca`,
       },
       {
         label: 'Consistencia',
         value: `${profile.consistency.consistencyScore}%`,
-        helper: `${profile.consistency.activeDaysLast7} dias ativos na ultima semana`,
+        helper: `${profile.consistency.activeDaysLast7} dias ativos na semana`,
       },
       {
         label: 'Acuracia recente',
         value: `${Math.round(profile.studyVelocity.recentAccuracy * 100)}%`,
-        helper: analysis.summary,
+        helper: analysis.status === 'critical' ? 'Precisa reforco imediato' : analysis.status === 'attention' ? 'Vale reforcar topicos' : 'Bom momento para avancar',
       },
       {
         label: 'Flashcards pendentes',
         value: String(profile.recentEngagement.pendingFlashcards),
-        helper: `${profile.recentEngagement.overdueFlashcards} em atraso agora`,
+        helper: `${profile.recentEngagement.overdueFlashcards} em atraso`,
       },
     ]
   }, [analysis, profile])
@@ -83,71 +83,62 @@ export function MentorScreen() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1340px] flex-col gap-8 md:gap-10">
-      <Card className="overflow-hidden border-border/70 bg-surface p-0 shadow-[0_26px_70px_rgba(10,22,40,0.10)]">
-        <div className="bg-[linear-gradient(135deg,rgba(13,27,62,1)_0%,rgba(30,58,110,1)_58%,rgba(46,95,212,0.92)_100%)] px-8 py-10 text-white md:px-12 md:py-12">
-          <div className="flex flex-wrap items-start justify-between gap-6">
-            <div className="max-w-[780px] space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/16 bg-white/10 px-4 py-2 text-sm font-semibold text-white/95 backdrop-blur">
-                <Brain size={16} />
-                Mentor IA contextual
-              </div>
+    <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-8">
+      <div>
+        <h1 className="text-[1.95rem] font-bold tracking-[-0.04em] text-foreground">
+          Mentor IA
+        </h1>
+        <p className="mt-2 max-w-[760px] text-[1rem] leading-8 text-text-secondary">
+          Uma leitura orientada do seu progresso, das dificuldades recorrentes e do proximo passo mais util dentro da plataforma.
+        </p>
+      </div>
 
-              <div className="space-y-5">
-                <h1 className="max-w-[940px] !text-white text-[2.3rem] font-bold leading-[1.08] tracking-[-0.04em] md:text-[3rem]">
-                  Seu mentor interpreta comportamento e transforma historico em direcao pratica.
-                </h1>
-                <p className="max-w-[760px] text-[1rem] leading-8 text-white/84 md:text-[1.05rem]">
-                  O mentor cruza progresso, desempenho em quiz, padrao de revisao e consistencia de estudo para mostrar o que esta travando seu avanco e qual deve ser seu proximo passo.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex shrink-0 items-center gap-3">
-              <Button
-                variant="secondary"
-                className="border-white/10 bg-white px-5 text-primary shadow-none hover:bg-white/92"
-                onClick={() => void refreshMentor()}
-              >
-                Atualizar diagnostico
-                <RefreshCcw size={16} />
-              </Button>
-            </div>
+      <Card className="border-border/80 p-0 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/80 px-6 py-5">
+          <div>
+            <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
+              Diagnostico do mentor
+            </p>
+            <p className="mt-2 text-sm leading-7 text-text-secondary">
+              O mentor cruza quizzes, revisoes, progresso e consistencia para orientar sua jornada.
+            </p>
           </div>
+
+          <Button variant="secondary" className="rounded-[0.9rem] px-5" onClick={() => void refreshMentor()}>
+            Atualizar diagnostico
+            <RefreshCcw size={16} />
+          </Button>
         </div>
-      </Card>
 
-      {!!summaryMetrics.length && (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {summaryMetrics.map((metric, index) => {
-            const style = metricStyles[index]
-            const Icon = style.icon
+        {!!summaryMetrics.length && (
+          <div className="grid gap-px bg-border/70 p-px md:grid-cols-2 xl:grid-cols-4">
+            {summaryMetrics.map((metric, index) => {
+              const style = metricStyles[index]
+              const Icon = style.icon
 
-            return (
-              <Card
-                key={metric.label}
-                className={`rounded-[1.6rem] border px-6 py-6 shadow-[0_16px_30px_rgba(10,22,40,0.06)] ${style.ringClass}`}
-              >
-                <div className="mb-5 flex items-center justify-between gap-3">
-                  <p className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-text-secondary">
-                    {metric.label}
-                  </p>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/85 text-primary shadow-sm">
-                    <Icon size={18} />
+              return (
+                <div key={metric.label} className="bg-surface px-6 py-6">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
+                      {metric.label}
+                    </p>
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-full ${style.iconBg} ${style.iconColor}`}>
+                      <Icon size={18} />
+                    </div>
                   </div>
-                </div>
 
-                <p className={`text-[2rem] font-bold capitalize tracking-[-0.04em] ${style.valueClass}`}>
-                  {metric.value}
-                </p>
-                <p className="mt-3 text-sm leading-7 text-text-secondary">
-                  {metric.helper}
-                </p>
-              </Card>
-            )
-          })}
-        </div>
-      )}
+                  <p className="mt-5 text-[2rem] font-bold capitalize tracking-[-0.04em] text-foreground">
+                    {metric.value}
+                  </p>
+                  <p className="mt-2 text-sm leading-7 text-text-secondary">
+                    {metric.helper}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </Card>
 
       {error && (
         <Card className="border-danger/20 bg-danger-soft px-5 py-4">
