@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Flame, Star } from 'lucide-react'
+import { Flame, Star, CalendarDays, Trophy, BarChart3 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { getNivel, NIVEIS } from '@/lib/xp'
 import type { Profile, UserDominio } from '@/types'
@@ -28,11 +28,11 @@ function corDominio(pct: number) {
 const card: React.CSSProperties = {
   backgroundColor: '#FFFFFF',
   border: '1px solid #E8ECF2',
-  borderRadius: '12px',
-  padding: '24px',
+  borderRadius: '20px',
+  padding: '28px',
+  boxShadow: '0 16px 40px rgba(10,22,40,0.05)',
 }
 
-// ---------- Calendário de streak ----------
 function StreakCalendar({ userId }: { userId: string }) {
   const [diasAtivos, setDiasAtivos] = useState<Set<string>>(new Set())
 
@@ -45,7 +45,7 @@ function StreakCalendar({ userId }: { userId: string }) {
       .then(({ data }) => {
         const dias = new Set(
           (data ?? [])
-            .map((r) => r.completed_at?.split('T')[0])
+            .map((registro) => registro.completed_at?.split('T')[0])
             .filter(Boolean) as string[]
         )
         setDiasAtivos(dias)
@@ -54,10 +54,11 @@ function StreakCalendar({ userId }: { userId: string }) {
 
   const hoje = new Date()
   const dias: AtividadeDia[] = []
+
   for (let i = 83; i >= 0; i--) {
-    const d = new Date(hoje)
-    d.setDate(d.getDate() - i)
-    const str = d.toISOString().split('T')[0]
+    const data = new Date(hoje)
+    data.setDate(data.getDate() - i)
+    const str = data.toISOString().split('T')[0]
     dias.push({ data: str, ativo: diasAtivos.has(str) })
   }
 
@@ -68,85 +69,138 @@ function StreakCalendar({ userId }: { userId: string }) {
 
   return (
     <div style={card}>
-      <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1F2E', margin: '0 0 16px 0' }}>
-        Atividade — últimas 12 semanas
-      </h2>
-      <div className="flex gap-1.5">
-        {semanas.map((semana, si) => (
-          <div key={si} className="flex flex-col gap-1.5">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
+        <CalendarDays size={18} strokeWidth={1.5} style={{ color: '#2E5FD4' }} />
+        <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#1A1F2E', margin: 0 }}>
+          Atividade das ultimas 12 semanas
+        </h2>
+      </div>
+
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        {semanas.map((semana, semanaIndex) => (
+          <div key={semanaIndex} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {semana.map((dia) => (
               <div
                 key={dia.data}
                 title={dia.data}
-                className="w-3.5 h-3.5 rounded-sm transition-colors"
-                style={{ backgroundColor: dia.ativo ? '#0D1B3E' : '#E8ECF2' }}
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  borderRadius: '6px',
+                  backgroundColor: dia.ativo ? '#0D1B3E' : '#E8ECF2',
+                }}
               />
             ))}
           </div>
         ))}
       </div>
-      <div className="flex items-center gap-2 mt-4">
-        <div className="w-3.5 h-3.5 rounded-sm" style={{ backgroundColor: '#E8ECF2' }} />
-        <span className="text-xs" style={{ color: '#9CA3AF' }}>Sem atividade</span>
-        <div className="w-3.5 h-3.5 rounded-sm ml-2" style={{ backgroundColor: '#0D1B3E' }} />
-        <span className="text-xs" style={{ color: '#9CA3AF' }}>Com atividade</span>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginTop: '22px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '16px', height: '16px', borderRadius: '5px', backgroundColor: '#E8ECF2' }} />
+          <span style={{ fontSize: '13px', color: '#6B7280' }}>Sem atividade</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '16px', height: '16px', borderRadius: '5px', backgroundColor: '#0D1B3E' }} />
+          <span style={{ fontSize: '13px', color: '#6B7280' }}>Com atividade</span>
+        </div>
       </div>
     </div>
   )
 }
 
-// ---------- Nível e XP ----------
 function NivelCard({ profile }: { profile: Profile }) {
   const nivel = getNivel(profile.xp)
-  const proximoNivel = NIVEIS.find((n) => n.nivel === nivel.nivel + 1)
+  const proximoNivel = NIVEIS.find((item) => item.nivel === nivel.nivel + 1)
   const progressoPct = proximoNivel
     ? Math.round(((profile.xp - nivel.xp_min) / (proximoNivel.xp_min - nivel.xp_min)) * 100)
     : 100
 
   return (
     <div style={card}>
-      <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1F2E', margin: '0 0 16px 0' }}>
-        Nível e XP
-      </h2>
-      <div className="flex items-center gap-6">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+        <Trophy size={18} strokeWidth={1.5} style={{ color: '#D97706' }} />
+        <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#1A1F2E', margin: 0 }}>
+          Nivel e XP
+        </h2>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '22px', flexWrap: 'wrap' }}>
         <div
-          className="w-16 h-16 rounded-full flex flex-col items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: '#0D1B3E' }}
+          style={{
+            width: '82px',
+            height: '82px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#0D1B3E',
+            color: '#FFFFFF',
+            fontSize: '34px',
+            fontWeight: 700,
+            flexShrink: 0,
+          }}
         >
-          <span className="text-white font-bold text-lg">{nivel.nivel}</span>
+          {nivel.nivel}
         </div>
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold" style={{ color: '#1A1F2E' }}>
-              {nivel.nome}
-            </span>
-            <span className="text-sm font-bold flex items-center gap-1.5" style={{ color: '#D97706' }}>
-              <Star size={14} strokeWidth={1.5} />
-              {profile.xp} XP
-            </span>
-          </div>
-          <div
-            className="w-full rounded-full overflow-hidden"
-            style={{ height: '8px', backgroundColor: '#E8ECF2' }}
-          >
+
+        <div style={{ flex: 1, minWidth: '280px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap', marginBottom: '10px' }}>
+            <div>
+              <p style={{ fontSize: '30px', fontWeight: 700, color: '#1A1F2E', margin: '0 0 2px 0', lineHeight: 1.1 }}>
+                {nivel.nome}
+              </p>
+              {proximoNivel && (
+                <p style={{ fontSize: '15px', color: '#9CA3AF', margin: 0 }}>
+                  Faltam {proximoNivel.xp_min - profile.xp} XP para {proximoNivel.nome}
+                </p>
+              )}
+            </div>
+
             <div
-              className="h-full rounded-full transition-all duration-700"
-              style={{ width: `${progressoPct}%`, backgroundColor: '#0D1B3E' }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 14px',
+                borderRadius: '14px',
+                backgroundColor: '#FFF8DB',
+                color: '#D97706',
+                fontSize: '16px',
+                fontWeight: 700,
+              }}
+            >
+              <Star size={16} strokeWidth={1.5} />
+              {profile.xp} XP
+            </div>
+          </div>
+
+          <div style={{ width: '100%', borderRadius: '999px', overflow: 'hidden', height: '10px', backgroundColor: '#E8ECF2', marginBottom: '14px' }}>
+            <div
+              style={{
+                width: `${progressoPct}%`,
+                height: '100%',
+                borderRadius: '999px',
+                backgroundColor: '#0D1B3E',
+              }}
             />
           </div>
-          {proximoNivel && (
-            <p className="text-xs mt-1.5" style={{ color: '#9CA3AF' }}>
-              {proximoNivel.xp_min - profile.xp} XP para {proximoNivel.nome}
-            </p>
-          )}
-          <div className="flex items-center gap-4 mt-3">
-            <span
-              className="flex items-center gap-1.5 text-sm px-3 py-1 rounded-full font-medium"
-              style={{ backgroundColor: '#FEF3C7', color: '#D97706' }}
-            >
-              <Flame size={14} strokeWidth={1.5} />
-              {profile.streak_days} {profile.streak_days === 1 ? 'dia seguido' : 'dias seguidos'}
-            </span>
+
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 14px',
+              borderRadius: '999px',
+              backgroundColor: '#FFF4D6',
+              color: '#D97706',
+              fontSize: '15px',
+              fontWeight: 600,
+            }}
+          >
+            <Flame size={16} strokeWidth={1.5} />
+            {profile.streak_days} {profile.streak_days === 1 ? 'dia seguido' : 'dias seguidos'}
           </div>
         </div>
       </div>
@@ -154,7 +208,85 @@ function NivelCard({ profile }: { profile: Profile }) {
   )
 }
 
-// ---------- Página principal ----------
+function HistoricoQuizzes({ historico }: { historico: QuizHistorico[] }) {
+  return (
+    <div style={card}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+        <BarChart3 size={18} strokeWidth={1.5} style={{ color: '#2E5FD4' }} />
+        <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#1A1F2E', margin: 0 }}>
+          Historico de quizzes
+        </h2>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {historico.map((item) => {
+          const pct = item.percentual_acerto ?? 0
+          return (
+            <div
+              key={item.id}
+              style={{
+                border: '1px solid #E8ECF2',
+                borderRadius: '16px',
+                padding: '18px 20px',
+                display: 'grid',
+                gridTemplateColumns: 'minmax(0, 1.8fr) repeat(3, minmax(90px, auto))',
+                gap: '16px',
+                alignItems: 'center',
+                backgroundColor: '#FCFDFF',
+              }}
+            >
+              <div style={{ minWidth: 0 }}>
+                <p style={{ fontSize: '16px', fontWeight: 600, color: '#1A1F2E', margin: '0 0 6px 0', lineHeight: 1.45 }}>
+                  {item.aula_titulo}
+                </p>
+                <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
+                  Quiz concluido
+                </p>
+              </div>
+
+              <div>
+                <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Score
+                </p>
+                <p style={{ fontSize: '19px', fontWeight: 700, color: corDominio(pct), margin: 0 }}>
+                  {item.acertos}/{item.total_perguntas}
+                </p>
+                <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '2px 0 0 0' }}>
+                  {Math.round(pct)}%
+                </p>
+              </div>
+
+              <div>
+                <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  XP
+                </p>
+                <p style={{ fontSize: '19px', fontWeight: 700, color: '#D97706', margin: 0 }}>
+                  +{item.xp_ganho}
+                </p>
+              </div>
+
+              <div>
+                <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Data
+                </p>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: '#6B7280', margin: 0 }}>
+                  {item.completed_at
+                    ? new Date(item.completed_at).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                      })
+                    : 'Sem data'}
+                </p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export function Progresso() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [dominio, setDominio] = useState<UserDominio[]>([])
@@ -185,18 +317,19 @@ export function Progresso() {
       setProfile(profileData)
       setDominio(dominioData ?? [])
       setHistorico(
-        (progressoData ?? []).map((p) => ({
-          id: p.id,
-          aula_titulo: (p.aulas as { titulo: string } | null)?.titulo ?? '—',
-          acertos: p.acertos,
-          total_perguntas: p.total_perguntas,
-          percentual_acerto: p.percentual_acerto,
-          xp_ganho: p.xp_ganho,
-          completed_at: p.completed_at,
+        (progressoData ?? []).map((item) => ({
+          id: item.id,
+          aula_titulo: (item.aulas as { titulo: string } | null)?.titulo ?? 'Sem titulo',
+          acertos: item.acertos,
+          total_perguntas: item.total_perguntas,
+          percentual_acerto: item.percentual_acerto,
+          xp_ganho: item.xp_ganho,
+          completed_at: item.completed_at,
         }))
       )
       setLoading(false)
     }
+
     load()
   }, [])
 
@@ -211,54 +344,51 @@ export function Progresso() {
   if (!profile) return null
 
   return (
-    <div className="p-8 max-w-4xl mx-auto flex flex-col gap-6">
-      <div>
-        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#1A1F2E', margin: '0 0 6px 0' }}>
+    <div style={{ maxWidth: '1120px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ marginBottom: '6px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1A1F2E', margin: '0 0 8px 0', lineHeight: 1.1 }}>
           Meu Progresso
         </h1>
-        <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 32px 0' }}>
-          Acompanhe sua evolução na plataforma
+        <p style={{ fontSize: '15px', color: '#6B7280', margin: 0 }}>
+          Acompanhe sua evolucao na plataforma
         </p>
       </div>
 
-      {/* Nível e XP */}
       <NivelCard profile={profile} />
 
-      {/* Domínio por tema */}
       {dominio.length > 0 && (
         <div style={card}>
-          <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1F2E', margin: '0 0 16px 0' }}>
-            Domínio por tema
-          </h2>
-          <div className="flex flex-col gap-4">
-            {dominio.map((d) => (
-              <div key={d.id} className="flex items-center gap-4">
-                <span
-                  className="text-sm w-36 flex-shrink-0 truncate"
-                  style={{ color: '#6B7280' }}
-                >
-                  {d.topico}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+            <BarChart3 size={18} strokeWidth={1.5} style={{ color: '#2E5FD4' }} />
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#1A1F2E', margin: 0 }}>
+              Dominio por tema
+            </h2>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            {dominio.map((item) => (
+              <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '180px minmax(0, 1fr) 68px 64px', gap: '18px', alignItems: 'center' }}>
+                <span style={{ fontSize: '15px', color: '#4B5563', lineHeight: 1.4 }}>
+                  {item.topico}
                 </span>
-                <div
-                  className="flex-1 rounded-full overflow-hidden"
-                  style={{ height: '6px', backgroundColor: '#E8ECF2' }}
-                >
+
+                <div style={{ width: '100%', borderRadius: '999px', overflow: 'hidden', height: '8px', backgroundColor: '#E8ECF2' }}>
                   <div
-                    className="h-full rounded-full animate-growWidth"
                     style={{
-                      width: `${d.percentual}%`,
-                      backgroundColor: corDominio(Number(d.percentual)),
+                      width: `${item.percentual}%`,
+                      height: '100%',
+                      borderRadius: '999px',
+                      backgroundColor: corDominio(Number(item.percentual)),
                     }}
                   />
                 </div>
-                <span
-                  className="text-sm font-semibold w-12 text-right flex-shrink-0"
-                  style={{ color: corDominio(Number(d.percentual)) }}
-                >
-                  {Math.round(Number(d.percentual))}%
+
+                <span style={{ fontSize: '15px', fontWeight: 700, textAlign: 'right', color: corDominio(Number(item.percentual)) }}>
+                  {Math.round(Number(item.percentual))}%
                 </span>
-                <span className="text-xs w-16 text-right flex-shrink-0" style={{ color: '#9CA3AF' }}>
-                  {d.acertos}/{d.total}
+
+                <span style={{ fontSize: '13px', textAlign: 'right', color: '#9CA3AF' }}>
+                  {item.acertos}/{item.total}
                 </span>
               </div>
             ))}
@@ -266,91 +396,16 @@ export function Progresso() {
         </div>
       )}
 
-      {/* Calendário de streak */}
       <StreakCalendar userId={profile.id} />
 
-      {/* Histórico de quizzes */}
-      {historico.length > 0 && (
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{ border: '1px solid #E8ECF2' }}
-        >
-          <div className="px-6 py-4" style={{ backgroundColor: '#FFFFFF' }}>
-            <h2 className="text-base font-semibold" style={{ color: '#1A1F2E' }}>
-              Histórico de quizzes
-            </h2>
-          </div>
-          <table className="w-full text-sm">
-            <thead style={{ backgroundColor: '#F5F6FA' }}>
-              <tr>
-                {['Aula', 'Score', 'XP', 'Data'].map((h) => (
-                  <th
-                    key={h}
-                    className="text-left px-5 py-3 text-xs font-semibold"
-                    style={{ color: '#9CA3AF', borderTop: '1px solid #E8ECF2', borderBottom: '1px solid #E8ECF2' }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {historico.map((h, i) => {
-                const pct = h.percentual_acerto ?? 0
-                return (
-                  <tr
-                    key={h.id}
-                    style={{
-                      backgroundColor: '#FFFFFF',
-                      borderBottom: i < historico.length - 1 ? '1px solid #F5F6FA' : 'none',
-                    }}
-                  >
-                    <td
-                      className="px-5 py-3 max-w-xs truncate font-medium"
-                      style={{ color: '#1A1F2E' }}
-                    >
-                      {h.aula_titulo}
-                    </td>
-                    <td className="px-5 py-3">
-                      <span
-                        className="font-semibold"
-                        style={{ color: corDominio(pct) }}
-                      >
-                        {h.acertos}/{h.total_perguntas}
-                      </span>
-                      <span className="text-xs ml-1" style={{ color: '#9CA3AF' }}>
-                        ({Math.round(pct)}%)
-                      </span>
-                    </td>
-                    <td className="px-5 py-3" style={{ color: '#D97706' }}>
-                      +{h.xp_ganho}
-                    </td>
-                    <td className="px-5 py-3 text-xs" style={{ color: '#9CA3AF' }}>
-                      {h.completed_at
-                        ? new Date(h.completed_at).toLocaleDateString('pt-BR', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                          })
-                        : '—'}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {historico.length > 0 && <HistoricoQuizzes historico={historico} />}
 
       {historico.length === 0 && dominio.length === 0 && (
-        <div
-          className="rounded-xl p-12 text-center"
-          style={{ backgroundColor: '#FFFFFF', border: '1px solid #E8ECF2' }}
-        >
-          <p className="text-base font-medium mb-2" style={{ color: '#6B7280' }}>
+        <div style={{ ...card, textAlign: 'center', padding: '56px 32px' }}>
+          <p style={{ fontSize: '18px', fontWeight: 600, color: '#6B7280', margin: '0 0 8px 0' }}>
             Nenhuma atividade registrada ainda
           </p>
-          <p className="text-sm" style={{ color: '#9CA3AF' }}>
+          <p style={{ fontSize: '14px', color: '#9CA3AF', margin: 0 }}>
             Complete aulas e quizzes para ver seu progresso aqui.
           </p>
         </div>

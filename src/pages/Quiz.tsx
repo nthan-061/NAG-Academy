@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { X, CheckCircle, XCircle, ChevronRight, BookOpen, Layers } from 'lucide-react'
+import { X, CheckCircle, XCircle, ChevronRight, BookOpen, Layers, Target, Sparkles } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { XPToast } from '@/components/ui/Toast'
 import { XP as XP_VALUES } from '@/lib/xp'
@@ -15,7 +15,6 @@ interface RespostaInfo {
   topico: string
 }
 
-// ---------- Opção do quiz ----------
 function OpcaoQuiz({
   texto,
   index,
@@ -40,16 +39,23 @@ function OpcaoQuiz({
   let icon = null
 
   if (confirmado && selecionada && correta) {
-    bg = '#F0FDF4'; borderColor = '#16A34A'; textColor = '#16A34A'
+    bg = '#F0FDF4'
+    borderColor = '#16A34A'
+    textColor = '#16A34A'
     icon = <CheckCircle size={18} strokeWidth={1.5} style={{ color: '#16A34A', flexShrink: 0 }} />
   } else if (confirmado && selecionada && !correta) {
-    bg = '#FEF2F2'; borderColor = '#DC2626'; textColor = '#DC2626'
+    bg = '#FEF2F2'
+    borderColor = '#DC2626'
+    textColor = '#DC2626'
     icon = <XCircle size={18} strokeWidth={1.5} style={{ color: '#DC2626', flexShrink: 0 }} />
   } else if (confirmado && correta) {
-    bg = '#F0FDF4'; borderColor = '#16A34A'; textColor = '#16A34A'
+    bg = '#F0FDF4'
+    borderColor = '#16A34A'
+    textColor = '#16A34A'
     icon = <CheckCircle size={18} strokeWidth={1.5} style={{ color: '#16A34A', flexShrink: 0 }} />
   } else if (!confirmado && selecionada) {
-    bg = '#EBF0FA'; borderColor = '#2E5FD4'
+    bg = '#EBF0FA'
+    borderColor = '#2E5FD4'
   }
 
   const letterBg = selecionada || (confirmado && correta) ? borderColor : '#E8ECF2'
@@ -60,38 +66,44 @@ function OpcaoQuiz({
       onClick={confirmado ? undefined : onSelect}
       disabled={confirmado}
       style={{
-        width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
-        padding: '16px 20px', borderRadius: '12px', textAlign: 'left',
-        border: `1px solid ${borderColor}`, backgroundColor: bg, color: textColor,
-        cursor: confirmado ? 'default' : 'pointer', fontFamily: 'inherit',
-        transition: 'border-color 0.15s',
-      }}
-      onMouseEnter={(e) => {
-        if (!confirmado && !selecionada)
-          (e.currentTarget as HTMLElement).style.borderColor = '#0D1B3E'
-      }}
-      onMouseLeave={(e) => {
-        if (!confirmado && !selecionada)
-          (e.currentTarget as HTMLElement).style.borderColor = borderColor
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        padding: '16px 20px',
+        borderRadius: '14px',
+        textAlign: 'left',
+        border: `1px solid ${borderColor}`,
+        backgroundColor: bg,
+        color: textColor,
+        cursor: confirmado ? 'default' : 'pointer',
+        fontFamily: 'inherit',
+        transition: 'border-color 0.15s, transform 0.15s',
       }}
     >
       <span
         style={{
-          width: '32px', height: '32px', borderRadius: '8px', flexShrink: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '12px', fontWeight: 700,
-          backgroundColor: letterBg, color: letterColor,
+          width: '34px',
+          height: '34px',
+          borderRadius: '10px',
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '12px',
+          fontWeight: 700,
+          backgroundColor: letterBg,
+          color: letterColor,
         }}
       >
         {letras[index]}
       </span>
-      <span style={{ flex: 1, fontSize: '14px', lineHeight: '1.6' }}>{texto}</span>
+      <span style={{ flex: 1, fontSize: '14px', lineHeight: '1.65' }}>{texto}</span>
       {icon}
     </button>
   )
 }
 
-// ---------- Tela de resultado ----------
 function TelaResultado({
   acertos,
   total,
@@ -112,84 +124,180 @@ function TelaResultado({
 
   useEffect(() => {
     onShowToast()
-    const step = Math.ceil(acertos / 30)
+
+    const step = Math.max(1, Math.ceil(acertos / 24))
     let current = 0
     const interval = setInterval(() => {
       current = Math.min(current + step, acertos)
       setScore(current)
       if (current >= acertos) clearInterval(interval)
-    }, 40)
+    }, 32)
+
     return () => clearInterval(interval)
   }, [acertos, onShowToast])
 
-  const pct = Math.round((acertos / total) * 100)
+  const pct = total > 0 ? Math.round((acertos / total) * 100) : 0
+  const titulo =
+    pct >= 80 ? 'Excelente resultado' :
+    pct >= 60 ? 'Bom resultado' :
+    'Continue praticando'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '32px 0', textAlign: 'center' }} className="animate-slideUp">
-      {/* Score animado */}
+    <div
+      className="animate-slideUp"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '28px',
+        padding: '8px 0',
+        textAlign: 'center',
+      }}
+    >
       <div
-        className="w-32 h-32 rounded-full flex flex-col items-center justify-center"
-        style={{ background: `conic-gradient(#0D1B3E ${pct * 3.6}deg, #E8ECF2 0deg)` }}
+        style={{
+          width: '164px',
+          height: '164px',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: `conic-gradient(#0D1B3E ${pct * 3.6}deg, #E8ECF2 0deg)`,
+          boxShadow: '0 18px 40px rgba(13,27,62,0.12)',
+        }}
       >
-        <div className="w-24 h-24 rounded-full flex flex-col items-center justify-center bg-white">
-          <span className="text-2xl font-bold" style={{ color: '#1A1F2E' }}>
+        <div
+          style={{
+            width: '120px',
+            height: '120px',
+            borderRadius: '50%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#FFFFFF',
+          }}
+        >
+          <span style={{ fontSize: '42px', fontWeight: 700, color: '#1A1F2E', lineHeight: 1 }}>
             {score}
           </span>
-          <span className="text-xs" style={{ color: '#9CA3AF' }}>de {total}</span>
+          <span style={{ fontSize: '13px', color: '#9CA3AF', marginTop: '4px' }}>
+            de {total}
+          </span>
         </div>
       </div>
 
-      <div>
-        <h2 className="text-xl font-semibold mb-1" style={{ color: '#1A1F2E' }}>
-          {pct >= 80 ? 'Excelente trabalho!' : pct >= 60 ? 'Bom resultado!' : 'Continue praticando!'}
+      <div style={{ maxWidth: '440px' }}>
+        <h2 style={{ fontSize: '38px', fontWeight: 700, margin: '0 0 10px 0', lineHeight: 1.05 }}>
+          {titulo}
         </h2>
-        <p className="text-sm" style={{ color: '#6B7280' }}>
-          Você acertou {acertos} de {total} questões
+        <p style={{ fontSize: '18px', color: '#6B7280', margin: 0 }}>
+          Voce acertou {acertos} de {total} questoes.
         </p>
       </div>
 
-      {/* Stats */}
-      <div className="flex gap-6">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: flashcardsCount > 0 ? 'repeat(2, minmax(180px, 1fr))' : 'minmax(220px, 1fr)',
+          gap: '16px',
+          width: '100%',
+          maxWidth: flashcardsCount > 0 ? '520px' : '260px',
+        }}
+      >
         <div
-          className="flex flex-col items-center gap-1 px-6 py-4 rounded-xl"
-          style={{ backgroundColor: '#FEF9C3' }}
+          style={{
+            padding: '18px 20px',
+            borderRadius: '18px',
+            background: 'linear-gradient(135deg, #FFF8DB 0%, #FFF0B5 100%)',
+            border: '1px solid #FDE68A',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '6px',
+          }}
         >
-          <span className="text-2xl font-bold" style={{ color: '#D4A017' }}>
+          <Sparkles size={20} style={{ color: '#D97706' }} />
+          <span style={{ fontSize: '36px', fontWeight: 700, color: '#D4A017', lineHeight: 1 }}>
             +{xpGanho}
           </span>
-          <span className="text-xs" style={{ color: '#D97706' }}>XP ganhos</span>
+          <span style={{ fontSize: '13px', color: '#B45309', fontWeight: 600 }}>XP ganhos</span>
         </div>
+
         {flashcardsCount > 0 && (
           <div
-            className="flex flex-col items-center gap-1 px-6 py-4 rounded-xl"
-            style={{ backgroundColor: '#EBF0FA' }}
+            style={{
+              padding: '18px 20px',
+              borderRadius: '18px',
+              background: 'linear-gradient(135deg, #EEF4FF 0%, #E4EEFF 100%)',
+              border: '1px solid #BFD1FF',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '6px',
+            }}
           >
-            <span className="text-2xl font-bold" style={{ color: '#2E5FD4' }}>
+            <Layers size={20} style={{ color: '#2E5FD4' }} />
+            <span style={{ fontSize: '36px', fontWeight: 700, color: '#2E5FD4', lineHeight: 1 }}>
               {flashcardsCount}
             </span>
-            <span className="text-xs" style={{ color: '#2E5FD4' }}>flashcards criados</span>
+            <span style={{ fontSize: '13px', color: '#2E5FD4', fontWeight: 600 }}>Flashcards criados</span>
           </div>
         )}
       </div>
 
-      {/* Ações */}
-      <div className="flex gap-3 flex-wrap justify-center">
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '560px',
+          display: 'flex',
+          gap: '12px',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+        }}
+      >
         {flashcardsCount > 0 && (
           <button
             onClick={() => navigate('/flashcards')}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-            style={{ backgroundColor: '#EBF0FA', color: '#2E5FD4', border: '1px solid #2E5FD4' }}
+            style={{
+              flex: '1 1 240px',
+              minHeight: '50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              padding: '0 18px',
+              borderRadius: '12px',
+              border: '1px solid #2E5FD4',
+              backgroundColor: '#EEF4FF',
+              color: '#2E5FD4',
+              fontSize: '15px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
           >
             <Layers size={16} strokeWidth={1.5} />
             Revisar flashcards agora
           </button>
         )}
+
         <Link
           to={`/aula/${aulaId}`}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-colors"
-          style={{ backgroundColor: '#0D1B3E' }}
-          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1E3A6E' }}
-          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#0D1B3E' }}
+          style={{
+            flex: '1 1 240px',
+            minHeight: '50px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            padding: '0 18px',
+            borderRadius: '12px',
+            backgroundColor: '#0D1B3E',
+            color: '#FFFFFF',
+            fontSize: '15px',
+            fontWeight: 600,
+            textDecoration: 'none',
+          }}
         >
           <BookOpen size={16} strokeWidth={1.5} />
           Voltar para a aula
@@ -200,7 +308,6 @@ function TelaResultado({
   )
 }
 
-// ---------- Página principal ----------
 export function Quiz() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -222,19 +329,23 @@ export function Quiz() {
 
     async function load() {
       const [{ data: aulaData }, { data: { user } }] = await Promise.all([
-        supabase.from('aulas').select('*').eq('id', id!).single(),
+        supabase.from('aulas').select('*').eq('id', id).single(),
         supabase.auth.getUser(),
       ])
 
-      if (!aulaData) { setLoading(false); return }
+      if (!aulaData) {
+        setLoading(false)
+        return
+      }
+
       setAula(aulaData)
 
-      const { data: pData } = await supabase
+      const { data: perguntasData } = await supabase
         .from('quiz_perguntas')
         .select('*')
-        .eq('aula_id', id!)
+        .eq('aula_id', id)
 
-      const shuffled = (pData ?? []).sort(() => Math.random() - 0.5).slice(0, 10)
+      const shuffled = (perguntasData ?? []).sort(() => Math.random() - 0.5).slice(0, 10)
       setPerguntas(shuffled)
 
       if (user) setUserId(user.id)
@@ -249,6 +360,7 @@ export function Quiz() {
 
   function confirmar() {
     if (selecionada === null || !perguntaAtual) return
+
     const correta = selecionada === perguntaAtual.resposta_correta
     setRespostas((prev) => [
       ...prev,
@@ -264,7 +376,7 @@ export function Quiz() {
 
   async function proxima() {
     if (indice < totalPerguntas - 1) {
-      setIndice((i) => i + 1)
+      setIndice((value) => value + 1)
       setSelecionada(null)
       setEstado('respondendo')
     } else {
@@ -276,7 +388,7 @@ export function Quiz() {
   async function finalizarQuiz() {
     if (!userId || !id) return
 
-    const acertos = respostas.filter((r) => r.correta).length
+    const acertos = respostas.filter((resposta) => resposta.correta).length
     const total = respostas.length
     const pct = total > 0 ? Math.round((acertos / total) * 100) : 0
     const perfeito = acertos === total
@@ -289,11 +401,11 @@ export function Quiz() {
     setXpGanho(xp)
 
     await supabase.from('user_respostas').insert(
-      respostas.map((r) => ({
+      respostas.map((resposta) => ({
         user_id: userId,
-        pergunta_id: r.perguntaId,
-        resposta_escolhida: r.escolhida,
-        correta: r.correta,
+        pergunta_id: resposta.perguntaId,
+        resposta_escolhida: resposta.escolhida,
+        correta: resposta.correta,
       }))
     )
 
@@ -320,10 +432,11 @@ export function Quiz() {
 
     const hoje = new Date().toISOString().split('T')[0]
     const ultimaAtividade = profile?.last_activity_date
+    const ontem = new Date(Date.now() - 86400000).toISOString().split('T')[0]
     const novoStreak =
       ultimaAtividade === hoje
         ? profile?.streak_days ?? 1
-        : ultimaAtividade === new Date(Date.now() - 86400000).toISOString().split('T')[0]
+        : ultimaAtividade === ontem
         ? (profile?.streak_days ?? 0) + 1
         : 1
 
@@ -333,14 +446,14 @@ export function Quiz() {
       .eq('id', userId)
 
     const topicosMap: Record<string, { acertos: number; total: number }> = {}
-    respostas.forEach((r) => {
-      const t = r.topico
-      if (!topicosMap[t]) topicosMap[t] = { acertos: 0, total: 0 }
-      topicosMap[t].total++
-      if (r.correta) topicosMap[t].acertos++
+    respostas.forEach((resposta) => {
+      const topico = resposta.topico
+      if (!topicosMap[topico]) topicosMap[topico] = { acertos: 0, total: 0 }
+      topicosMap[topico].total++
+      if (resposta.correta) topicosMap[topico].acertos++
     })
 
-    for (const [topico, vals] of Object.entries(topicosMap)) {
+    for (const [topico, valores] of Object.entries(topicosMap)) {
       const { data: existing } = await supabase
         .from('user_dominio')
         .select('*')
@@ -348,8 +461,8 @@ export function Quiz() {
         .eq('topico', topico)
         .maybeSingle()
 
-      const novoTotal = (existing?.total ?? 0) + vals.total
-      const novosAcertos = (existing?.acertos ?? 0) + vals.acertos
+      const novoTotal = (existing?.total ?? 0) + valores.total
+      const novosAcertos = (existing?.acertos ?? 0) + valores.acertos
       const novoPct = novoTotal > 0 ? Math.round((novosAcertos / novoTotal) * 100) : 0
 
       await supabase.from('user_dominio').upsert(
@@ -365,21 +478,22 @@ export function Quiz() {
       )
     }
 
-    const erros = respostas.filter((r) => !r.correta)
+    const erros = respostas.filter((resposta) => !resposta.correta)
     if (erros.length > 0) {
       const perguntasMap: Record<string, QuizPergunta> = {}
-      perguntas.forEach((p) => { perguntasMap[p.id] = p })
+      perguntas.forEach((pergunta) => { perguntasMap[pergunta.id] = pergunta })
 
       const flashcards = erros
-        .map((r) => {
-          const p = perguntasMap[r.perguntaId]
-          if (!p) return null
+        .map((resposta) => {
+          const pergunta = perguntasMap[resposta.perguntaId]
+          if (!pergunta) return null
+
           return {
             user_id: userId,
-            pergunta_id: p.id,
-            frente: p.pergunta,
-            verso: `${p.opcoes[p.resposta_correta]}\n\n${p.explicacao}`,
-            topico: p.topico ?? 'Geral',
+            pergunta_id: pergunta.id,
+            frente: pergunta.pergunta,
+            verso: `${pergunta.opcoes[pergunta.resposta_correta]}\n\n${pergunta.explicacao}`,
+            topico: pergunta.topico ?? 'Geral',
             proxima_revisao: new Date().toISOString().split('T')[0],
           }
         })
@@ -404,7 +518,7 @@ export function Quiz() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ backgroundColor: '#F5F6FA' }}>
         <p className="text-base font-medium" style={{ color: '#1A1F2E' }}>
-          Nenhuma pergunta disponível para esta aula.
+          Nenhuma pergunta disponivel para esta aula.
         </p>
         <Link to={`/aula/${id}`} className="text-sm" style={{ color: '#2E5FD4' }}>
           Voltar para a aula
@@ -414,13 +528,17 @@ export function Quiz() {
   }
 
   return (
-    <div style={{ marginLeft: '240px', paddingTop: '56px', minHeight: 'calc(100vh - 56px)', backgroundColor: '#F5F6FA' }}>
-      {/* Header do quiz */}
+    <div style={{ marginLeft: '236px', paddingTop: '64px', minHeight: '100vh', backgroundColor: '#F5F6FA' }}>
       <div
         style={{
-          position: 'sticky', top: '56px', zIndex: 10,
-          height: '56px', padding: '0 24px',
-          display: 'flex', alignItems: 'center', gap: '16px',
+          position: 'sticky',
+          top: '64px',
+          zIndex: 10,
+          height: '64px',
+          padding: '0 28px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
           backgroundColor: '#FFFFFF',
           borderBottom: '1px solid #E8ECF2',
           boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
@@ -428,51 +546,64 @@ export function Quiz() {
       >
         <button
           onClick={() => {
-            if (confirm('Sair do quiz? Seu progresso será perdido.')) navigate(`/aula/${id}`)
+            if (confirm('Sair do quiz? Seu progresso sera perdido.')) navigate(`/aula/${id}`)
           }}
-          className="p-1.5 rounded-lg transition-colors hover:bg-[#EBF0FA]"
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '10px',
+            border: 'none',
+            backgroundColor: '#F8FAFC',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
           <X size={20} strokeWidth={1.5} style={{ color: '#6B7280' }} />
         </button>
 
-        <div className="flex-1 flex flex-col gap-1">
-          <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>
-            {estado !== 'resultado'
-              ? `Pergunta ${indice + 1} de ${totalPerguntas}`
-              : 'Resultado final'}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <p style={{ fontSize: '12px', fontWeight: 600, color: '#9CA3AF', margin: 0 }}>
+            {estado !== 'resultado' ? `Pergunta ${indice + 1} de ${totalPerguntas}` : 'Resultado final'}
           </p>
+
           {estado !== 'resultado' && (
-            <div className="w-full rounded-full overflow-hidden" style={{ height: '4px', backgroundColor: '#E8ECF2' }}>
+            <div style={{ width: '100%', borderRadius: '999px', overflow: 'hidden', height: '6px', backgroundColor: '#E8ECF2' }}>
               <div
-                className="h-full rounded-full transition-all duration-300"
                 style={{
                   width: `${((indice + (estado === 'confirmado' ? 1 : 0)) / totalPerguntas) * 100}%`,
+                  height: '100%',
+                  borderRadius: '999px',
                   backgroundColor: '#0D1B3E',
+                  transition: 'width 0.3s',
                 }}
               />
             </div>
           )}
         </div>
 
-        <span className="text-xs font-medium" style={{ color: '#9CA3AF' }}>
-          {aula.titulo.slice(0, 30)}{aula.titulo.length > 30 ? '...' : ''}
+        <span style={{ fontSize: '12px', fontWeight: 600, color: '#9CA3AF' }}>
+          {aula.titulo.slice(0, 36)}{aula.titulo.length > 36 ? '...' : ''}
         </span>
       </div>
 
-      {/* Conteúdo */}
-      <div style={{ padding: '32px 16px', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', minHeight: 'calc(100vh - 112px)' }}>
+      <div style={{ padding: '36px 20px', display: 'flex', justifyContent: 'center' }}>
         <div
           className="animate-slideUp"
           style={{
-            width: '100%', maxWidth: '672px',
-            borderRadius: '16px', padding: '40px',
+            width: '100%',
+            maxWidth: estado === 'resultado' ? '860px' : '760px',
+            borderRadius: '24px',
+            padding: estado === 'resultado' ? '52px 48px' : '40px',
             backgroundColor: '#FFFFFF',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
+            boxShadow: '0 20px 50px rgba(10,22,40,0.08)',
+            border: '1px solid #E8ECF2',
           }}
         >
           {estado === 'resultado' ? (
             <TelaResultado
-              acertos={respostas.filter((r) => r.correta).length}
+              acertos={respostas.filter((resposta) => resposta.correta).length}
               total={respostas.length}
               xpGanho={xpGanho}
               flashcardsCount={flashcardsCount}
@@ -481,76 +612,82 @@ export function Quiz() {
             />
           ) : (
             <>
-              <p style={{ fontSize: '18px', fontWeight: 600, color: '#1A1F2E', margin: '0 0 32px 0', lineHeight: '1.5' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
+                <Target size={18} strokeWidth={1.5} style={{ color: '#2E5FD4' }} />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#6B7280' }}>
+                  Responda com calma e foque no entendimento
+                </span>
+              </div>
+
+              <p style={{ fontSize: '24px', fontWeight: 700, color: '#1A1F2E', margin: '0 0 32px 0', lineHeight: '1.45', letterSpacing: '-0.02em' }}>
                 {perguntaAtual?.pergunta}
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
-                {perguntaAtual?.opcoes.map((opcao, i) => (
+                {perguntaAtual?.opcoes.map((opcao, index) => (
                   <OpcaoQuiz
-                    key={i}
+                    key={index}
                     texto={opcao}
-                    index={i}
+                    index={index}
                     estado={estado}
-                    selecionada={selecionada === i}
-                    correta={i === perguntaAtual.resposta_correta}
-                    onSelect={() => setSelecionada(i)}
+                    selecionada={selecionada === index}
+                    correta={index === perguntaAtual.resposta_correta}
+                    onSelect={() => setSelecionada(index)}
                   />
                 ))}
               </div>
 
-              {/* Feedback */}
               {estado === 'confirmado' && (
                 <div
                   className="animate-slideUp"
                   style={{
                     backgroundColor: respostas.at(-1)?.correta ? '#F0FDF4' : '#FEF2F2',
                     border: `1px solid ${respostas.at(-1)?.correta ? '#86EFAC' : '#FECACA'}`,
-                    padding: '16px 20px', borderRadius: '10px', marginBottom: '24px',
+                    padding: '18px 20px',
+                    borderRadius: '14px',
+                    marginBottom: '24px',
                   }}
                 >
-                  <p
-                    className="font-semibold text-sm mb-1"
-                    style={{ color: respostas.at(-1)?.correta ? '#16A34A' : '#DC2626' }}
-                  >
-                    <span className="flex items-center gap-1.5">
+                  <p style={{ fontWeight: 700, fontSize: '14px', margin: '0 0 8px 0', color: respostas.at(-1)?.correta ? '#16A34A' : '#DC2626' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                       {respostas.at(-1)?.correta
-                        ? <><CheckCircle size={15} strokeWidth={1.5} /> Correto!</>
+                        ? <><CheckCircle size={15} strokeWidth={1.5} /> Correto</>
                         : <><XCircle size={15} strokeWidth={1.5} /> Incorreto</>
                       }
                     </span>
                   </p>
-                  <p className="text-sm leading-relaxed" style={{ color: '#6B7280' }}>
+                  <p style={{ fontSize: '14px', lineHeight: '1.75', color: '#6B7280', margin: 0 }}>
                     {perguntaAtual?.explicacao}
                   </p>
                   {!respostas.at(-1)?.correta && (
-                    <p className="flex items-center gap-1.5 text-xs mt-2 font-medium" style={{ color: '#2E5FD4' }}>
+                    <p style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginTop: '10px', fontWeight: 600, color: '#2E5FD4' }}>
                       <BookOpen size={13} strokeWidth={1.5} />
-                      Este flashcard foi adicionado à sua revisão
+                      Este flashcard foi adicionado a sua revisao
                     </p>
                   )}
                 </div>
               )}
 
-              {/* Botão */}
               <button
                 onClick={estado === 'respondendo' ? confirmar : proxima}
                 disabled={selecionada === null && estado === 'respondendo'}
                 style={{
-                  width: '100%', height: '48px', borderRadius: '12px', border: 'none',
+                  width: '100%',
+                  height: '52px',
+                  borderRadius: '14px',
+                  border: 'none',
                   backgroundColor: (selecionada === null && estado === 'respondendo') ? '#E8ECF2' : '#0D1B3E',
                   color: (selecionada === null && estado === 'respondendo') ? '#9CA3AF' : '#FFFFFF',
-                  fontSize: '15px', fontWeight: 600, cursor: (selecionada === null && estado === 'respondendo') ? 'not-allowed' : 'pointer',
+                  fontSize: '15px',
+                  fontWeight: 700,
+                  cursor: (selecionada === null && estado === 'respondendo') ? 'not-allowed' : 'pointer',
                   fontFamily: 'inherit',
-                  transition: 'background-color 0.15s',
                 }}
-                onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = '#1E3A6E' }}
-                onMouseLeave={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = '#0D1B3E' }}
               >
                 {estado === 'respondendo'
                   ? 'Confirmar resposta'
                   : indice < totalPerguntas - 1
-                  ? 'Próxima pergunta'
+                  ? 'Proxima pergunta'
                   : 'Ver resultado'}
               </button>
             </>
