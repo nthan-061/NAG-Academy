@@ -50,54 +50,60 @@ export function MentorInsights({
 }: MentorInsightsProps) {
   return (
     <div className="flex flex-col gap-7">
-      <Card className="overflow-hidden border-border/70 p-0 shadow-[0_18px_44px_rgba(10,22,40,0.07)]">
-        <div className="grid gap-0 xl:grid-cols-[minmax(0,1.18fr),380px]">
-          <div className="px-7 py-7 md:px-8 md:py-8">
-            <div className="flex flex-wrap items-start gap-3">
-              <Badge variant={analysis ? statusVariant[analysis.status] : 'default'}>
-                {analysis?.status === 'critical' ? 'Estado critico' : analysis?.status === 'attention' ? 'Momento de atencao' : 'Bom momento'}
-              </Badge>
-              {profile?.evolutionTrend.direction === 'declining' && (
-                <div className="inline-flex items-center gap-1 rounded-full bg-danger-soft px-3 py-1.5 text-xs font-semibold text-danger">
-                  <TrendingDown size={12} />
-                  ritmo em queda
-                </div>
-              )}
-            </div>
-
-            <h2 className="mt-5 text-[2rem] font-bold tracking-[-0.04em] text-foreground md:text-[2.2rem]">
-              Leitura atual do mentor
-            </h2>
-            <p className="mt-4 max-w-[680px] text-[1.02rem] leading-8 text-text-secondary">
-              {analysis?.summary ?? 'Carregando leitura comportamental do aluno.'}
-            </p>
-
-            {!!analysis?.focusTopics.length && (
-              <div className="mt-6 flex flex-wrap gap-2.5">
-                {analysis.focusTopics.map((topic) => (
-                  <Badge key={topic} variant="info">{topic}</Badge>
-                ))}
+      <Card className="overflow-hidden border-border/70 p-7 shadow-[0_18px_44px_rgba(10,22,40,0.07)] md:p-8">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-wrap items-start gap-3">
+            <Badge variant={analysis ? statusVariant[analysis.status] : 'default'}>
+              {analysis?.status === 'critical' ? 'Estado critico' : analysis?.status === 'attention' ? 'Momento de atencao' : 'Bom momento'}
+            </Badge>
+            {profile?.evolutionTrend.direction === 'declining' && (
+              <div className="inline-flex items-center gap-1 rounded-full bg-danger-soft px-3 py-1.5 text-xs font-semibold text-danger">
+                <TrendingDown size={12} />
+                ritmo em queda
               </div>
             )}
           </div>
 
-          {profile && (
-            <div className="px-7 pb-7 md:px-8 md:pb-8 xl:pl-0 xl:pr-8 xl:pt-8">
-              <div className="grid gap-4 sm:grid-cols-2">
-              {[
-                ['Nivel estimado', profile.estimatedLevel.label],
-                ['Consistencia', `${profile.consistency.consistencyScore}%`],
-                ['Acuracia recente', `${Math.round(profile.studyVelocity.recentAccuracy * 100)}%`],
-                ['Flashcards pendentes', String(profile.recentEngagement.pendingFlashcards)],
-              ].map(([label, value]) => (
-                <div key={label} className="rounded-[1.2rem] border border-border/70 bg-background-elevated px-5 py-5">
-                  <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">{label}</p>
-                  <p className="mt-4 text-[1.85rem] font-bold capitalize tracking-[-0.04em] text-foreground">{value}</p>
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr),320px] xl:items-start">
+            <div>
+              <h2 className="text-[2rem] font-bold tracking-[-0.04em] text-foreground md:text-[2.2rem]">
+                Leitura atual do mentor
+              </h2>
+              <p className="mt-4 max-w-[760px] text-[1.02rem] leading-8 text-text-secondary">
+                {analysis?.summary ?? 'Carregando leitura comportamental do aluno.'}
+              </p>
+
+              {!!analysis?.focusTopics.length && (
+                <div className="mt-6 flex flex-wrap gap-2.5">
+                  {analysis.focusTopics.map((topic) => (
+                    <Badge key={topic} variant="info">{topic}</Badge>
+                  ))}
                 </div>
-              ))}
-              </div>
+              )}
             </div>
-          )}
+
+            {profile && (
+              <div className="rounded-[1.35rem] border border-border/70 bg-background-elevated px-5 py-5">
+                <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
+                  Resumo do momento
+                </p>
+
+                <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+                  {[
+                    ['Nivel', profile.estimatedLevel.label],
+                    ['Consistencia', `${profile.consistency.consistencyScore}%`],
+                    ['Acuracia', `${Math.round(profile.studyVelocity.recentAccuracy * 100)}%`],
+                    ['Pendencias', String(profile.recentEngagement.pendingFlashcards)],
+                  ].map(([label, value]) => (
+                    <div key={label} className="border-b border-border/70 pb-3 last:border-b-0 last:pb-0">
+                      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">{label}</p>
+                      <p className="mt-2 text-[1.15rem] font-semibold capitalize text-foreground">{value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </Card>
 

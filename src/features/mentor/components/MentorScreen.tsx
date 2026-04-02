@@ -161,31 +161,23 @@ export function MentorScreen() {
         </Card>
       )}
 
-      <div className="grid gap-7 xl:grid-cols-[minmax(0,1.12fr),420px]">
-        <div className="min-w-0">
-          <MentorInsights
-            profile={profile}
-            analysis={analysis}
-            insights={insights}
-            recommendations={recommendations}
-            onAcknowledgeInsight={acknowledgeInsight}
-            onAskMentor={(prompt) => setQueuedPrompt({ value: prompt, nonce: Date.now() })}
-          />
-        </div>
+      <MentorInsights
+        profile={profile}
+        analysis={analysis}
+        insights={insights}
+        recommendations={recommendations}
+        onAcknowledgeInsight={acknowledgeInsight}
+        onAskMentor={(prompt) => setQueuedPrompt({ value: prompt, nonce: Date.now() })}
+      />
 
-        <div className="min-w-0">
-          <div className="xl:sticky xl:top-[96px]">
-            <MentorChat
-              key={queuedPrompt?.nonce ?? 0}
-              messages={messages}
-              mentorContext={mentorContext}
-              sending={sending}
-              onSendMessage={sendMessage}
-              initialPrompt={queuedPrompt?.value ?? ''}
-            />
-          </div>
-        </div>
-      </div>
+      <MentorChat
+        key={queuedPrompt?.nonce ?? 0}
+        messages={messages}
+        mentorContext={mentorContext}
+        sending={sending}
+        onSendMessage={sendMessage}
+        initialPrompt={queuedPrompt?.value ?? ''}
+      />
     </div>
   )
 }
