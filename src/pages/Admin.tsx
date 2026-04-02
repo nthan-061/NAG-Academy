@@ -993,13 +993,12 @@ function AbaGerenciarTrilhas() {
               {expanded && modulosDaTrilha.length > 0 && (
                 <div style={{ borderTop: '1px solid #E8ECF2', backgroundColor: '#F9FAFB', padding: '10px 16px' }}>
                   {modulosDaTrilha.map((m, i) => {
+                    const moduloEmEdicao = editingModuloId === m.id
                     const aulasDoModulo = moduloEmEdicao
                       ? (aulasEmEdicao[m.id] ?? [])
                       : aulas
                         .filter((aula) => aula.modulo_id === m.id)
                         .sort((a, b) => a.ordem - b.ordem)
-
-                    const moduloEmEdicao = editingModuloId === m.id
 
                     return (
                       <div
