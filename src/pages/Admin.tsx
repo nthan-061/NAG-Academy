@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Plus, Trash2, ToggleLeft, ToggleRight, ShieldAlert, Star, Flame, Zap, ChevronDown, ChevronUp, CheckCircle, XCircle, Pencil, Save, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Input } from '@/components/ui/Input'
-import type { Trilha, Modulo } from '@/types'
+import type { Trilha, Modulo, Aula } from '@/types'
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL as string
 
@@ -19,6 +19,8 @@ interface UserRow {
 }
 
 interface ToastMsg { ok: boolean; msg: string }
+
+type AulaOrdemMap = Record<string, string>
 
 function Toast({ toast, onClose }: { toast: ToastMsg; onClose: () => void }) {
   useEffect(() => {
@@ -87,7 +89,6 @@ function AbaAdicionarAula() {
   const [url, setUrl] = useState('')
   const [trilhaId, setTrilhaId] = useState('')
   const [moduloId, setModuloId] = useState('')
-  const [ordem, setOrdem] = useState('1')
   const [trilhas, setTrilhas] = useState<Trilha[]>([])
   const [modulos, setModulos] = useState<Modulo[]>([])
   const [loading, setLoading] = useState(false)
@@ -115,6 +116,15 @@ function AbaAdicionarAula() {
 
     try {
       setEtapa('Buscando transcrição...')
+      const { data: ultimaAulaData } = await supabase
+        .from('aulas')
+        .select('ordem')
+        .eq('modulo_id', moduloId)
+        .order('ordem', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      const proximaOrdem = (ultimaAulaData?.ordem ?? 0) + 1
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.access_token) {
         setResultado({ ok: false, msg: 'Sua sessao expirou. Faca login novamente.' })
@@ -127,7 +137,7 @@ function AbaAdicionarAula() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ youtube_url: url, modulo_id: moduloId, ordem: parseInt(ordem, 10) }),
+        body: JSON.stringify({ youtube_url: url, modulo_id: moduloId, ordem: proximaOrdem }),
       })
 
       // Try to parse JSON; if it fails, surface the raw response text as the error
@@ -145,7 +155,6 @@ function AbaAdicionarAula() {
       } else {
         setResultado({ ok: true, msg: `Aula adicionada com ${json.perguntas_count} perguntas geradas!` })
         setUrl('')
-        setOrdem('1')
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Erro desconhecido'
@@ -175,13 +184,19 @@ function AbaAdicionarAula() {
         {modulos.map((m) => <option key={m.id} value={m.id}>{m.titulo}</option>)}
       </SelectField>
 
-      <Input
-        label="Ordem na trilha"
-        type="number"
-        min="1"
-        value={ordem}
-        onChange={(e) => setOrdem(e.target.value)}
-      />
+      <div
+        style={{
+          padding: '12px 14px',
+          borderRadius: '10px',
+          backgroundColor: '#F8FBFF',
+          border: '1px solid #D8E1F2',
+          color: '#6B7280',
+          fontSize: '13px',
+          lineHeight: 1.6,
+        }}
+      >
+        A nova aula sera adicionada automaticamente no final do modulo selecionado.
+      </div>
 
       {loading && etapa && (
         <div style={{
@@ -237,6 +252,7 @@ function AbaAdicionarAula() {
 function AbaGerenciarTrilhas() {
   const [trilhas, setTrilhas] = useState<Trilha[]>([])
   const [modulos, setModulos] = useState<Modulo[]>([])
+  const [aulas, setAulas] = useState<Aula[]>([])
   const [titulo, setTitulo] = useState('')
   const [descricao, setDescricao] = useState('')
   const [categoria, setCategoria] = useState('')
@@ -249,6 +265,9 @@ function AbaGerenciarTrilhas() {
   const [loadingTrilha, setLoadingTrilha] = useState(false)
   const [loadingModulo, setLoadingModulo] = useState(false)
   const [expandedTrilha, setExpandedTrilha] = useState<string | null>(null)
+  const [editingModuloId, setEditingModuloId] = useState<string | null>(null)
+  const [aulaOrdens, setAulaOrdens] = useState<AulaOrdemMap>({})
+  const [savingAulas, setSavingAulas] = useState(false)
   const [editingTrilhaId, setEditingTrilhaId] = useState<string | null>(null)
   const [editTitulo, setEditTitulo] = useState('')
   const [editDescricao, setEditDescricao] = useState('')
@@ -260,12 +279,14 @@ function AbaGerenciarTrilhas() {
   const [toast, setToast] = useState<ToastMsg | null>(null)
 
   async function load() {
-    const [{ data: t }, { data: m }] = await Promise.all([
+    const [{ data: t }, { data: m }, { data: a }] = await Promise.all([
       supabase.from('trilhas').select('*').order('ordem'),
       supabase.from('modulos').select('*').order('ordem'),
+      supabase.from('aulas').select('*').order('ordem'),
     ])
     setTrilhas(t ?? [])
     setModulos(m ?? [])
+    setAulas(a ?? [])
   }
 
   useEffect(() => {
@@ -432,6 +453,55 @@ function AbaGerenciarTrilhas() {
       showToast({ ok: true, msg: 'Módulo criado com sucesso!' })
     }
     setLoadingModulo(false)
+  }
+
+  function iniciarEdicaoModulo(moduloId: string) {
+    const aulasDoModulo = aulas
+      .filter((aula) => aula.modulo_id === moduloId)
+      .sort((a, b) => a.ordem - b.ordem)
+
+    const ordensIniciais = aulasDoModulo.reduce<AulaOrdemMap>((acc, aula) => {
+      acc[aula.id] = String(aula.ordem)
+      return acc
+    }, {})
+
+    setEditingModuloId(moduloId)
+    setAulaOrdens(ordensIniciais)
+  }
+
+  function cancelarEdicaoModulo() {
+    setEditingModuloId(null)
+    setAulaOrdens({})
+  }
+
+  async function salvarOrdemAulas() {
+    if (!editingModuloId) return
+
+    const aulasDoModulo = aulas.filter((aula) => aula.modulo_id === editingModuloId)
+    setSavingAulas(true)
+
+    const updates = aulasDoModulo.map((aula) => ({
+      id: aula.id,
+      ordem: Math.max(1, parseInt(aulaOrdens[aula.id] ?? String(aula.ordem), 10) || aula.ordem),
+    }))
+
+    const resultados = await Promise.all(
+      updates.map((update) =>
+        supabase.from('aulas').update({ ordem: update.ordem }).eq('id', update.id)
+      )
+    )
+
+    const primeiroErro = resultados.find((resultado) => resultado.error)?.error
+
+    if (primeiroErro) {
+      showToast({ ok: false, msg: `Erro ao salvar ordem das aulas: ${primeiroErro.message}` })
+    } else {
+      await load()
+      cancelarEdicaoModulo()
+      showToast({ ok: true, msg: 'Ordem das aulas atualizada.' })
+    }
+
+    setSavingAulas(false)
   }
 
   async function togglePublicada(t: Trilha) {
@@ -907,18 +977,148 @@ function AbaGerenciarTrilhas() {
                 </div>
               )}
               {expanded && modulosDaTrilha.length > 0 && (
-                <div style={{ borderTop: '1px solid #E8ECF2', backgroundColor: '#F9FAFB', padding: '8px 16px' }}>
-                  {modulosDaTrilha.map((m, i) => (
-                    <div
-                      key={m.id}
-                      style={{
-                        fontSize: '13px', color: '#6B7280', padding: '6px 0',
-                        borderBottom: i < modulosDaTrilha.length - 1 ? '1px solid #E8ECF2' : 'none',
-                      }}
-                    >
-                      {i + 1}. {m.titulo}
-                    </div>
-                  ))}
+                <div style={{ borderTop: '1px solid #E8ECF2', backgroundColor: '#F9FAFB', padding: '10px 16px' }}>
+                  {modulosDaTrilha.map((m, i) => {
+                    const aulasDoModulo = aulas
+                      .filter((aula) => aula.modulo_id === m.id)
+                      .sort((a, b) => a.ordem - b.ordem)
+
+                    const moduloEmEdicao = editingModuloId === m.id
+
+                    return (
+                      <div
+                        key={m.id}
+                        style={{
+                          padding: '10px 0',
+                          borderBottom: i < modulosDaTrilha.length - 1 ? '1px solid #E8ECF2' : 'none',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                          <div style={{ fontSize: '13px', color: '#6B7280', fontWeight: 600 }}>
+                            {i + 1}. {m.titulo}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => (moduloEmEdicao ? cancelarEdicaoModulo() : iniciarEdicaoModulo(m.id))}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#2E5FD4',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              fontFamily: 'inherit',
+                              padding: 0,
+                            }}
+                          >
+                            {moduloEmEdicao ? 'Fechar edicao' : 'Editar aulas'}
+                          </button>
+                        </div>
+
+                        {aulasDoModulo.length > 0 && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
+                            {aulasDoModulo.map((aula) => (
+                              <div
+                                key={aula.id}
+                                style={{
+                                  display: 'grid',
+                                  gridTemplateColumns: moduloEmEdicao ? '72px minmax(0, 1fr)' : 'minmax(0, 1fr)',
+                                  gap: '12px',
+                                  alignItems: 'center',
+                                  padding: '10px 12px',
+                                  borderRadius: '10px',
+                                  backgroundColor: '#FFFFFF',
+                                  border: '1px solid #E8ECF2',
+                                }}
+                              >
+                                {moduloEmEdicao && (
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={aulaOrdens[aula.id] ?? String(aula.ordem)}
+                                    onChange={(e) => {
+                                      const value = e.target.value
+                                      setAulaOrdens((prev) => ({ ...prev, [aula.id]: value }))
+                                    }}
+                                    style={{
+                                      width: '100%',
+                                      padding: '8px 10px',
+                                      borderRadius: '8px',
+                                      border: '1px solid #D8E1F2',
+                                      fontSize: '13px',
+                                      color: '#1A1F2E',
+                                      backgroundColor: '#FFFFFF',
+                                      outline: 'none',
+                                    }}
+                                  />
+                                )}
+                                <div style={{ minWidth: 0 }}>
+                                  <p style={{ fontSize: '13px', color: '#1A1F2E', margin: 0, fontWeight: 500 }}>
+                                    {aula.titulo}
+                                  </p>
+                                  {!moduloEmEdicao && (
+                                    <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '4px 0 0 0' }}>
+                                      Ordem atual: {aula.ordem}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+
+                            {moduloEmEdicao && (
+                              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '4px' }}>
+                                <button
+                                  type="button"
+                                  onClick={() => { void salvarOrdemAulas() }}
+                                  disabled={savingAulas}
+                                  style={{
+                                    height: '38px',
+                                    padding: '0 14px',
+                                    borderRadius: '10px',
+                                    border: 'none',
+                                    backgroundColor: '#0D1B3E',
+                                    color: '#FFFFFF',
+                                    fontSize: '12px',
+                                    fontWeight: 600,
+                                    cursor: savingAulas ? 'not-allowed' : 'pointer',
+                                    opacity: savingAulas ? 0.6 : 1,
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                  }}
+                                >
+                                  <Save size={14} strokeWidth={1.6} />
+                                  {savingAulas ? 'Salvando...' : 'Salvar ordem'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={cancelarEdicaoModulo}
+                                  disabled={savingAulas}
+                                  style={{
+                                    height: '38px',
+                                    padding: '0 14px',
+                                    borderRadius: '10px',
+                                    border: '1px solid #D8E1F2',
+                                    backgroundColor: '#FFFFFF',
+                                    color: '#6B7280',
+                                    fontSize: '12px',
+                                    fontWeight: 600,
+                                    cursor: savingAulas ? 'not-allowed' : 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                  }}
+                                >
+                                  <X size={14} strokeWidth={1.6} />
+                                  Cancelar
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               )}
             </div>
