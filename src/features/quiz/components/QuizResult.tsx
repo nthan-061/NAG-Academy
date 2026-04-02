@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useEffectEvent, useState } from 'react'
 import { BookOpen, ChevronRight, Layers, Sparkles } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/Badge'
@@ -15,9 +15,10 @@ interface QuizResultProps {
 export function QuizResult({ aulaId, result, onShowToast }: QuizResultProps) {
   const [score, setScore] = useState(0)
   const navigate = useNavigate()
+  const triggerToast = useEffectEvent(onShowToast)
 
   useEffect(() => {
-    onShowToast()
+    triggerToast()
 
     const step = Math.max(1, Math.ceil(result.acertos / 24))
     let current = 0
@@ -30,13 +31,13 @@ export function QuizResult({ aulaId, result, onShowToast }: QuizResultProps) {
     }, 32)
 
     return () => clearInterval(interval)
-  }, [result.acertos, onShowToast])
+  }, [result.acertos])
 
   const percentual = result.total > 0 ? Math.round((result.acertos / result.total) * 100) : 0
   const titulo = getQuizResultTitle(percentual)
 
   return (
-    <div className="animate-slideUp flex w-full flex-col items-center gap-7 py-1 text-center">
+    <div className="animate-slideUp flex w-full flex-col items-center gap-8 py-2 text-center">
       <div className="relative flex h-40 w-40 items-center justify-center rounded-full bg-[conic-gradient(#0D1B3E_var(--progress),#D9E1F0_0deg)] shadow-[0_18px_44px_rgba(13,27,62,0.14)]" style={{ ['--progress' as string]: `${percentual * 3.6}deg` }}>
         <div className="absolute inset-[-10px] rounded-full bg-[radial-gradient(circle,rgba(46,95,212,0.12)_0%,rgba(46,95,212,0)_70%)]" />
         <div className="relative z-10 flex h-[118px] w-[118px] flex-col items-center justify-center rounded-full bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
@@ -57,31 +58,31 @@ export function QuizResult({ aulaId, result, onShowToast }: QuizResultProps) {
         </p>
       </div>
 
-      <div className={`grid w-full gap-4 ${result.flashcardsCount > 0 ? 'max-w-[560px] grid-cols-1 md:grid-cols-2' : 'max-w-[260px] grid-cols-1'}`}>
-        <div className="flex flex-col items-center gap-1.5 rounded-[20px] border border-[#FDE68A] bg-[linear-gradient(135deg,#FFF8DB_0%,#FFF0B5_100%)] px-[18px] py-[18px] shadow-[0_16px_30px_rgba(212,160,23,0.10)]">
+      <div className={`grid w-full gap-4 ${result.flashcardsCount > 0 ? 'max-w-[640px] grid-cols-1 md:grid-cols-2' : 'max-w-[300px] grid-cols-1'}`}>
+        <div className="flex min-h-[148px] flex-col items-center justify-center gap-2 rounded-[20px] border border-[#FDE68A] bg-[linear-gradient(135deg,#FFF8DB_0%,#FFF0B5_100%)] px-6 py-6 shadow-[0_16px_30px_rgba(212,160,23,0.10)]">
           <Sparkles size={20} className="text-[#D97706]" />
           <span className="text-[34px] font-extrabold leading-none text-[#D4A017]">+{result.xpGanho}</span>
           <span className="text-[13px] font-bold text-[#B45309]">XP ganhos</span>
-          <span className="text-[11px] text-[#B45309]/80">Recompensa pela sua performance</span>
+          <span className="text-[12px] leading-[1.45] text-[#B45309]/80">Recompensa pela sua performance</span>
         </div>
 
         {result.flashcardsCount > 0 && (
-          <div className="flex flex-col items-center gap-1.5 rounded-[20px] border border-[#BFD1FF] bg-[linear-gradient(135deg,#EEF4FF_0%,#E4EEFF_100%)] px-[18px] py-[18px] shadow-[0_16px_30px_rgba(46,95,212,0.09)]">
+          <div className="flex min-h-[148px] flex-col items-center justify-center gap-2 rounded-[20px] border border-[#BFD1FF] bg-[linear-gradient(135deg,#EEF4FF_0%,#E4EEFF_100%)] px-6 py-6 shadow-[0_16px_30px_rgba(46,95,212,0.09)]">
             <Layers size={20} className="text-[#2E5FD4]" />
             <span className="text-[34px] font-extrabold leading-none text-[#2E5FD4]">{result.flashcardsCount}</span>
             <span className="text-[13px] font-bold text-[#2E5FD4]">Flashcards criados</span>
-            <span className="text-[11px] text-[#2E5FD4]/80">Erros convertidos em revisao pratica</span>
+            <span className="text-[12px] leading-[1.45] text-[#2E5FD4]/80">Erros convertidos em revisao pratica</span>
           </div>
         )}
       </div>
 
-      <div className="flex w-full max-w-[560px] flex-wrap justify-center gap-3">
+      <div className="flex w-full max-w-[640px] flex-wrap items-stretch justify-center gap-3">
         {result.flashcardsCount > 0 && (
           <Button
             type="button"
             variant="secondary"
             onClick={() => navigate('/flashcards')}
-            className="min-h-[52px] min-w-[230px] flex-1 rounded-[14px] border-[#2E5FD4] bg-[linear-gradient(180deg,#F7FAFF_0%,#EAF1FF_100%)] text-sm font-bold text-[#2E5FD4] shadow-[0_12px_26px_rgba(46,95,212,0.10)] hover:bg-[linear-gradient(180deg,#F2F7FF_0%,#E1EBFF_100%)]"
+            className="min-h-[60px] min-w-[230px] flex-1 rounded-[14px] border-[#2E5FD4] bg-[linear-gradient(180deg,#F7FAFF_0%,#EAF1FF_100%)] px-5 text-sm font-bold text-[#2E5FD4] shadow-[0_12px_26px_rgba(46,95,212,0.10)] hover:bg-[linear-gradient(180deg,#F2F7FF_0%,#E1EBFF_100%)]"
           >
             <Layers size={16} strokeWidth={1.5} />
             Revisar flashcards agora
@@ -89,7 +90,7 @@ export function QuizResult({ aulaId, result, onShowToast }: QuizResultProps) {
         )}
 
         <Link to={`/aula/${aulaId}`} className="min-w-[230px] flex-1">
-          <Button className="min-h-[52px] w-full rounded-[14px] bg-[linear-gradient(135deg,#16254F_0%,#0D1B3E_100%)] text-sm font-bold shadow-[0_18px_34px_rgba(13,27,62,0.22)]">
+          <Button className="min-h-[60px] w-full rounded-[14px] bg-[linear-gradient(135deg,#16254F_0%,#0D1B3E_100%)] px-5 text-sm font-bold shadow-[0_18px_34px_rgba(13,27,62,0.22)]">
             <BookOpen size={16} strokeWidth={1.5} />
             Voltar para a aula
             <ChevronRight size={16} strokeWidth={1.5} />
