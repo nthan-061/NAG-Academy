@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { analyzePerformance, buildUserProfile, generateInsights, getMentorData, recommendNextSteps, sendMentorMessage, upsertMentorContext } from '../services'
 import type {
@@ -60,6 +60,7 @@ export function useMentor(): UseMentorState {
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const hasLoadedRef = useRef(false)
 
   const computeMentorState = useCallback(async (nextSnapshot: MentorDataSnapshot) => {
     const builtProfile = await buildUserProfile(nextSnapshot)
@@ -82,7 +83,10 @@ export function useMentor(): UseMentorState {
       return
     }
 
-    setLoading(true)
+    const isFirstLoad = !hasLoadedRef.current
+    if (isFirstLoad) {
+      setLoading(true)
+    }
     setError(null)
 
     try {
@@ -92,10 +96,13 @@ export function useMentor(): UseMentorState {
       }
 
       await computeMentorState(nextSnapshot)
+      hasLoadedRef.current = true
     } catch (nextError) {
       setError(nextError instanceof Error ? nextError.message : 'Falha ao carregar o mentor.')
     } finally {
-      setLoading(false)
+      if (isFirstLoad) {
+        setLoading(false)
+      }
     }
   }, [computeMentorState, user?.id])
 
@@ -133,9 +140,11 @@ export function useMentor(): UseMentorState {
     setMessages((current) => [...current, optimisticMessage])
 
     try {
+      const history = [...messages, optimisticMessage]
+
       const response = await sendMentorMessage({
         message: trimmed,
-        history: messages,
+        history,
         profile,
         analysis,
         insights,
@@ -147,7 +156,6 @@ export function useMentor(): UseMentorState {
       }
 
       setMessages((current) => [...current, response.reply])
-      void refreshMentor()
     } catch (nextError) {
       setMessages((current) => current.filter((item) => item.id !== optimisticMessage.id))
       setError(nextError instanceof Error ? nextError.message : 'Falha ao enviar a mensagem para o mentor.')
@@ -155,7 +163,7 @@ export function useMentor(): UseMentorState {
     } finally {
       setSending(false)
     }
-  }, [analysis, insights, messages, profile, recommendations, refreshMentor, user?.id])
+  }, [analysis, insights, messages, profile, recommendations, user?.id])
 
   const visibleInsights = useMemo(
     () => insights.filter((item) => !dismissedInsightIds.includes(item.id)),

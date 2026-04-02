@@ -1,9 +1,15 @@
 import type { ReactNode } from 'react'
+import { cn } from '@/lib/cn'
 
-export function PageLayout({ children }: { children: ReactNode }) {
+interface PageLayoutProps {
+  children: ReactNode
+  variant?: 'default' | 'wide'
+}
+
+export function PageLayout({ children, variant = 'default' }: PageLayoutProps) {
   return (
     <main className="page-layout">
-      <div className="page-layout__inner">
+      <div className={cn('page-layout__inner', variant === 'wide' && 'page-layout__inner--wide')}>
         {children}
       </div>
     </main>

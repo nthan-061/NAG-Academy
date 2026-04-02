@@ -60,7 +60,7 @@ function AppRoutes({ session, isPasswordRecovery }: { session: Session; isPasswo
         <Route path="/aula/:id/quiz" element={<Quiz />} />
         <Route path="/flashcards" element={<PageLayout><Flashcards /></PageLayout>} />
         <Route path="/progresso"  element={<PageLayout><Progresso /></PageLayout>} />
-        <Route path="/mentor" element={<PageLayout><Mentor /></PageLayout>} />
+        <Route path="/mentor" element={<PageLayout variant="wide"><Mentor /></PageLayout>} />
         <Route
           path="/admin"
           element={
