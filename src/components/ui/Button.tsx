@@ -17,39 +17,58 @@ export function Button({
   children,
   disabled,
   className,
+  style,
   ...props
 }: ButtonProps) {
-  const variantClasses =
-    variant === 'primary'
-      ? 'border border-[#0D1B3E] bg-[#0D1B3E] text-white hover:bg-[#1E3A6E]'
-      : variant === 'secondary'
-        ? 'border border-[#0D1B3E] bg-white text-[#0D1B3E] hover:bg-[#EBF0FA]'
-        : variant === 'outline'
-          ? 'border border-[#E8ECF2] bg-white text-[#0D1B3E] hover:border-[#0D1B3E]'
-          : 'border border-transparent bg-transparent text-[#6B7280] hover:bg-[#F8FAFC]'
+  const base: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    fontWeight: 500,
+    fontFamily: 'inherit',
+    cursor: disabled || loading ? 'not-allowed' : 'pointer',
+    opacity: disabled || loading ? 0.5 : 1,
+    border: 'none',
+    borderRadius: '8px',
+    transition: 'background-color 0.2s, opacity 0.2s, border-color 0.2s',
+    width: fullWidth ? '100%' : undefined,
+    whiteSpace: 'nowrap',
+  }
 
-  const sizeClasses =
-    size === 'sm'
-      ? 'h-9 px-3.5 text-[13px]'
-      : size === 'lg'
-        ? 'h-12 px-7 text-[15px]'
-        : 'h-11 px-6 text-sm'
+  const sizeStyles: React.CSSProperties =
+    size === 'sm' ? { fontSize: '13px', padding: '0 14px', height: '36px' } :
+    size === 'lg' ? { fontSize: '15px', padding: '0 28px', height: '48px' } :
+                   { fontSize: '14px', padding: '0 24px', height: '44px' }
+
+  const variantStyles: React.CSSProperties =
+    variant === 'primary'   ? { backgroundColor: '#0D1B3E', color: '#FFFFFF', border: '1px solid #0D1B3E' } :
+    variant === 'secondary' ? { backgroundColor: '#FFFFFF', color: '#0D1B3E', border: '1px solid #0D1B3E' } :
+    variant === 'outline'   ? { backgroundColor: '#FFFFFF', color: '#0D1B3E', border: '1px solid #E8ECF2' } :
+                              { backgroundColor: 'transparent', color: '#6B7280', border: 'none' }
 
   return (
     <button
       disabled={disabled || loading}
-      className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-lg font-medium whitespace-nowrap transition-all duration-200',
-        'disabled:pointer-events-none disabled:opacity-50',
-        fullWidth && 'w-full',
-        sizeClasses,
-        variantClasses,
-        className,
-      )}
+      className={cn(className)}
+      style={{ ...base, ...sizeStyles, ...variantStyles, ...style }}
+      onMouseEnter={(event) => {
+        if (disabled || loading) return
+        if (variant === 'primary') event.currentTarget.style.backgroundColor = '#1E3A6E'
+        if (variant === 'secondary') event.currentTarget.style.backgroundColor = '#EBF0FA'
+        if (variant === 'outline') event.currentTarget.style.borderColor = '#0D1B3E'
+      }}
+      onMouseLeave={(event) => {
+        if (variant === 'primary') event.currentTarget.style.backgroundColor = '#0D1B3E'
+        if (variant === 'secondary') event.currentTarget.style.backgroundColor = '#FFFFFF'
+        if (variant === 'outline') event.currentTarget.style.borderColor = '#E8ECF2'
+      }}
       {...props}
     >
       {loading && (
-        <span className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent" />
+        <span
+          className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent"
+        />
       )}
       {children}
     </button>

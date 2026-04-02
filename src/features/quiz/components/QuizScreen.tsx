@@ -50,7 +50,7 @@ export function QuizScreen() {
   const progressPercent = getQuizProgressPercent(indice, totalPerguntas, status === 'confirmado')
 
   return (
-    <div className="min-h-screen bg-[#F5F6FA] pl-0 pt-16 md:pl-[236px]">
+    <div className="min-h-screen bg-[#F5F6FA] pt-16 md:ml-[236px]">
       <QuizHeader
         aulaTitulo={aula.titulo}
         indice={indice}

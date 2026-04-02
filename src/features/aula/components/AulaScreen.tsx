@@ -28,7 +28,7 @@ export function AulaScreen() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F6FA] pl-0 pt-16 md:pl-[236px]">
+      <div className="min-h-screen bg-[#F5F6FA] pt-16 md:ml-[236px]">
         <div className="mx-auto grid w-full max-w-[1480px] grid-cols-1 gap-6 px-4 py-6 md:px-6 xl:grid-cols-[minmax(0,1fr)_minmax(340px,380px)]">
           <div className="flex flex-col gap-4">
             <div className="aspect-video animate-pulse rounded-3xl bg-[#E8ECF2]" />
@@ -42,7 +42,7 @@ export function AulaScreen() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-[#F5F6FA] pl-0 pt-16 md:pl-[236px]">
+      <div className="min-h-screen bg-[#F5F6FA] pt-16 md:ml-[236px]">
         <div className="mx-auto flex min-h-[60vh] w-full max-w-[1480px] items-center justify-center px-4 py-10 md:px-6">
           <p className="text-sm text-[#6B7280]">Aula nao encontrada.</p>
         </div>
@@ -51,7 +51,7 @@ export function AulaScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,rgba(46,95,212,0.08),transparent_28%),linear-gradient(180deg,#f8faff_0%,#f5f6fa_100%)] pl-0 pt-16 md:pl-[236px]">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,rgba(46,95,212,0.08),transparent_28%),linear-gradient(180deg,#f8faff_0%,#f5f6fa_100%)] pt-16 md:ml-[236px]">
       <div className="mx-auto grid w-full max-w-[1480px] grid-cols-1 gap-6 px-4 py-4 md:px-6 xl:grid-cols-[minmax(0,1fr)_minmax(340px,380px)]">
         <div className="flex min-w-0 flex-col gap-6">
           <AulaPlayer youtubeId={data.aula.youtube_id} title={data.aula.titulo} />
