@@ -136,12 +136,14 @@ function AbaChat({ aula, msgs, input, loading, onInputChange, onSend }: AbaChatP
         style={{
           flex: 1,
           overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
           padding: '18px',
           display: 'flex',
           flexDirection: 'column',
           gap: '14px',
           minHeight: 0,
           overscrollBehavior: 'contain',
+          touchAction: 'pan-y',
           backgroundColor: '#FBFCFF',
         }}
       >
@@ -412,6 +414,18 @@ export function Aula() {
   const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([])
   const [chatInput, setChatInput] = useState('')
   const [chatLoading, setChatLoading] = useState(false)
+  const [viewportWidth, setViewportWidth] = useState(() =>
+    typeof window === 'undefined' ? 1440 : window.innerWidth
+  )
+
+  useEffect(() => {
+    function handleResize() {
+      setViewportWidth(window.innerWidth)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     if (!id) return
@@ -569,8 +583,11 @@ export function Aula() {
     }
   }
 
+  const compactLayout = viewportWidth <= 1180
+  const mobileLayout = viewportWidth <= 900
+
   const pageWrap: React.CSSProperties = {
-    marginLeft: '236px',
+    marginLeft: mobileLayout ? 0 : '236px',
     paddingTop: '64px',
     minHeight: '100vh',
     boxSizing: 'border-box',
@@ -580,10 +597,10 @@ export function Aula() {
   const pageInner: React.CSSProperties = {
     width: 'min(100%, 1480px)',
     margin: '0 auto',
-    padding: '24px 24px 32px',
+    padding: mobileLayout ? '16px 16px 24px' : '24px 24px 32px',
     display: 'grid',
-    gridTemplateColumns: 'minmax(0, 1fr) minmax(340px, 380px)',
-    gap: '24px',
+    gridTemplateColumns: compactLayout ? 'minmax(0, 1fr)' : 'minmax(0, 1fr) minmax(340px, 380px)',
+    gap: mobileLayout ? '16px' : '24px',
     alignItems: 'start',
   }
 
@@ -633,7 +650,7 @@ export function Aula() {
               display: 'flex',
               flexDirection: 'column',
               gap: '20px',
-              padding: '30px',
+              padding: mobileLayout ? '22px 18px' : '30px',
               borderRadius: '20px',
               border: '1px solid #E8ECF2',
               backgroundColor: 'rgba(255,255,255,0.9)',
@@ -817,15 +834,16 @@ export function Aula() {
         <div
           style={{
             minWidth: 0,
-            position: 'sticky',
-            top: '88px',
-            maxHeight: 'calc(100vh - 112px)',
+            position: compactLayout ? 'relative' : 'sticky',
+            top: compactLayout ? undefined : '88px',
+            maxHeight: compactLayout ? 'none' : 'calc(100vh - 112px)',
+            minHeight: compactLayout ? (mobileLayout ? '70vh' : '640px') : 'calc(100vh - 112px)',
             border: '1px solid #E8ECF2',
             backgroundColor: 'rgba(255,255,255,0.94)',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
-            borderRadius: '22px',
+            borderRadius: mobileLayout ? '18px' : '22px',
             boxShadow: '0 16px 40px rgba(10,22,40,0.06)',
             backdropFilter: 'blur(12px)',
           }}
@@ -837,7 +855,7 @@ export function Aula() {
               backgroundColor: '#FFFFFF',
               flexShrink: 0,
               minHeight: '72px',
-              padding: '0 10px',
+              padding: mobileLayout ? '0 4px' : '0 10px',
             }}
           >
             {abas.map(({ key, label, icon: Icon }) => {
@@ -853,7 +871,7 @@ export function Aula() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '8px',
-                    padding: '14px 8px',
+                    padding: mobileLayout ? '12px 6px' : '14px 8px',
                     border: 'none',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
@@ -873,12 +891,12 @@ export function Aula() {
             })}
           </div>
 
-          <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
-            <div style={{ display: aba === 'resumo' ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>
+          <div style={{ flex: 1, minHeight: 0, position: 'relative', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: aba === 'resumo' ? 'flex' : 'none', flexDirection: 'column', height: '100%', minHeight: 0 }}>
               <AbaResumo aula={aula} />
             </div>
 
-            <div style={{ display: aba === 'chat' ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>
+            <div style={{ display: aba === 'chat' ? 'flex' : 'none', flexDirection: 'column', height: '100%', minHeight: 0 }}>
               <AbaChat
                 aula={aula}
                 msgs={chatMsgs}
@@ -890,7 +908,7 @@ export function Aula() {
             </div>
 
             {userId && (
-              <div style={{ display: aba === 'notas' ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>
+              <div style={{ display: aba === 'notas' ? 'flex' : 'none', flexDirection: 'column', height: '100%', minHeight: 0 }}>
                 <AbaNotas aulaId={aula.id} userId={userId} />
               </div>
             )}
