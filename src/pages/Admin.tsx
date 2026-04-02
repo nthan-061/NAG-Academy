@@ -242,6 +242,8 @@ function AbaGerenciarTrilhas() {
   const [categoria, setCategoria] = useState('')
   const [nivel, setNivel] = useState<'iniciante' | 'intermediario' | 'avancado'>('iniciante')
   const [thumbnail, setThumbnail] = useState('')
+  const [thumbnailNome, setThumbnailNome] = useState('')
+  const [thumbnailLoading, setThumbnailLoading] = useState(false)
   const [moduloTitulo, setModuloTitulo] = useState('')
   const [moduloTrilhaId, setModuloTrilhaId] = useState('')
   const [loadingTrilha, setLoadingTrilha] = useState(false)
@@ -268,6 +270,43 @@ function AbaGerenciarTrilhas() {
     setToast(msg)
   }
 
+  async function handleThumbnailUpload(file: File | null) {
+    if (!file) return
+
+    const tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp']
+    const tamanhoMaximo = 1.5 * 1024 * 1024
+
+    if (!tiposPermitidos.includes(file.type)) {
+      showToast({ ok: false, msg: 'Use uma imagem JPG, PNG ou WEBP.' })
+      return
+    }
+
+    if (file.size > tamanhoMaximo) {
+      showToast({ ok: false, msg: 'A thumb deve ter no maximo 1,5 MB.' })
+      return
+    }
+
+    setThumbnailLoading(true)
+
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(String(reader.result ?? ''))
+        reader.onerror = () => reject(new Error('Nao foi possivel ler a imagem.'))
+        reader.readAsDataURL(file)
+      })
+
+      setThumbnail(dataUrl)
+      setThumbnailNome(file.name)
+      showToast({ ok: true, msg: 'Thumb carregada com sucesso.' })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Erro ao carregar imagem.'
+      showToast({ ok: false, msg: message })
+    } finally {
+      setThumbnailLoading(false)
+    }
+  }
+
   async function criarTrilha() {
     if (!titulo) return
     setLoadingTrilha(true)
@@ -280,7 +319,7 @@ function AbaGerenciarTrilhas() {
     if (error) {
       showToast({ ok: false, msg: `Erro ao criar trilha: ${error.message}` })
     } else {
-      setTitulo(''); setDescricao(''); setThumbnail(''); setCategoria('')
+      setTitulo(''); setDescricao(''); setThumbnail(''); setThumbnailNome(''); setCategoria('')
       await load()
       showToast({ ok: true, msg: 'Trilha criada com sucesso!' })
     }
@@ -363,7 +402,108 @@ function AbaGerenciarTrilhas() {
               onBlur={(e) => { e.target.style.borderColor = '#E8ECF2' }}
             />
           </div>
-          <Input label="Thumbnail URL" placeholder="https://..." value={thumbnail} onChange={(e) => setThumbnail(e.target.value)} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label style={{ fontSize: '13px', fontWeight: 500, color: '#1A1F2E' }}>Thumbnail da trilha</label>
+              <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
+                Ideal: proporcao 16:9. Recomendado 1280 x 720 px.
+              </p>
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px',
+                padding: '16px',
+                border: '1.5px solid #E8ECF2',
+                borderRadius: '12px',
+                backgroundColor: '#FFFFFF',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <label
+                  htmlFor="trilha-thumbnail-upload"
+                  style={{
+                    height: '40px',
+                    padding: '0 16px',
+                    borderRadius: '10px',
+                    border: '1px solid #D8E1F2',
+                    backgroundColor: '#F8FBFF',
+                    color: '#0D1B3E',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: thumbnailLoading ? 'not-allowed' : 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    opacity: thumbnailLoading ? 0.6 : 1,
+                  }}
+                >
+                  {thumbnailLoading ? 'Carregando imagem...' : 'Escolher imagem'}
+                </label>
+                <input
+                  id="trilha-thumbnail-upload"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] ?? null
+                    void handleThumbnailUpload(file)
+                    e.currentTarget.value = ''
+                  }}
+                />
+
+                <span style={{ fontSize: '12px', color: '#6B7280' }}>
+                  {thumbnailNome || 'Nenhuma imagem selecionada'}
+                </span>
+
+                {thumbnail && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setThumbnail('')
+                      setThumbnailNome('')
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#DC2626',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    Remover imagem
+                  </button>
+                )}
+              </div>
+
+              <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+                Formatos aceitos: JPG, PNG e WEBP. Tamanho maximo: 1,5 MB.
+              </p>
+
+              {thumbnail && (
+                <div
+                  style={{
+                    width: '100%',
+                    maxWidth: '420px',
+                    aspectRatio: '16 / 9',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    border: '1px solid #E8ECF2',
+                    backgroundColor: '#F5F6FA',
+                  }}
+                >
+                  <img
+                    src={thumbnail}
+                    alt="Preview da thumb"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
           {(() => {
             const pode = !!titulo && !loadingTrilha
             return (
