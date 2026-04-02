@@ -33,12 +33,12 @@ export const theme = {
       danger: 'bg-danger-soft text-danger',
     },
     input: {
-      wrapper: 'flex flex-col gap-1.5',
-      label: 'text-sm font-medium text-foreground',
+      wrapper: 'flex flex-col gap-2.5',
+      label: 'text-sm font-semibold text-foreground',
       field:
-        'h-12 w-full rounded-md border border-border bg-surface px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-secondary focus:shadow-focus disabled:cursor-not-allowed disabled:bg-background-elevated disabled:text-muted-foreground',
-      helper: 'text-xs text-text-secondary',
-      error: 'text-xs text-danger',
+        'h-14 w-full rounded-[1rem] border border-border bg-surface px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-secondary focus:shadow-focus disabled:cursor-not-allowed disabled:bg-background-elevated disabled:text-muted-foreground',
+      helper: 'text-xs leading-6 text-text-secondary',
+      error: 'text-xs leading-6 text-danger',
     },
     text: {
       h1: 'text-4xl font-bold tracking-[-0.04em] text-foreground md:text-5xl',

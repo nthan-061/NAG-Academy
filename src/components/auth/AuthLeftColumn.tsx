@@ -28,7 +28,7 @@ function LockIcon() {
 
 export function AuthLeftColumn({ headline, subtitle, bullets }: AuthLeftColumnProps) {
   return (
-    <aside className="auth-column hidden min-h-screen w-1/2 flex-col justify-center overflow-hidden bg-primary-deep px-12 lg:flex">
+    <aside className="auth-column relative hidden min-h-screen w-1/2 flex-col justify-between overflow-hidden bg-[linear-gradient(180deg,#091327_0%,#0d1b3e_100%)] px-14 py-12 lg:flex">
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.04]"
         xmlns="http://www.w3.org/2000/svg"
@@ -41,33 +41,46 @@ export function AuthLeftColumn({ headline, subtitle, bullets }: AuthLeftColumnPr
         <rect width="100%" height="100%" fill="url(#auth-grid)" />
       </svg>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[24rem] flex-col items-start">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(46,95,212,0.18),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.05),transparent_28%)]" />
+
+      <div className="relative z-10 mx-auto flex w-full max-w-[28rem] flex-1 flex-col justify-center">
         <img
           src="/logo-white.png"
           alt="Nathan Alves Group"
-          className="mb-10 h-20 w-auto object-contain"
+          className="mb-12 h-20 w-auto object-contain opacity-95"
         />
 
-        <h1 className="mb-3 whitespace-pre-line text-[2rem] font-bold leading-[1.25] tracking-[-0.03em] text-white">
+        <h1 className="mb-5 whitespace-pre-line text-[3.25rem] font-bold leading-[1.02] tracking-[-0.05em] !text-white">
           {headline}
         </h1>
 
-        <p className="mb-9 max-w-[20rem] text-[15px] leading-7 text-white/65">
+        <p className="mb-10 max-w-[24rem] text-[1.02rem] leading-8 text-white/72">
           {subtitle}
         </p>
 
         <div className="flex flex-col gap-4">
           {bullets.map((bullet) => (
-            <div key={bullet.text} className="flex items-center gap-3">
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/12">
+            <div key={bullet.text} className="flex items-center gap-3.5">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/12 bg-white/10">
                 {bullet.icon === 'lock' ? <LockIcon /> : <CheckIcon />}
               </div>
 
-              <span className="text-sm font-medium text-white/80">
+              <span className="text-[1rem] font-medium leading-7 text-white/84">
                 {bullet.text}
               </span>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="relative z-10 mx-auto hidden w-full max-w-[28rem] lg:block">
+        <div className="rounded-[1.4rem] border border-white/10 bg-white/6 px-5 py-5 backdrop-blur">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/48">
+            NAG Academy
+          </p>
+          <p className="mt-3 text-sm leading-7 text-white/78">
+            Um ambiente de estudo pensado para transformar conteudo em pratica, repeticao e progresso visivel.
+          </p>
         </div>
       </div>
     </aside>

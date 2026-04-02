@@ -39,19 +39,19 @@
 
 @layer components {
   .auth-shell {
-    @apply flex min-h-screen bg-background text-foreground;
+    @apply flex min-h-screen bg-[radial-gradient(circle_at_top_right,rgba(46,95,212,0.10),transparent_30%),linear-gradient(180deg,#f8faff_0%,#f3f5fb_100%)] text-foreground;
   }
 
   .auth-content {
-    @apply flex min-h-screen w-full items-center justify-center bg-background px-4 py-8 lg:w-1/2 lg:px-6;
+    @apply flex min-h-screen w-full items-center justify-center px-5 py-10 sm:px-8 lg:w-1/2 lg:px-10 lg:py-12;
   }
 
   .auth-surface {
-    @apply w-full max-w-[28rem] rounded-[1.25rem] border border-border bg-surface p-8 shadow-card sm:p-10;
+    @apply w-full max-w-[32rem] rounded-[1.75rem] border border-white/70 bg-white/92 p-8 shadow-[0_24px_60px_rgba(10,22,40,0.10)] backdrop-blur sm:p-10 lg:p-12;
   }
 
   .auth-alert {
-    @apply flex items-start gap-3 rounded-[0.875rem] border px-4 py-3 text-sm;
+    @apply flex items-start gap-3 rounded-[1rem] border px-4 py-3.5 text-sm;
   }
 
   .auth-alert-success {
@@ -64,6 +64,18 @@
 
   .auth-link {
     @apply text-sm font-medium text-secondary transition hover:text-primary;
+  }
+
+  .auth-kicker {
+    @apply inline-flex items-center gap-2 rounded-full border border-secondary/12 bg-secondary-soft px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-secondary;
+  }
+
+  .auth-form-stack {
+    @apply flex flex-col gap-5;
+  }
+
+  .auth-card-section {
+    @apply flex flex-col gap-3;
   }
 }
 

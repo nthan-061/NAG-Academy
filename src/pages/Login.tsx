@@ -62,7 +62,7 @@ export function Login() {
 
       <main className="auth-content">
         <Card className="auth-surface" padding="none">
-          <div className="flex flex-col gap-7">
+          <div className="flex flex-col gap-8">
             {confirmed && (
               <div className="auth-alert auth-alert-success">
                 <CheckCircle size={18} className="mt-0.5 shrink-0" />
@@ -72,11 +72,16 @@ export function Login() {
               </div>
             )}
 
-            <div className="space-y-2">
+            <div className="auth-card-section">
+              <div className="auth-kicker">
+                NAG Academy
+              </div>
+
               <Text as="h2" variant="h2">
                 Entrar na plataforma
               </Text>
-              <Text tone="muted">
+
+              <Text tone="muted" className="max-w-[28rem] text-[1rem] leading-7">
                 Bem-vindo de volta a NAG Academy
               </Text>
             </div>
@@ -90,7 +95,7 @@ export function Login() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} className="auth-form-stack">
               <Input
                 type="email"
                 label="Email"
@@ -101,7 +106,7 @@ export function Login() {
                 autoComplete="email"
               />
 
-              <div className="space-y-3">
+              <div className="flex flex-col gap-4">
                 <Input
                   type="password"
                   label="Senha"
@@ -113,7 +118,7 @@ export function Login() {
                 />
 
                 <div className="flex justify-end">
-                  <Link to="/forgot-password" className="auth-link text-xs">
+                  <Link to="/forgot-password" className="auth-link text-sm">
                     Esqueci minha senha
                   </Link>
                 </div>
@@ -124,12 +129,14 @@ export function Login() {
               </Button>
             </form>
 
-            <Text className="text-center">
+            <div className="border-t border-border/80 pt-6">
+              <Text className="text-center text-[0.98rem] leading-7">
               Nao tem uma conta?{' '}
-              <Link to="/register" className="auth-link">
-                Criar conta
-              </Link>
-            </Text>
+                <Link to="/register" className="auth-link">
+                  Criar conta
+                </Link>
+              </Text>
+            </div>
           </div>
         </Card>
       </main>
