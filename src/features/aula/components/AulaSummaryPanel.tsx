@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/Badge'
 import type { Aula } from '@/types'
 
 interface AulaSummaryPanelProps {
@@ -8,26 +7,46 @@ interface AulaSummaryPanelProps {
 export function AulaSummaryPanel({ aula }: AulaSummaryPanelProps) {
   if (!aula.resumo && (!aula.topicos || aula.topicos.length === 0)) {
     return (
-      <div className="flex flex-1 items-center justify-center px-6 py-10 text-center text-sm text-[#9CA3AF]">
+      <div style={{ padding: '24px', textAlign: 'center', fontSize: '13px', color: '#9CA3AF' }}>
         Resumo gerado automaticamente apos o processamento da aula.
       </div>
     )
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-6">
+    <div
+      style={{
+        padding: '24px',
+        overflowY: 'auto',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '18px',
+        minHeight: 0,
+      }}
+    >
       {aula.topicos && aula.topicos.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {aula.topicos.map((topico) => (
-            <Badge key={topico} variant="info" className="normal-case tracking-normal">
+            <span
+              key={topico}
+              style={{
+                backgroundColor: '#EBF0FA',
+                color: '#2E5FD4',
+                fontSize: '12px',
+                fontWeight: 600,
+                padding: '6px 12px',
+                borderRadius: '999px',
+              }}
+            >
               {topico}
-            </Badge>
+            </span>
           ))}
         </div>
       )}
 
       {aula.resumo && (
-        <p className="text-[15px] leading-8 text-[#4B5563]">
+        <p style={{ fontSize: '15px', color: '#4B5563', lineHeight: '1.85', margin: 0 }}>
           {aula.resumo}
         </p>
       )}

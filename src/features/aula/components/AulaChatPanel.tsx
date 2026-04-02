@@ -1,7 +1,5 @@
 import { useEffect, useRef } from 'react'
 import { MessageSquare, Send } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { cn } from '@/lib/cn'
 import { formatAulaChatMessage } from '../utils'
 import type { AulaChatMessage } from '../types'
 
@@ -29,62 +27,141 @@ export function AulaChatPanel({
   }, [messages, loading])
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto bg-[#FBFCFF] p-5">
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          padding: '18px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '14px',
+          minHeight: 0,
+          overscrollBehavior: 'contain',
+          touchAction: 'pan-y',
+          backgroundColor: '#FBFCFF',
+        }}
+      >
         {messages.length === 0 && (
-          <div className="flex min-h-full flex-col items-center justify-center gap-3 px-4 py-10 text-center text-sm text-[#9CA3AF]">
+          <div
+            style={{
+              minHeight: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              padding: '32px 20px',
+              textAlign: 'center',
+              color: '#9CA3AF',
+            }}
+          >
             <MessageSquare size={28} strokeWidth={1.5} />
-            <p>Tire duvidas sobre o conteudo desta aula.</p>
+            <p style={{ fontSize: '13px', margin: 0 }}>
+              Tire duvidas sobre o conteudo desta aula.
+            </p>
           </div>
         )}
 
-        {messages.map((message, index) => (
-          <div
-            key={`${message.role}-${index}`}
-            className={cn(
-              'flex',
-              message.role === 'user' ? 'justify-end' : 'justify-start',
-            )}
-          >
-            <div
-              className={cn(
-                'max-w-[92%] rounded-[18px] px-4 py-3 text-sm leading-7 shadow-sm',
-                message.role === 'user' && 'rounded-br-[6px] bg-[#0D1B3E] text-white shadow-[0_6px_16px_rgba(13,27,62,0.14)]',
-                message.role === 'assistant' && 'rounded-bl-[6px] border border-[#E5EAF3] bg-white text-[#1A1F2E] shadow-[0_8px_20px_rgba(10,22,40,0.05)]',
-                message.role === 'error' && 'rounded-bl-[6px] border border-[#FECACA] bg-[#FEF2F2] text-[#DC2626]',
-              )}
-            >
-              {message.role === 'assistant'
-                ? formatAulaChatMessage(message.content).map((line, lineIndex) => {
-                    if (line.kind === 'space') {
-                      return <div key={`${index}-${lineIndex}-space`} className="h-2" />
-                    }
+        {messages.map((message, index) => {
+          if (message.role === 'user') {
+            return (
+              <div key={index} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <div
+                  style={{
+                    backgroundColor: '#0D1B3E',
+                    color: '#FFFFFF',
+                    fontSize: '13px',
+                    lineHeight: '1.7',
+                    padding: '12px 14px',
+                    borderRadius: '18px 18px 6px 18px',
+                    maxWidth: '88%',
+                    boxShadow: '0 6px 16px rgba(13,27,62,0.14)',
+                  }}
+                >
+                  {message.content}
+                </div>
+              </div>
+            )
+          }
 
-                    if (line.kind === 'bullet') {
-                      return (
-                        <div key={`${index}-${lineIndex}-bullet`} className="mt-1 flex gap-2">
-                          <span className="font-bold text-[#2E5FD4]">•</span>
-                          <span>{line.content}</span>
-                        </div>
-                      )
-                    }
+          if (message.role === 'error') {
+            return (
+              <div key={index} style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                <div
+                  style={{
+                    backgroundColor: '#FEF2F2',
+                    border: '1px solid #FECACA',
+                    color: '#DC2626',
+                    fontSize: '13px',
+                    lineHeight: '1.7',
+                    padding: '12px 14px',
+                    borderRadius: '18px 18px 18px 6px',
+                    maxWidth: '88%',
+                  }}
+                >
+                  {message.content}
+                </div>
+              </div>
+            )
+          }
 
-                    return <p key={`${index}-${lineIndex}-paragraph`} className="m-0">{line.content}</p>
-                  })
-                : message.content}
+          return (
+            <div key={index} style={{ display: 'flex', justifyContent: 'flex-start' }}>
+              <div
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #E5EAF3',
+                  color: '#1A1F2E',
+                  fontSize: '14px',
+                  lineHeight: '1.8',
+                  padding: '14px 16px',
+                  borderRadius: '18px 18px 18px 6px',
+                  maxWidth: '92%',
+                  boxShadow: '0 8px 20px rgba(10,22,40,0.05)',
+                }}
+              >
+                {formatAulaChatMessage(message.content).map((line, lineIndex) => {
+                  if (line.kind === 'space') return <div key={`${index}-${lineIndex}`} style={{ height: '8px' }} />
+                  if (line.kind === 'bullet') {
+                    return (
+                      <div key={`${index}-${lineIndex}`} style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                        <span style={{ color: '#2E5FD4', fontWeight: 700, lineHeight: 1.6 }}>•</span>
+                        <span>{line.content}</span>
+                      </div>
+                    )
+                  }
+                  return <p key={`${index}-${lineIndex}`} style={{ margin: 0 }}>{line.content}</p>
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
 
         {loading && (
-          <div className="flex justify-start">
-            <div className="rounded-[18px] rounded-bl-[6px] border border-[#E5EAF3] bg-white px-4 py-3">
-              <div className="flex items-center gap-1">
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <div
+              style={{
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E5EAF3',
+                padding: '12px 14px',
+                borderRadius: '18px 18px 18px 6px',
+              }}
+            >
+              <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                 {[0, 150, 300].map((delay) => (
                   <span
                     key={delay}
-                    className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-[#9CA3AF]"
-                    style={{ animationDelay: `${delay}ms` }}
+                    style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      backgroundColor: '#9CA3AF',
+                      animation: 'bounce 1s infinite',
+                      animationDelay: `${delay}ms`,
+                      display: 'inline-block',
+                    }}
                   />
                 ))}
               </div>
@@ -95,7 +172,16 @@ export function AulaChatPanel({
         <div ref={bottomRef} />
       </div>
 
-      <div className="flex items-center gap-3 border-t border-[#E8ECF2] bg-white p-4">
+      <div
+        style={{
+          padding: '14px 16px 16px',
+          borderTop: '1px solid #E8ECF2',
+          display: 'flex',
+          gap: '10px',
+          alignItems: 'center',
+          backgroundColor: '#FFFFFF',
+        }}
+      >
         <input
           value={input}
           onChange={(event) => onInputChange(event.target.value)}
@@ -106,17 +192,39 @@ export function AulaChatPanel({
             }
           }}
           placeholder={`Pergunte sobre ${aulaTitle.slice(0, 40)}...`}
-          className="h-12 flex-1 rounded-2xl border border-[#C8D3EA] bg-[#F9FBFF] px-4 text-sm text-[#1A1F2E] outline-none transition focus:border-[#2E5FD4] focus:shadow-[0_0_0_3px_rgba(46,95,212,0.1)]"
+          style={{
+            flex: 1,
+            border: '1px solid #C8D3EA',
+            borderRadius: '14px',
+            padding: '14px 16px',
+            fontSize: '14px',
+            outline: 'none',
+            color: '#1A1F2E',
+            backgroundColor: '#F9FBFF',
+          }}
+          onFocus={(event) => { event.currentTarget.style.borderColor = '#2E5FD4' }}
+          onBlur={(event) => { event.currentTarget.style.borderColor = '#C8D3EA' }}
           disabled={loading}
         />
-        <Button
-          type="button"
+        <button
           onClick={() => { void onSend() }}
           disabled={!input.trim() || loading}
-          className="h-12 w-12 rounded-2xl p-0"
+          style={{
+            backgroundColor: '#0D1B3E',
+            border: 'none',
+            borderRadius: '14px',
+            width: '48px',
+            height: '48px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: (!input.trim() || loading) ? 0.45 : 1,
+            flexShrink: 0,
+          }}
         >
-          <Send size={17} strokeWidth={1.5} />
-        </Button>
+          <Send size={17} strokeWidth={1.5} color="white" />
+        </button>
       </div>
     </div>
   )
