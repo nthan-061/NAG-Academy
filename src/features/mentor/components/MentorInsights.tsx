@@ -1,9 +1,26 @@
 import { Link } from 'react-router-dom'
 import { AlertTriangle, ArrowRight, CheckCircle2, Lightbulb, Target, TrendingDown, X } from 'lucide-react'
-import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
+import type React from 'react'
 import type { MentorInsight, MentorPerformanceAnalysis, MentorRecommendation, UserLearningProfile } from '../types'
+
+/* ─── Estilos base (idênticos ao Dashboard e Trilhas) ─── */
+
+const card: React.CSSProperties = {
+  backgroundColor: '#FFFFFF',
+  borderRadius: '12px',
+  border: '1px solid #E8ECF2',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+  padding: '28px',
+}
+
+const innerCard: React.CSSProperties = {
+  backgroundColor: '#F8FAFF',
+  borderRadius: '10px',
+  border: '1px solid #E8ECF2',
+  padding: '20px',
+}
+
+/* ─── Mapeamentos semânticos ─── */
 
 const toneIcon = {
   encouragement: CheckCircle2,
@@ -12,24 +29,73 @@ const toneIcon = {
   opportunity: Lightbulb,
 } as const
 
-const toneAccent = {
-  encouragement: 'bg-success-soft text-success border-success/18',
-  focus: 'bg-secondary-soft text-secondary border-secondary/16',
-  warning: 'bg-warning-soft text-warning border-warning/18',
-  opportunity: 'bg-accent text-warning border-warning/18',
-} as const
+const toneColors: Record<string, { color: string; bg: string }> = {
+  encouragement: { color: '#16A34A', bg: '#F0FDF4' },
+  focus:         { color: '#2E5FD4', bg: '#EEF4FF' },
+  warning:       { color: '#D97706', bg: '#FFF8DB' },
+  opportunity:   { color: '#D97706', bg: '#FFF8DB' },
+}
 
-const priorityVariant = {
-  low: 'default',
-  medium: 'warning',
-  high: 'danger',
-} as const
+const statusBadge: Record<string, { bg: string; color: string; label: string }> = {
+  good:      { bg: '#DCFCE7', color: '#16A34A', label: 'Bom momento'       },
+  attention: { bg: '#FFF8DB', color: '#D97706', label: 'Momento de atenção' },
+  critical:  { bg: '#FEF2F2', color: '#DC2626', label: 'Estado crítico'    },
+}
 
-const statusVariant = {
-  good: 'success',
-  attention: 'warning',
-  critical: 'danger',
-} as const
+const priorityBadge: Record<string, { bg: string; color: string }> = {
+  low:    { bg: '#F5F6FA', color: '#9CA3AF' },
+  medium: { bg: '#FFF8DB', color: '#D97706' },
+  high:   { bg: '#FEF2F2', color: '#DC2626' },
+}
+
+/* ─── Subcomponente: cabeçalho de seção ─── */
+
+function SectionHeader({
+  label, title, subtitle,
+}: {
+  label: string
+  title: string
+  subtitle?: string
+}) {
+  return (
+    <div style={{ marginBottom: '20px' }}>
+      <p style={{ fontSize: '13px', fontWeight: 600, color: '#6B7280', letterSpacing: '0.05em', margin: '0 0 4px 0' }}>
+        {label}
+      </p>
+      <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#1A1F2E', margin: subtitle ? '0 0 6px 0' : '0' }}>
+        {title}
+      </h2>
+      {subtitle && (
+        <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.6', margin: 0 }}>
+          {subtitle}
+        </p>
+      )}
+    </div>
+  )
+}
+
+/* ─── Subcomponente: pill/badge inline ─── */
+
+function Pill({ bg, color, children, icon }: {
+  bg: string
+  color: string
+  children: React.ReactNode
+  icon?: React.ReactNode
+}) {
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: '4px',
+      fontSize: '11px', fontWeight: 600,
+      padding: '3px 10px', borderRadius: '20px',
+      backgroundColor: bg, color,
+    }}>
+      {icon}
+      {children}
+    </span>
+  )
+}
+
+/* ─── Props ─── */
 
 interface MentorInsightsProps {
   profile: UserLearningProfile | null
@@ -40,32 +106,6 @@ interface MentorInsightsProps {
   onAskMentor: (prompt: string) => void
 }
 
-/** Label de seção em caixa alta — mesmo padrão dos cards de métricas e do restante da app */
-function SectionEyebrow({ children }: { children: string }) {
-  return (
-    <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
-      {children}
-    </p>
-  )
-}
-
-/** Cabeçalho de seção: eyebrow + h2 + subtítulo opcional — segue theme.tailwind.text */
-function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
-  return (
-    <div className="space-y-2">
-      <SectionEyebrow>{eyebrow}</SectionEyebrow>
-      <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground">
-        {title}
-      </h2>
-      {subtitle && (
-        <p className="max-w-[720px] text-sm leading-7 text-text-secondary">
-          {subtitle}
-        </p>
-      )}
-    </div>
-  )
-}
-
 export function MentorInsights({
   profile,
   analysis,
@@ -74,60 +114,60 @@ export function MentorInsights({
   onAcknowledgeInsight,
   onAskMentor,
 }: MentorInsightsProps) {
+  const status = analysis?.status ?? 'good'
+  const badge = statusBadge[status] ?? statusBadge.good
+
   return (
-    <div className="space-y-8">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
       {/* ── Leitura atual ── */}
-      <Card padding="lg">
+      <div style={card}>
         <SectionHeader
-          eyebrow="Leitura atual"
+          label="Leitura atual"
           title="Leitura atual do mentor"
           subtitle={analysis?.summary ?? 'Carregando leitura comportamental do aluno.'}
         />
 
-        <div className="mt-5 flex flex-wrap items-center gap-2.5">
-          <Badge variant={analysis ? statusVariant[analysis.status] : 'default'}>
-            {analysis?.status === 'critical'
-              ? 'Estado critico'
-              : analysis?.status === 'attention'
-              ? 'Momento de atencao'
-              : 'Bom momento'}
-          </Badge>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          <Pill bg={badge.bg} color={badge.color}>
+            {badge.label}
+          </Pill>
 
           {profile?.evolutionTrend.direction === 'declining' && (
-            <Badge variant="danger">
-              <TrendingDown size={11} className="mr-1" />
+            <Pill bg="#FEF2F2" color="#DC2626" icon={<TrendingDown size={11} />}>
               ritmo em queda
-            </Badge>
+            </Pill>
           )}
 
-          {!!analysis?.focusTopics.length && analysis.focusTopics.map((topic) => (
-            <Badge key={topic} variant="info">{topic}</Badge>
+          {analysis?.focusTopics.map((topic) => (
+            <Pill key={topic} bg="#EEF4FF" color="#2E5FD4">
+              {topic}
+            </Pill>
           ))}
         </div>
-      </Card>
+      </div>
 
       {/* ── Perfil + Contexto ── */}
       {profile && (
-        <div className="grid gap-6 xl:grid-cols-2">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
 
           {/* Pontos fortes e fracos */}
-          <Card padding="lg">
+          <div style={card}>
             <SectionHeader
-              eyebrow="Perfil"
+              label="Perfil"
               title="Leitura do perfil de aprendizado"
-              subtitle={`${profile.userName}, o mentor estima seu nivel como ${profile.estimatedLevel.label} e percebe tendencia ${profile.evolutionTrend.direction} no seu desempenho recente.`}
+              subtitle={`${profile.userName}, o mentor estima seu nível como ${profile.estimatedLevel.label} e percebe tendência ${profile.evolutionTrend.direction} no seu desempenho recente.`}
             />
 
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
               {/* Pontos fortes */}
-              <div className="rounded-xl border border-border bg-background-elevated p-5">
-                <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-success">
+              <div style={innerCard}>
+                <p style={{ fontSize: '13px', fontWeight: 600, color: '#16A34A', margin: '0 0 12px 0' }}>
                   Pontos fortes
                 </p>
-                <ul className="mt-4 space-y-2.5">
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {profile.strengths.map((item) => (
-                    <li key={item} className="text-sm leading-7 text-foreground">
+                    <li key={item} style={{ fontSize: '13px', color: '#1A1F2E', lineHeight: '1.55' }}>
                       {item}
                     </li>
                   ))}
@@ -135,74 +175,92 @@ export function MentorInsights({
               </div>
 
               {/* Pontos fracos */}
-              <div className="rounded-xl border border-border bg-background-elevated p-5">
-                <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-warning">
+              <div style={innerCard}>
+                <p style={{ fontSize: '13px', fontWeight: 600, color: '#D97706', margin: '0 0 12px 0' }}>
                   Pontos fracos
                 </p>
-                <ul className="mt-4 space-y-2.5">
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {profile.weakPoints.map((item) => (
-                    <li key={item} className="text-sm leading-7 text-foreground">
+                    <li key={item} style={{ fontSize: '13px', color: '#1A1F2E', lineHeight: '1.55' }}>
                       {item}
                     </li>
                   ))}
                 </ul>
               </div>
             </div>
-          </Card>
+          </div>
 
-          {/* Contexto — sem bordas extras nos campos, só label + valor */}
-          <Card padding="lg">
+          {/* Contexto */}
+          <div style={card}>
             <SectionHeader
-              eyebrow="Contexto"
+              label="Contexto"
               title="Contexto conhecido do aluno"
-              subtitle="O mentor orienta melhor quando entende objetivo, experiencia e contexto de uso."
+              subtitle="O mentor orienta melhor quando entende objetivo, experiência e contexto de uso."
             />
 
-            <div className="mt-6 grid gap-6 sm:grid-cols-2">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               {[
-                ['Objetivo',       profile.mentorContext?.goal ?? 'Ainda nao informado ao mentor.'],
-                ['Experiencia',    profile.mentorContext?.experience_level ?? 'Nao informado'],
-                ['Contexto de uso', profile.mentorContext?.use_case ?? 'Nao informado'],
-                ['Desafios',       profile.mentorContext?.declared_challenges?.join(', ') || 'Nenhum desafio declarado ainda.'],
+                ['Objetivo',        profile.mentorContext?.goal ?? 'Ainda não informado ao mentor.'],
+                ['Experiência',     profile.mentorContext?.experience_level ?? 'Não informado'],
+                ['Contexto de uso', profile.mentorContext?.use_case ?? 'Não informado'],
+                ['Desafios',        profile.mentorContext?.declared_challenges?.join(', ') || 'Nenhum desafio declarado ainda.'],
               ].map(([label, value]) => (
-                <div key={label} className="space-y-2">
-                  <SectionEyebrow>{label}</SectionEyebrow>
-                  <p className="text-sm leading-7 text-foreground">{value}</p>
+                <div key={label}>
+                  <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', margin: '0 0 4px 0' }}>
+                    {label}
+                  </p>
+                  <p style={{ fontSize: '14px', color: '#1A1F2E', lineHeight: '1.55', margin: 0 }}>
+                    {value}
+                  </p>
                 </div>
               ))}
             </div>
-          </Card>
+          </div>
 
         </div>
       )}
 
       {/* ── Insights ── */}
-      <Card padding="lg">
+      <div style={card}>
         <SectionHeader
-          eyebrow="Insights"
+          label="Insights"
           title="Insights personalizados"
-          subtitle="Observacoes derivadas do uso real da plataforma."
+          subtitle="Observações derivadas do uso real da plataforma."
         />
 
-        <div className="mt-6 space-y-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {insights.length > 0 ? insights.map((insight) => {
             const Icon = toneIcon[insight.tone]
+            const tc = toneColors[insight.tone]
+            const pb = priorityBadge[insight.priority]
             return (
-              <div key={insight.id} className="rounded-xl border border-border bg-background-elevated p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex min-w-0 gap-4">
-                    <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border ${toneAccent[insight.tone]}`}>
-                      <Icon size={16} />
+              <div key={insight.id} style={innerCard}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+                  <div style={{ display: 'flex', gap: '14px', minWidth: 0 }}>
+                    <div style={{
+                      width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
+                      backgroundColor: tc.bg,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Icon size={16} color={tc.color} />
                     </div>
 
-                    <div className="min-w-0 space-y-1.5">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="text-sm font-semibold text-foreground">{insight.title}</h4>
-                        <Badge variant={priorityVariant[insight.priority]}>{insight.priority}</Badge>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                        <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#1A1F2E', margin: 0 }}>
+                          {insight.title}
+                        </h4>
+                        <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: pb.bg, color: pb.color }}>
+                          {insight.priority}
+                        </span>
                       </div>
-                      <p className="text-sm leading-7 text-text-secondary">{insight.message}</p>
+                      <p style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.6', margin: 0 }}>
+                        {insight.message}
+                      </p>
                       {insight.actionHint && (
-                        <p className="text-sm font-medium leading-7 text-foreground/80">{insight.actionHint}</p>
+                        <p style={{ fontSize: '13px', fontWeight: 500, color: '#1A1F2E', lineHeight: '1.6', margin: '6px 0 0 0' }}>
+                          {insight.actionHint}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -210,73 +268,103 @@ export function MentorInsights({
                   <button
                     type="button"
                     onClick={() => onAcknowledgeInsight(insight.id)}
-                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-border hover:text-foreground"
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
+                      border: 'none', backgroundColor: 'transparent', cursor: 'pointer',
+                      color: '#9CA3AF',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#E8ECF2' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
                     aria-label="Dispensar insight"
                   >
-                    <X size={15} />
+                    <X size={14} />
                   </button>
                 </div>
               </div>
             )
           }) : (
-            <div className="rounded-xl border border-dashed border-border bg-background-elevated p-6">
-              <p className="text-sm leading-7 text-text-secondary">
+            <div style={{ ...innerCard, border: '1px dashed #E8ECF2' }}>
+              <p style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.6', margin: 0 }}>
                 Sem insights pendentes no momento. O mentor segue acompanhando seu comportamento para intervir quando fizer sentido.
               </p>
             </div>
           )}
         </div>
-      </Card>
+      </div>
 
       {/* ── Recomendações ── */}
-      <Card padding="lg">
+      <div style={card}>
         <SectionHeader
-          eyebrow="Proximos passos"
-          title="Recomendacoes do mentor"
-          subtitle="Acoes praticas para destravar progresso e consolidar aprendizado."
+          label="Próximos passos"
+          title="Recomendações do mentor"
+          subtitle="Ações práticas para destravar progresso e consolidar aprendizado."
         />
 
-        <div className="mt-6 space-y-3">
-          {recommendations.map((recommendation) => (
-            <div key={recommendation.id} className="rounded-xl border border-border bg-background-elevated p-5">
-              <div className="space-y-1.5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h4 className="text-sm font-semibold text-foreground">{recommendation.title}</h4>
-                  <Badge variant={priorityVariant[recommendation.priority]}>{recommendation.priority}</Badge>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {recommendations.map((rec) => {
+            const pb = priorityBadge[rec.priority]
+            return (
+              <div key={rec.id} style={innerCard}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                  <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#1A1F2E', margin: 0 }}>
+                    {rec.title}
+                  </h4>
+                  <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: pb.bg, color: pb.color }}>
+                    {rec.priority}
+                  </span>
                 </div>
-                <p className="text-sm leading-7 text-text-secondary">{recommendation.message}</p>
-              </div>
+                <p style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.6', margin: '0 0 16px 0' }}>
+                  {rec.message}
+                </p>
 
-              <div className="mt-5">
-                {recommendation.action.kind === 'route' && recommendation.action.href ? (
-                  <Link to={recommendation.action.href} className="inline-flex">
-                    <Button variant="secondary" size="sm">
-                      {recommendation.actionLabel}
-                      <ArrowRight size={14} />
-                    </Button>
-                  </Link>
-                ) : recommendation.action.kind === 'question' && recommendation.action.prompt ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onAskMentor(recommendation.action.prompt!)}
+                {rec.action.kind === 'route' && rec.action.href ? (
+                  <Link
+                    to={rec.action.href}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '6px',
+                      padding: '8px 16px', borderRadius: '8px',
+                      backgroundColor: '#0D1B3E', color: '#FFFFFF',
+                      fontSize: '13px', fontWeight: 500, textDecoration: 'none',
+                    }}
                   >
-                    {recommendation.actionLabel}
-                  </Button>
+                    {rec.actionLabel}
+                    <ArrowRight size={14} />
+                  </Link>
+                ) : rec.action.kind === 'question' && rec.action.prompt ? (
+                  <button
+                    type="button"
+                    onClick={() => onAskMentor(rec.action.prompt!)}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '6px',
+                      padding: '8px 16px', borderRadius: '8px',
+                      border: '1px solid #E8ECF2', backgroundColor: '#FFFFFF',
+                      color: '#1A1F2E', fontSize: '13px', fontWeight: 500,
+                      cursor: 'pointer', fontFamily: 'inherit',
+                    }}
+                  >
+                    {rec.actionLabel}
+                  </button>
                 ) : (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onAskMentor('Quero revisar meu plano atual de estudo com voce.')}
+                  <button
+                    type="button"
+                    onClick={() => onAskMentor('Quero revisar meu plano atual de estudo com você.')}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '6px',
+                      padding: '8px 16px', borderRadius: '8px',
+                      border: 'none', backgroundColor: 'transparent',
+                      color: '#6B7280', fontSize: '13px', fontWeight: 500,
+                      cursor: 'pointer', fontFamily: 'inherit',
+                    }}
                   >
                     Conversar com o mentor
-                  </Button>
+                  </button>
                 )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
-      </Card>
+      </div>
 
     </div>
   )

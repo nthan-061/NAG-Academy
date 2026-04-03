@@ -1,17 +1,24 @@
 import { useMemo, useState } from 'react'
 import { AlertCircle, BookOpen, RefreshCcw, Target, Timer, TrendingUp } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
 import { useMentor } from '../hooks'
 import { MentorChat } from './MentorChat'
 import { MentorInsights } from './MentorInsights'
+import type React from 'react'
 
 const metricStyles = [
-  { icon: TrendingUp, iconColor: 'text-secondary',  iconBg: 'bg-secondary-soft' },
-  { icon: Timer,      iconColor: 'text-success',     iconBg: 'bg-success-soft'  },
-  { icon: Target,     iconColor: 'text-warning',     iconBg: 'bg-warning-soft'  },
-  { icon: BookOpen,   iconColor: 'text-danger',      iconBg: 'bg-danger-soft'   },
+  { icon: TrendingUp, color: '#2E5FD4', bg: '#EEF4FF' },
+  { icon: Timer,      color: '#16A34A', bg: '#F0FDF4' },
+  { icon: Target,     color: '#D97706', bg: '#FFF8DB' },
+  { icon: BookOpen,   color: '#DC2626', bg: '#FEF2F2' },
 ] as const
+
+const card: React.CSSProperties = {
+  backgroundColor: '#FFFFFF',
+  borderRadius: '12px',
+  border: '1px solid #E8ECF2',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+  padding: '28px',
+}
 
 export function MentorScreen() {
   const {
@@ -26,23 +33,23 @@ export function MentorScreen() {
     if (!profile || !analysis) return []
     return [
       {
-        label: 'Nivel estimado',
+        label: 'Nível estimado',
         value: profile.estimatedLevel.label,
-        helper: `${Math.round(profile.estimatedLevel.confidence * 100)}% de confianca`,
+        helper: `${Math.round(profile.estimatedLevel.confidence * 100)}% de confiança`,
       },
       {
-        label: 'Consistencia',
+        label: 'Consistência',
         value: `${profile.consistency.consistencyScore}%`,
         helper: `${profile.consistency.activeDaysLast7} dias ativos na semana`,
       },
       {
-        label: 'Acuracia recente',
+        label: 'Acurácia recente',
         value: `${Math.round(profile.studyVelocity.recentAccuracy * 100)}%`,
         helper: analysis.status === 'critical'
-          ? 'Precisa reforco imediato'
+          ? 'Precisa de reforço imediato'
           : analysis.status === 'attention'
-          ? 'Vale reforcar topicos'
-          : 'Bom momento para avancar',
+          ? 'Vale reforçar tópicos'
+          : 'Bom momento para avançar',
       },
       {
         label: 'Flashcards pendentes',
@@ -54,59 +61,73 @@ export function MentorScreen() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#0D1B3E] border-t-transparent" />
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
       {/* ── Hero: título + métricas ── */}
-      <Card padding="lg">
-        <div className="flex flex-wrap items-start justify-between gap-6">
-          <div className="space-y-2">
-            <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
-              Painel do mentor
-            </p>
-            <h1 className="text-[2rem] font-bold tracking-[-0.04em] text-foreground">
+      <div style={card}>
+        {/* Título + botão */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap', marginBottom: '24px' }}>
+          <div>
+            <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#1A1F2E', margin: '0 0 6px 0' }}>
               Mentor IA
             </h1>
-            <p className="max-w-[640px] text-sm leading-7 text-text-secondary">
-              Uma leitura orientada do seu progresso, das dificuldades recorrentes e do proximo passo mais util dentro da plataforma.
+            <p style={{ fontSize: '14px', color: '#6B7280', margin: 0, maxWidth: '580px', lineHeight: '1.6' }}>
+              Uma leitura orientada do seu progresso, das dificuldades recorrentes e do próximo passo mais útil dentro da plataforma.
             </p>
           </div>
 
-          <Button variant="outline" onClick={() => void refreshMentor()}>
-            <RefreshCcw size={15} />
-            Atualizar diagnostico
-          </Button>
+          <button
+            type="button"
+            onClick={() => void refreshMentor()}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              padding: '8px 16px', borderRadius: '8px',
+              border: '1px solid #E8ECF2', backgroundColor: '#FFFFFF',
+              color: '#6B7280', fontSize: '13px', fontWeight: 500,
+              cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0,
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#D1D5DB' }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E8ECF2' }}
+          >
+            <RefreshCcw size={14} />
+            Atualizar diagnóstico
+          </button>
         </div>
 
+        {/* KPIs */}
         {!!summaryMetrics.length && (
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '14px' }}>
             {summaryMetrics.map((metric, index) => {
               const style = metricStyles[index]
               const Icon = style.icon
               return (
                 <div
                   key={metric.label}
-                  className="rounded-xl border border-border bg-background-elevated p-6"
+                  style={{ backgroundColor: '#F8FAFF', borderRadius: '10px', border: '1px solid #E8ECF2', padding: '20px' }}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '12px' }}>
+                    <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', margin: 0 }}>
                       {metric.label}
                     </p>
-                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${style.iconBg} ${style.iconColor}`}>
-                      <Icon size={15} />
+                    <div style={{
+                      width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
+                      backgroundColor: style.bg,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Icon size={15} color={style.color} />
                     </div>
                   </div>
-
-                  <p className="mt-4 text-2xl font-bold capitalize tracking-[-0.03em] text-foreground">
+                  <p style={{ fontSize: '22px', fontWeight: 700, color: '#1A1F2E', margin: '0 0 4px 0', textTransform: 'capitalize' }}>
                     {metric.value}
                   </p>
-                  <p className="mt-2 text-sm leading-7 text-text-secondary">
+                  <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
                     {metric.helper}
                   </p>
                 </div>
@@ -114,18 +135,23 @@ export function MentorScreen() {
             })}
           </div>
         )}
-      </Card>
+      </div>
 
+      {/* ── Erro ── */}
       {error && (
-        <Card className="border-danger/20 bg-danger-soft" padding="md">
-          <div className="flex items-start gap-3 text-danger">
-            <AlertCircle size={17} className="mt-0.5 shrink-0" />
-            <div className="space-y-0.5">
-              <p className="text-sm font-semibold">Nao foi possivel carregar tudo do mentor.</p>
-              <p className="text-sm leading-6">{error}</p>
-            </div>
+        <div style={{
+          display: 'flex', alignItems: 'flex-start', gap: '12px',
+          padding: '16px 20px', borderRadius: '10px',
+          border: '1px solid #FECACA', backgroundColor: '#FEF2F2',
+        }}>
+          <AlertCircle size={17} color="#DC2626" style={{ flexShrink: 0, marginTop: '1px' }} />
+          <div>
+            <p style={{ fontSize: '14px', fontWeight: 600, color: '#DC2626', margin: '0 0 2px 0' }}>
+              Não foi possível carregar o diagnóstico do mentor.
+            </p>
+            <p style={{ fontSize: '13px', color: '#DC2626', margin: 0, opacity: 0.85 }}>{error}</p>
           </div>
-        </Card>
+        </div>
       )}
 
       <MentorInsights

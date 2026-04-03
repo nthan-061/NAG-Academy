@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Brain, Send, UserRound } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
+import type React from 'react'
 import type { MentorChatMessage, MentorUserContext } from '../types'
 
 interface MentorChatProps {
@@ -13,10 +12,25 @@ interface MentorChatProps {
   initialPrompt?: string
 }
 
+const card: React.CSSProperties = {
+  backgroundColor: '#FFFFFF',
+  borderRadius: '12px',
+  border: '1px solid #E8ECF2',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+  padding: '28px',
+}
+
+const innerCard: React.CSSProperties = {
+  backgroundColor: '#F8FAFF',
+  borderRadius: '10px',
+  border: '1px solid #E8ECF2',
+  padding: '20px',
+}
+
 const STARTER_PROMPTS = [
-  'Meu objetivo com Google Ads e gerar leads qualificados.',
-  'Ja anunciei antes, mas erro muito na segmentacao.',
-  'Quero que voce monte meu proximo passo de estudo.',
+  'Meu objetivo com Google Ads é gerar leads qualificados.',
+  'Já anunciei antes, mas erro muito na segmentação.',
+  'Quero que você monte meu próximo passo de estudo.',
 ]
 
 export function MentorChat({
@@ -37,54 +51,66 @@ export function MentorChat({
   }
 
   return (
-    <Card padding="lg">
-
-      {/* Cabeçalho — mesmo padrão de SectionHeader das outras seções */}
-      <div className="space-y-2">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
+    <div style={card}>
+      {/* Cabeçalho */}
+      <div style={{ marginBottom: '24px' }}>
+        <p style={{ fontSize: '13px', fontWeight: 600, color: '#6B7280', letterSpacing: '0.05em', margin: '0 0 4px 0' }}>
           Conversa guiada
         </p>
-        <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground">
+        <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#1A1F2E', margin: '0 0 6px 0' }}>
           Conversa com seu mentor
         </h2>
-        <p className="max-w-[640px] text-sm leading-7 text-text-secondary">
-          O mentor responde com base no seu historico, nos erros recorrentes e no contexto que voce compartilhar.
+        <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.6', margin: 0 }}>
+          O mentor responde com base no seu histórico, nos erros recorrentes e no contexto que você compartilhar.
         </p>
       </div>
 
-      {/* Objetivo atual, se existir */}
+      {/* Objetivo atual */}
       {mentorContext?.goal && (
-        <div className="mt-6 rounded-xl border border-border bg-background-elevated p-5">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
+        <div style={{ ...innerCard, marginBottom: '16px' }}>
+          <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', margin: '0 0 4px 0' }}>
             Objetivo atual
           </p>
-          <p className="mt-2 text-sm leading-7 text-foreground">{mentorContext.goal}</p>
+          <p style={{ fontSize: '14px', color: '#1A1F2E', lineHeight: '1.55', margin: 0 }}>
+            {mentorContext.goal}
+          </p>
         </div>
       )}
 
       {/* Histórico de mensagens */}
-      <div className="mt-6 min-h-[300px] rounded-xl border border-border bg-background-elevated p-6">
+      <div style={{ ...innerCard, minHeight: '280px', marginBottom: '16px', display: 'flex', flexDirection: 'column' }}>
         {messages.length === 0 && !loading ? (
-          <div className="flex h-full min-h-[260px] flex-col justify-between gap-6">
-            <div className="space-y-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-soft text-secondary">
-                <Brain size={18} />
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1, gap: '24px', minHeight: '240px' }}>
+            <div>
+              <div style={{
+                width: '40px', height: '40px', borderRadius: '50%', marginBottom: '14px',
+                backgroundColor: '#EEF4FF',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Brain size={18} color="#2E5FD4" />
               </div>
-              <h3 className="text-base font-semibold text-foreground">
-                O mentor ainda nao iniciou a conversa.
-              </h3>
-              <p className="max-w-[500px] text-sm leading-7 text-text-secondary">
-                Comece contando seu objetivo, sua experiencia com Google Ads ou o que mais esta travando seu aprendizado agora.
+              <p style={{ fontSize: '14px', fontWeight: 600, color: '#1A1F2E', margin: '0 0 6px 0' }}>
+                O mentor ainda não iniciou a conversa.
+              </p>
+              <p style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.6', margin: 0, maxWidth: '460px' }}>
+                Comece contando seu objetivo, sua experiência com Google Ads ou o que mais está travando seu aprendizado agora.
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {STARTER_PROMPTS.map((prompt) => (
                 <button
                   key={prompt}
                   type="button"
                   onClick={() => setDraft(prompt)}
-                  className="rounded-full border border-border bg-surface px-4 py-1.5 text-left text-xs font-medium text-foreground transition hover:border-secondary/30 hover:bg-secondary-soft"
+                  style={{
+                    padding: '6px 14px', borderRadius: '999px',
+                    border: '1px solid #E8ECF2', backgroundColor: '#FFFFFF',
+                    color: '#6B7280', fontSize: '12px', fontWeight: 500,
+                    cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#2E5FD4'; e.currentTarget.style.color = '#2E5FD4' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E8ECF2'; e.currentTarget.style.color = '#6B7280' }}
                 >
                   {prompt}
                 </button>
@@ -92,48 +118,63 @@ export function MentorChat({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex gap-3 ${message.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
+                style={{ display: 'flex', gap: '10px', justifyContent: message.role === 'assistant' ? 'flex-start' : 'flex-end' }}
               >
                 {message.role === 'assistant' && (
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
-                    <Brain size={16} />
+                  <div style={{
+                    width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
+                    backgroundColor: '#EEF4FF',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Brain size={15} color="#2E5FD4" />
                   </div>
                 )}
 
-                <div
-                  className={`max-w-[82%] rounded-xl px-4 py-3 ${
-                    message.role === 'assistant'
-                      ? 'border border-border bg-surface text-foreground'
-                      : 'bg-primary text-white'
-                  }`}
-                >
-                  <p className={`whitespace-pre-wrap text-sm leading-7 ${
-                    message.role === 'assistant' ? 'text-text-secondary' : 'text-white'
-                  }`}>
+                <div style={{
+                  maxWidth: '82%',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  ...(message.role === 'assistant'
+                    ? { backgroundColor: '#FFFFFF', border: '1px solid #E8ECF2', color: '#1A1F2E' }
+                    : { backgroundColor: '#0D1B3E', color: '#FFFFFF' }
+                  ),
+                }}>
+                  <p style={{
+                    fontSize: '13px', lineHeight: '1.65', margin: 0, whiteSpace: 'pre-wrap',
+                    color: message.role === 'assistant' ? '#6B7280' : '#FFFFFF',
+                  }}>
                     {message.content}
                   </p>
                 </div>
 
                 {message.role === 'user' && (
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <UserRound size={16} />
+                  <div style={{
+                    width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
+                    backgroundColor: '#EBF0FA',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <UserRound size={15} color="#2E5FD4" />
                   </div>
                 )}
               </div>
             ))}
 
             {sending && (
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary-soft text-secondary">
-                  <Brain size={16} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '32px', height: '32px', borderRadius: '50%',
+                  backgroundColor: '#EEF4FF',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Brain size={15} color="#2E5FD4" />
                 </div>
-                <div className="rounded-xl border border-border bg-surface px-4 py-3">
-                  <p className="text-sm leading-7 text-text-secondary">
-                    O mentor esta analisando seu historico e montando a resposta...
+                <div style={{ padding: '10px 14px', borderRadius: '10px', backgroundColor: '#FFFFFF', border: '1px solid #E8ECF2' }}>
+                  <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
+                    O mentor está analisando seu histórico e montando a resposta...
                   </p>
                 </div>
               </div>
@@ -142,41 +183,75 @@ export function MentorChat({
         )}
       </div>
 
-      {/* Input de envio */}
-      <div className="mt-4 rounded-xl border border-border bg-background-elevated p-5">
-        <div className="mb-4 flex flex-wrap gap-2">
+      {/* Input */}
+      <div style={{ ...innerCard, padding: '20px' }}>
+        {/* Atalhos de prompt */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '14px' }}>
           {STARTER_PROMPTS.map((prompt) => (
             <button
               key={prompt}
               type="button"
               onClick={() => setDraft(prompt)}
-              className="rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium text-text-secondary transition hover:border-secondary/30 hover:bg-secondary-soft hover:text-foreground"
+              style={{
+                padding: '4px 12px', borderRadius: '999px',
+                border: '1px solid #E8ECF2', backgroundColor: '#FFFFFF',
+                color: '#9CA3AF', fontSize: '11px', fontWeight: 500,
+                cursor: 'pointer', fontFamily: 'inherit',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#2E5FD4'; e.currentTarget.style.borderColor = '#2E5FD4' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF'; e.currentTarget.style.borderColor = '#E8ECF2' }}
             >
               {prompt}
             </button>
           ))}
         </div>
 
+        {/* Textarea */}
         <textarea
           value={draft}
-          onChange={(event) => setDraft(event.target.value)}
+          onChange={(e) => setDraft(e.target.value)}
           rows={4}
-          placeholder="Conte ao mentor onde voce esta travando, qual e seu objetivo ou o que deseja decidir agora."
-          className="w-full resize-none rounded-xl border border-border bg-surface px-5 py-4 text-sm leading-7 text-foreground outline-none transition placeholder:text-muted-foreground focus:border-secondary focus:shadow-focus"
+          placeholder="Conte ao mentor onde você está travando, qual é seu objetivo ou o que deseja decidir agora."
+          style={{
+            width: '100%', resize: 'none', borderRadius: '8px',
+            border: '1px solid #E8ECF2', backgroundColor: '#FFFFFF',
+            padding: '12px 16px', fontSize: '13px', lineHeight: '1.65',
+            color: '#1A1F2E', fontFamily: 'inherit', outline: 'none',
+            boxSizing: 'border-box',
+          }}
+          onFocus={(e) => { e.target.style.borderColor = '#2E5FD4' }}
+          onBlur={(e) => { e.target.style.borderColor = '#E8ECF2' }}
         />
 
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="max-w-[360px] text-xs leading-6 text-text-secondary">
-            Quanto mais contexto voce compartilhar, mais preciso fica o diagnostico do mentor.
+        {/* Rodapé do input */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginTop: '14px', flexWrap: 'wrap' }}>
+          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0, maxWidth: '360px' }}>
+            Quanto mais contexto você compartilhar, mais preciso fica o diagnóstico do mentor.
           </p>
 
-          <Button onClick={() => void handleSubmit()} loading={sending}>
+          <button
+            type="button"
+            onClick={() => void handleSubmit()}
+            disabled={sending}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              padding: '9px 20px', borderRadius: '8px',
+              backgroundColor: sending ? '#D1D5DB' : '#0D1B3E',
+              color: '#FFFFFF', fontSize: '13px', fontWeight: 600,
+              border: 'none', cursor: sending ? 'not-allowed' : 'pointer',
+              fontFamily: 'inherit', flexShrink: 0,
+            }}
+            onMouseEnter={(e) => { if (!sending) e.currentTarget.style.backgroundColor = '#1E3A6E' }}
+            onMouseLeave={(e) => { if (!sending) e.currentTarget.style.backgroundColor = '#0D1B3E' }}
+          >
+            {sending
+              ? <span style={{ width: '14px', height: '14px', border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
+              : <Send size={14} />
+            }
             Enviar para o mentor
-            <Send size={15} />
-          </Button>
+          </button>
         </div>
       </div>
-
-    </Card>
+    </div>
   )
 }
