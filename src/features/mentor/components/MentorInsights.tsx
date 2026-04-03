@@ -68,7 +68,7 @@ export function MentorInsights({
 }: MentorInsightsProps) {
   return (
     <div className="space-y-6">
-      <Card className="space-y-5 border-border/80 p-8 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+      <Card className="space-y-5 border-border bg-[#F9FAFB] p-8 shadow-none">
         <SectionHeader
           eyebrow="Leitura atual"
           title="Leitura atual do mentor"
@@ -93,7 +93,7 @@ export function MentorInsights({
 
       {profile && (
         <div className="grid gap-6 xl:grid-cols-2">
-          <Card className="space-y-6 border-border/80 p-8 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+          <Card className="space-y-6 border-border bg-[#F9FAFB] p-8 shadow-none">
             <SectionHeader
               eyebrow="Perfil"
               title="Leitura do perfil de aprendizado"
@@ -127,7 +127,7 @@ export function MentorInsights({
             </div>
           </Card>
 
-          <Card className="space-y-6 border-border/80 p-8 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+          <Card className="space-y-6 border-border bg-[#F9FAFB] p-8 shadow-none">
             <SectionHeader
               eyebrow="Contexto"
               title="Contexto conhecido do aluno"
@@ -155,7 +155,7 @@ export function MentorInsights({
         </div>
       )}
 
-      <Card className="space-y-6 border-border/80 p-8 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+      <Card className="space-y-6 border-border bg-[#F9FAFB] p-8 shadow-none">
         <SectionHeader
           eyebrow="Insights"
           title="Insights personalizados"
@@ -207,7 +207,7 @@ export function MentorInsights({
         </div>
       </Card>
 
-      <Card className="space-y-6 border-border/80 p-8 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+      <Card className="space-y-6 border-border bg-[#F9FAFB] p-8 shadow-none">
         <SectionHeader
           eyebrow="Proximos passos"
           title="Recomendacoes do mentor"

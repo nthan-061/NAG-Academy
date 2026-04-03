@@ -11,7 +11,7 @@ export function PageLayout({ children, variant = 'default' }: PageLayoutProps) {
     <main className="page-layout">
       <LayoutContainer
         size={variant === 'wide' ? 'wide' : 'default'}
-        className="py-6 md:py-8 lg:py-10"
+        className="py-7 md:py-9 lg:py-10"
       >
         {children}
       </LayoutContainer>

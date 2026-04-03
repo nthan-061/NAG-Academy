@@ -23,7 +23,7 @@ export function LayoutContainer({
   return (
     <div
       className={cn(
-        'mx-auto w-full px-4 sm:px-6 lg:px-8',
+        'mx-auto w-full px-4 lg:px-6',
         sizeClasses[size],
         className,
       )}

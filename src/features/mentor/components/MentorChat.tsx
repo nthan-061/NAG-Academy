@@ -38,7 +38,7 @@ export function MentorChat({
   }
 
   return (
-    <Card className="space-y-6 border-border/80 p-8 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+    <Card className="space-y-6 border-border bg-[#F9FAFB] p-8 shadow-none">
       <div className="space-y-2">
         <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
           Conversa guiada
