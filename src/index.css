@@ -192,16 +192,6 @@ button, input, textarea, select { font-family: 'Inter', sans-serif; }
     linear-gradient(180deg, #f8faff 0%, #f5f6fa 100%);
 }
 
-.page-layout__inner {
-  width: min(100%, var(--content-max));
-  margin: 0 auto;
-  padding: calc(var(--page-padding) + 8px) var(--page-padding) 40px;
-}
-
-.page-layout__inner--wide {
-  width: min(100%, 1460px);
-}
-
 .lesson-shell {
   margin-left: var(--sidebar-width);
   padding-top: var(--header-height);

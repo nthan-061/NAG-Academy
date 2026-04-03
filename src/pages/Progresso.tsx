@@ -344,7 +344,7 @@ export function Progresso() {
   if (!profile) return null
 
   return (
-    <div style={{ maxWidth: '1120px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="flex flex-col gap-6">
       <div style={{ marginBottom: '6px' }}>
         <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1A1F2E', margin: '0 0 8px 0', lineHeight: 1.1 }}>
           Meu Progresso

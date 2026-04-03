@@ -201,7 +201,7 @@ export function Trilhas() {
   ]
 
   return (
-    <div style={{ padding: '40px' }}>
+    <div className="space-y-8">
       {/* Cabeçalho */}
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 600, color: '#1A1F2E', margin: '0 0 8px 0' }}>

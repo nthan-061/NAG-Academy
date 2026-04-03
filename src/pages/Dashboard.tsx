@@ -114,7 +114,7 @@ export function Dashboard({ profile }: { profile: Profile | null }) {
   }
 
   return (
-    <div style={{ maxWidth: '960px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+    <div className="flex flex-col gap-8">
 
       {/* ── Bloco 1: Saudação ── */}
       <div>

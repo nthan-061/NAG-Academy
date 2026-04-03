@@ -83,7 +83,7 @@ export function MentorScreen() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-8">
+    <div className="flex flex-col gap-8">
       <div>
         <h1 className="text-[1.95rem] font-bold tracking-[-0.04em] text-foreground">
           Mentor IA
