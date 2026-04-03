@@ -83,17 +83,19 @@ export function MentorScreen() {
   }
 
   return (
-    <div className="space-y-6">
-      <Card className="border-border p-8 shadow-[0_1px_4px_rgba(10,22,40,0.04)]">
+    <div className="space-y-8">
+
+      {/* Hero — título + métricas */}
+      <Card className="border-border bg-white p-8 shadow-card">
         <div className="flex flex-wrap items-start justify-between gap-6">
-          <div className="space-y-2">
+          <div className="space-y-3">
             <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
               Painel do mentor
             </p>
             <h1 className="text-[2rem] font-bold tracking-[-0.04em] text-foreground">
               Mentor IA
             </h1>
-            <p className="max-w-[760px] text-sm leading-7 text-text-secondary">
+            <p className="max-w-[680px] text-sm leading-7 text-text-secondary">
               Uma leitura orientada do seu progresso, das dificuldades recorrentes e do proximo passo mais util dentro da plataforma.
             </p>
           </div>
@@ -105,7 +107,7 @@ export function MentorScreen() {
         </div>
 
         {!!summaryMetrics.length && (
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {summaryMetrics.map((metric, index) => {
               const style = metricStyles[index]
               const Icon = style.icon
@@ -113,21 +115,21 @@ export function MentorScreen() {
               return (
                 <div
                   key={metric.label}
-                  className="rounded-xl border border-border bg-[#F9FAFB] p-6"
+                  className="rounded-2xl border border-border bg-background p-6"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
                       {metric.label}
                     </p>
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-full ${style.iconBg} ${style.iconColor}`}>
-                      <Icon size={18} />
+                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${style.iconBg} ${style.iconColor}`}>
+                      <Icon size={17} />
                     </div>
                   </div>
 
-                  <p className="mt-5 text-[1.8rem] font-bold capitalize tracking-[-0.04em] text-foreground">
+                  <p className="mt-5 text-[1.9rem] font-bold capitalize tracking-[-0.04em] text-foreground">
                     {metric.value}
                   </p>
-                  <p className="mt-3 min-h-[56px] text-sm leading-7 text-text-secondary">
+                  <p className="mt-2 text-sm leading-6 text-text-secondary">
                     {metric.helper}
                   </p>
                 </div>
@@ -138,38 +140,37 @@ export function MentorScreen() {
       </Card>
 
       {error && (
-        <Card className="border-danger/20 bg-danger-soft px-5 py-4 shadow-none">
+        <Card className="border-danger/20 bg-danger-soft px-6 py-5 shadow-none">
           <div className="flex items-start gap-3 text-danger">
             <AlertCircle size={18} className="mt-0.5 shrink-0" />
-            <div>
+            <div className="space-y-1">
               <p className="text-sm font-semibold">Nao foi possivel carregar tudo do mentor.</p>
-              <p className="mt-1 text-sm leading-6">{error}</p>
+              <p className="text-sm leading-6">{error}</p>
             </div>
           </div>
         </Card>
       )}
 
-      <div className="rounded-[1.25rem] border border-border bg-white p-4 shadow-[0_1px_4px_rgba(10,22,40,0.04)] md:p-6 lg:p-8">
-        <div className="space-y-6">
-          <MentorInsights
-            profile={profile}
-            analysis={analysis}
-            insights={insights}
-            recommendations={recommendations}
-            onAcknowledgeInsight={acknowledgeInsight}
-            onAskMentor={(prompt) => setQueuedPrompt({ value: prompt, nonce: Date.now() })}
-          />
+      {/* Insights e análises */}
+      <MentorInsights
+        profile={profile}
+        analysis={analysis}
+        insights={insights}
+        recommendations={recommendations}
+        onAcknowledgeInsight={acknowledgeInsight}
+        onAskMentor={(prompt) => setQueuedPrompt({ value: prompt, nonce: Date.now() })}
+      />
 
-          <MentorChat
-            key={queuedPrompt?.nonce ?? 0}
-            messages={messages}
-            mentorContext={mentorContext}
-            sending={sending}
-            onSendMessage={sendMessage}
-            initialPrompt={queuedPrompt?.value ?? ''}
-          />
-        </div>
-      </div>
+      {/* Chat */}
+      <MentorChat
+        key={queuedPrompt?.nonce ?? 0}
+        messages={messages}
+        mentorContext={mentorContext}
+        sending={sending}
+        onSendMessage={sendMessage}
+        initialPrompt={queuedPrompt?.value ?? ''}
+      />
+
     </div>
   )
 }
