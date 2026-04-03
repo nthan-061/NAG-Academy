@@ -7,49 +7,23 @@ import { MentorChat } from './MentorChat'
 import { MentorInsights } from './MentorInsights'
 
 const metricStyles = [
-  {
-    icon: TrendingUp,
-    iconColor: 'text-secondary',
-    iconBg: 'bg-secondary-soft',
-  },
-  {
-    icon: Timer,
-    iconColor: 'text-success',
-    iconBg: 'bg-success-soft',
-  },
-  {
-    icon: Target,
-    iconColor: 'text-warning',
-    iconBg: 'bg-warning-soft',
-  },
-  {
-    icon: BookOpen,
-    iconColor: 'text-danger',
-    iconBg: 'bg-danger-soft',
-  },
+  { icon: TrendingUp, iconColor: 'text-secondary',  iconBg: 'bg-secondary-soft' },
+  { icon: Timer,      iconColor: 'text-success',     iconBg: 'bg-success-soft'  },
+  { icon: Target,     iconColor: 'text-warning',     iconBg: 'bg-warning-soft'  },
+  { icon: BookOpen,   iconColor: 'text-danger',      iconBg: 'bg-danger-soft'   },
 ] as const
 
 export function MentorScreen() {
   const {
-    profile,
-    analysis,
-    insights,
-    recommendations,
-    messages,
-    mentorContext,
-    loading,
-    sending,
-    error,
-    refreshMentor,
-    sendMessage,
-    acknowledgeInsight,
+    profile, analysis, insights, recommendations,
+    messages, mentorContext, loading, sending, error,
+    refreshMentor, sendMessage, acknowledgeInsight,
   } = useMentor()
 
   const [queuedPrompt, setQueuedPrompt] = useState<{ value: string; nonce: number } | null>(null)
 
   const summaryMetrics = useMemo(() => {
     if (!profile || !analysis) return []
-
     return [
       {
         label: 'Nivel estimado',
@@ -64,7 +38,11 @@ export function MentorScreen() {
       {
         label: 'Acuracia recente',
         value: `${Math.round(profile.studyVelocity.recentAccuracy * 100)}%`,
-        helper: analysis.status === 'critical' ? 'Precisa reforco imediato' : analysis.status === 'attention' ? 'Vale reforcar topicos' : 'Bom momento para avancar',
+        helper: analysis.status === 'critical'
+          ? 'Precisa reforco imediato'
+          : analysis.status === 'attention'
+          ? 'Vale reforcar topicos'
+          : 'Bom momento para avancar',
       },
       {
         label: 'Flashcards pendentes',
@@ -85,51 +63,50 @@ export function MentorScreen() {
   return (
     <div className="space-y-8">
 
-      {/* Hero — título + métricas */}
-      <Card className="border-border bg-white p-8 shadow-card">
+      {/* ── Hero: título + métricas ── */}
+      <Card padding="lg">
         <div className="flex flex-wrap items-start justify-between gap-6">
-          <div className="space-y-3">
+          <div className="space-y-2">
             <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
               Painel do mentor
             </p>
             <h1 className="text-[2rem] font-bold tracking-[-0.04em] text-foreground">
               Mentor IA
             </h1>
-            <p className="max-w-[680px] text-sm leading-7 text-text-secondary">
+            <p className="max-w-[640px] text-sm leading-7 text-text-secondary">
               Uma leitura orientada do seu progresso, das dificuldades recorrentes e do proximo passo mais util dentro da plataforma.
             </p>
           </div>
 
-          <Button variant="secondary" className="rounded-[0.9rem] px-5" onClick={() => void refreshMentor()}>
+          <Button variant="outline" onClick={() => void refreshMentor()}>
+            <RefreshCcw size={15} />
             Atualizar diagnostico
-            <RefreshCcw size={16} />
           </Button>
         </div>
 
         {!!summaryMetrics.length && (
-          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {summaryMetrics.map((metric, index) => {
               const style = metricStyles[index]
               const Icon = style.icon
-
               return (
                 <div
                   key={metric.label}
-                  className="rounded-2xl border border-border bg-background p-6"
+                  className="rounded-xl border border-border bg-background-elevated p-6"
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start justify-between gap-2">
                     <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
                       {metric.label}
                     </p>
-                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${style.iconBg} ${style.iconColor}`}>
-                      <Icon size={17} />
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${style.iconBg} ${style.iconColor}`}>
+                      <Icon size={15} />
                     </div>
                   </div>
 
-                  <p className="mt-5 text-[1.9rem] font-bold capitalize tracking-[-0.04em] text-foreground">
+                  <p className="mt-4 text-2xl font-bold capitalize tracking-[-0.03em] text-foreground">
                     {metric.value}
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-text-secondary">
+                  <p className="mt-2 text-sm leading-7 text-text-secondary">
                     {metric.helper}
                   </p>
                 </div>
@@ -140,10 +117,10 @@ export function MentorScreen() {
       </Card>
 
       {error && (
-        <Card className="border-danger/20 bg-danger-soft px-6 py-5 shadow-none">
+        <Card className="border-danger/20 bg-danger-soft" padding="md">
           <div className="flex items-start gap-3 text-danger">
-            <AlertCircle size={18} className="mt-0.5 shrink-0" />
-            <div className="space-y-1">
+            <AlertCircle size={17} className="mt-0.5 shrink-0" />
+            <div className="space-y-0.5">
               <p className="text-sm font-semibold">Nao foi possivel carregar tudo do mentor.</p>
               <p className="text-sm leading-6">{error}</p>
             </div>
@@ -151,7 +128,6 @@ export function MentorScreen() {
         </Card>
       )}
 
-      {/* Insights e análises */}
       <MentorInsights
         profile={profile}
         analysis={analysis}
@@ -161,7 +137,6 @@ export function MentorScreen() {
         onAskMentor={(prompt) => setQueuedPrompt({ value: prompt, nonce: Date.now() })}
       />
 
-      {/* Chat */}
       <MentorChat
         key={queuedPrompt?.nonce ?? 0}
         messages={messages}
