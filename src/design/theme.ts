@@ -36,7 +36,7 @@ export const theme = {
       wrapper: 'flex flex-col gap-2.5',
       label: 'text-sm font-semibold text-foreground',
       field:
-        'h-14 w-full rounded-[1rem] border border-border bg-surface px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-secondary focus:shadow-focus disabled:cursor-not-allowed disabled:bg-background-elevated disabled:text-muted-foreground',
+        'h-14 w-full rounded-[1rem] border border-border bg-surface px-5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-secondary focus:shadow-focus disabled:cursor-not-allowed disabled:bg-background-elevated disabled:text-muted-foreground',
       helper: 'text-xs leading-6 text-text-secondary',
       error: 'text-xs leading-6 text-danger',
     },

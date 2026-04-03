@@ -42,15 +42,15 @@ interface MentorInsightsProps {
 
 function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
   return (
-    <div className="border-b border-border/80 px-6 py-5">
+    <div className="space-y-2">
       <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
         {eyebrow}
       </p>
-      <h2 className="mt-2 text-[1.7rem] font-bold tracking-[-0.03em] text-foreground">
+      <h2 className="text-[1.7rem] font-bold tracking-[-0.03em] text-foreground">
         {title}
       </h2>
       {subtitle && (
-        <p className="mt-2 text-sm leading-7 text-text-secondary">
+        <p className="text-sm leading-7 text-text-secondary">
           {subtitle}
         </p>
       )}
@@ -67,43 +67,41 @@ export function MentorInsights({
   onAskMentor,
 }: MentorInsightsProps) {
   return (
-    <div className="flex flex-col gap-6">
-      <Card className="overflow-hidden border-border/80 p-0 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+    <div className="space-y-6">
+      <Card className="space-y-5 border-border/80 p-6 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
         <SectionHeader
           eyebrow="Leitura atual"
           title="Leitura atual do mentor"
           subtitle={analysis?.summary ?? 'Carregando leitura comportamental do aluno.'}
         />
 
-        <div className="px-6 py-5">
-          <div className="flex flex-wrap items-center gap-3">
-            <Badge variant={analysis ? statusVariant[analysis.status] : 'default'}>
-              {analysis?.status === 'critical' ? 'Estado critico' : analysis?.status === 'attention' ? 'Momento de atencao' : 'Bom momento'}
-            </Badge>
-            {profile?.evolutionTrend.direction === 'declining' && (
-              <div className="inline-flex items-center gap-1 rounded-full bg-danger-soft px-3 py-1.5 text-xs font-semibold text-danger">
-                <TrendingDown size={12} />
-                ritmo em queda
-              </div>
-            )}
-            {!!analysis?.focusTopics.length && analysis.focusTopics.map((topic) => (
-              <Badge key={topic} variant="info">{topic}</Badge>
-            ))}
-          </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge variant={analysis ? statusVariant[analysis.status] : 'default'}>
+            {analysis?.status === 'critical' ? 'Estado critico' : analysis?.status === 'attention' ? 'Momento de atencao' : 'Bom momento'}
+          </Badge>
+          {profile?.evolutionTrend.direction === 'declining' && (
+            <div className="inline-flex items-center gap-1 rounded-full bg-danger-soft px-3 py-1.5 text-xs font-semibold text-danger">
+              <TrendingDown size={12} />
+              ritmo em queda
+            </div>
+          )}
+          {!!analysis?.focusTopics.length && analysis.focusTopics.map((topic) => (
+            <Badge key={topic} variant="info">{topic}</Badge>
+          ))}
         </div>
       </Card>
 
       {profile && (
         <div className="grid gap-6 xl:grid-cols-2">
-          <Card className="overflow-hidden border-border/80 p-0 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+          <Card className="space-y-6 border-border/80 p-6 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
             <SectionHeader
               eyebrow="Perfil"
               title="Leitura do perfil de aprendizado"
               subtitle={`${profile.userName}, o mentor estima seu nivel como ${profile.estimatedLevel.label} e percebe tendencia ${profile.evolutionTrend.direction} no seu desempenho recente.`}
             />
 
-            <div className="grid gap-px bg-border/70 p-px md:grid-cols-2">
-              <div className="bg-surface px-6 py-5">
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="rounded-xl border border-border bg-background-elevated/55 p-5">
                 <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-success">Pontos fortes</p>
                 <ul className="mt-4 space-y-3 text-sm leading-7 text-foreground">
                   {profile.strengths.map((item) => (
@@ -115,7 +113,7 @@ export function MentorInsights({
                 </ul>
               </div>
 
-              <div className="bg-surface px-6 py-5">
+              <div className="rounded-xl border border-border bg-background-elevated/55 p-5">
                 <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-warning">Pontos fracos</p>
                 <ul className="mt-4 space-y-3 text-sm leading-7 text-foreground">
                   {profile.weakPoints.map((item) => (
@@ -129,21 +127,21 @@ export function MentorInsights({
             </div>
           </Card>
 
-          <Card className="overflow-hidden border-border/80 p-0 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+          <Card className="space-y-6 border-border/80 p-6 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
             <SectionHeader
               eyebrow="Contexto"
               title="Contexto conhecido do aluno"
               subtitle="O mentor orienta melhor quando entende objetivo, experiencia e contexto de uso."
             />
 
-            <div className="grid gap-px bg-border/70 p-px sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {[
                 ['Objetivo', profile.mentorContext?.goal ?? 'Ainda nao informado ao mentor.'],
                 ['Experiencia', profile.mentorContext?.experience_level ?? 'Nao informado'],
                 ['Contexto de uso', profile.mentorContext?.use_case ?? 'Nao informado'],
                 ['Desafios', profile.mentorContext?.declared_challenges?.join(', ') || 'Nenhum desafio declarado ainda.'],
               ].map(([label, value]) => (
-                <div key={label} className="bg-surface px-6 py-5">
+                <div key={label} className="rounded-xl border border-border bg-background-elevated/55 p-5">
                   <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
                     {label}
                   </p>
@@ -157,19 +155,19 @@ export function MentorInsights({
         </div>
       )}
 
-      <Card className="overflow-hidden border-border/80 p-0 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+      <Card className="space-y-6 border-border/80 p-6 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
         <SectionHeader
           eyebrow="Insights"
           title="Insights personalizados"
           subtitle="Observacoes derivadas do uso real da plataforma."
         />
 
-        <div className="flex flex-col gap-4 px-6 py-5">
+        <div className="space-y-4">
           {insights.length > 0 ? insights.map((insight) => {
             const Icon = toneIcon[insight.tone]
 
             return (
-              <div key={insight.id} className="rounded-[1rem] border border-border bg-background-elevated/65 px-5 py-5">
+              <div key={insight.id} className="rounded-[1rem] border border-border bg-background-elevated/65 p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex min-w-0 gap-4">
                     <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border ${toneAccent[insight.tone]}`}>
@@ -200,7 +198,7 @@ export function MentorInsights({
               </div>
             )
           }) : (
-            <div className="rounded-[1rem] border border-dashed border-border bg-background-elevated px-5 py-6">
+            <div className="rounded-[1rem] border border-dashed border-border bg-background-elevated p-5">
               <p className="text-sm leading-7 text-text-secondary">
                 Sem insights pendentes no momento. O mentor segue acompanhando seu comportamento para intervir quando fizer sentido.
               </p>
@@ -209,16 +207,16 @@ export function MentorInsights({
         </div>
       </Card>
 
-      <Card className="overflow-hidden border-border/80 p-0 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+      <Card className="space-y-6 border-border/80 p-6 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
         <SectionHeader
           eyebrow="Proximos passos"
           title="Recomendacoes do mentor"
           subtitle="Acoes praticas para destravar progresso e consolidar aprendizado."
         />
 
-        <div className="flex flex-col gap-4 px-6 py-5">
+        <div className="space-y-4">
           {recommendations.map((recommendation) => (
-            <div key={recommendation.id} className="rounded-[1rem] border border-border bg-background-elevated/65 px-5 py-5">
+            <div key={recommendation.id} className="rounded-[1rem] border border-border bg-background-elevated/65 p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">

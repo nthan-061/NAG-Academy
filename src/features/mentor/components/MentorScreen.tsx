@@ -83,18 +83,18 @@ export function MentorScreen() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-[1.95rem] font-bold tracking-[-0.04em] text-foreground">
+    <div className="space-y-8">
+      <div className="space-y-3">
+        <h1 className="text-[2.1rem] font-bold tracking-[-0.04em] text-foreground">
           Mentor IA
         </h1>
-        <p className="mt-2 max-w-[760px] text-[1rem] leading-8 text-text-secondary">
+        <p className="max-w-[760px] text-base leading-8 text-text-secondary">
           Uma leitura orientada do seu progresso, das dificuldades recorrentes e do proximo passo mais util dentro da plataforma.
         </p>
       </div>
 
-      <Card className="border-border/80 p-0 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/80 px-6 py-5">
+      <Card className="space-y-6 border-border/80 p-6 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
               Diagnostico do mentor
@@ -111,13 +111,16 @@ export function MentorScreen() {
         </div>
 
         {!!summaryMetrics.length && (
-          <div className="grid gap-px bg-border/70 p-px md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {summaryMetrics.map((metric, index) => {
               const style = metricStyles[index]
               const Icon = style.icon
 
               return (
-                <div key={metric.label} className="bg-surface px-6 py-6">
+                <div
+                  key={metric.label}
+                  className="rounded-xl border border-border bg-surface p-6 shadow-[0_8px_20px_rgba(10,22,40,0.04)]"
+                >
                   <div className="flex items-start justify-between gap-3">
                     <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
                       {metric.label}
@@ -130,7 +133,7 @@ export function MentorScreen() {
                   <p className="mt-5 text-[2rem] font-bold capitalize tracking-[-0.04em] text-foreground">
                     {metric.value}
                   </p>
-                  <p className="mt-2 text-sm leading-7 text-text-secondary">
+                  <p className="mt-3 text-sm leading-7 text-text-secondary">
                     {metric.helper}
                   </p>
                 </div>
