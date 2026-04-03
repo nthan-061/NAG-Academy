@@ -185,7 +185,7 @@ button, input, textarea, select { font-family: 'Inter', sans-serif; }
 
 .page-layout {
   margin-left: var(--sidebar-width);
-  padding-top: var(--header-height);
+  padding-top: calc(var(--header-height) + 28px);
   padding-bottom: 32px;
   padding-left: clamp(16px, 2vw, 32px);
   padding-right: clamp(16px, 2vw, 32px);
