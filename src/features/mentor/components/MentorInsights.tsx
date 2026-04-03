@@ -46,7 +46,7 @@ function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: s
       <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
         {eyebrow}
       </p>
-      <h2 className="text-[1.7rem] font-bold tracking-[-0.03em] text-foreground">
+      <h2 className="text-[1.55rem] font-bold tracking-[-0.03em] text-foreground">
         {title}
       </h2>
       {subtitle && (
@@ -68,7 +68,7 @@ export function MentorInsights({
 }: MentorInsightsProps) {
   return (
     <div className="space-y-6">
-      <Card className="space-y-5 border-border/80 p-6 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+      <Card className="space-y-5 border-border/80 p-8 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
         <SectionHeader
           eyebrow="Leitura atual"
           title="Leitura atual do mentor"
@@ -93,7 +93,7 @@ export function MentorInsights({
 
       {profile && (
         <div className="grid gap-6 xl:grid-cols-2">
-          <Card className="space-y-6 border-border/80 p-6 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+          <Card className="space-y-6 border-border/80 p-8 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
             <SectionHeader
               eyebrow="Perfil"
               title="Leitura do perfil de aprendizado"
@@ -101,7 +101,7 @@ export function MentorInsights({
             />
 
             <div className="grid gap-6 md:grid-cols-2">
-              <div className="rounded-xl border border-border bg-background-elevated/55 p-5">
+              <div className="rounded-xl border border-border bg-background-elevated/55 p-6">
                 <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-success">Pontos fortes</p>
                 <ul className="mt-4 space-y-3 text-sm leading-7 text-foreground">
                   {profile.strengths.map((item) => (
@@ -113,7 +113,7 @@ export function MentorInsights({
                 </ul>
               </div>
 
-              <div className="rounded-xl border border-border bg-background-elevated/55 p-5">
+              <div className="rounded-xl border border-border bg-background-elevated/55 p-6">
                 <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-warning">Pontos fracos</p>
                 <ul className="mt-4 space-y-3 text-sm leading-7 text-foreground">
                   {profile.weakPoints.map((item) => (
@@ -127,7 +127,7 @@ export function MentorInsights({
             </div>
           </Card>
 
-          <Card className="space-y-6 border-border/80 p-6 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+          <Card className="space-y-6 border-border/80 p-8 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
             <SectionHeader
               eyebrow="Contexto"
               title="Contexto conhecido do aluno"
@@ -141,7 +141,7 @@ export function MentorInsights({
                 ['Contexto de uso', profile.mentorContext?.use_case ?? 'Nao informado'],
                 ['Desafios', profile.mentorContext?.declared_challenges?.join(', ') || 'Nenhum desafio declarado ainda.'],
               ].map(([label, value]) => (
-                <div key={label} className="rounded-xl border border-border bg-background-elevated/55 p-5">
+                <div key={label} className="rounded-xl border border-border bg-background-elevated/55 p-6">
                   <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
                     {label}
                   </p>
@@ -155,7 +155,7 @@ export function MentorInsights({
         </div>
       )}
 
-      <Card className="space-y-6 border-border/80 p-6 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+      <Card className="space-y-6 border-border/80 p-8 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
         <SectionHeader
           eyebrow="Insights"
           title="Insights personalizados"
@@ -167,7 +167,7 @@ export function MentorInsights({
             const Icon = toneIcon[insight.tone]
 
             return (
-              <div key={insight.id} className="rounded-[1rem] border border-border bg-background-elevated/65 p-5">
+              <div key={insight.id} className="rounded-[1rem] border border-border bg-background-elevated/65 p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex min-w-0 gap-4">
                     <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border ${toneAccent[insight.tone]}`}>
@@ -198,7 +198,7 @@ export function MentorInsights({
               </div>
             )
           }) : (
-            <div className="rounded-[1rem] border border-dashed border-border bg-background-elevated p-5">
+            <div className="rounded-[1rem] border border-dashed border-border bg-background-elevated p-6">
               <p className="text-sm leading-7 text-text-secondary">
                 Sem insights pendentes no momento. O mentor segue acompanhando seu comportamento para intervir quando fizer sentido.
               </p>
@@ -207,7 +207,7 @@ export function MentorInsights({
         </div>
       </Card>
 
-      <Card className="space-y-6 border-border/80 p-6 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+      <Card className="space-y-6 border-border/80 p-8 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
         <SectionHeader
           eyebrow="Proximos passos"
           title="Recomendacoes do mentor"
@@ -216,7 +216,7 @@ export function MentorInsights({
 
         <div className="space-y-4">
           {recommendations.map((recommendation) => (
-            <div key={recommendation.id} className="rounded-[1rem] border border-border bg-background-elevated/65 p-5">
+            <div key={recommendation.id} className="rounded-[1rem] border border-border bg-background-elevated/65 p-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">

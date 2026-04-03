@@ -38,12 +38,12 @@ export function MentorChat({
   }
 
   return (
-    <Card className="space-y-6 border-border/80 p-6 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
+    <Card className="space-y-6 border-border/80 p-8 shadow-[0_8px_24px_rgba(10,22,40,0.06)]">
       <div className="space-y-2">
         <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">
           Conversa guiada
         </p>
-        <h2 className="text-[1.7rem] font-bold tracking-[-0.03em] text-foreground">
+        <h2 className="text-[1.55rem] font-bold tracking-[-0.03em] text-foreground">
           Conversa com seu mentor
         </h2>
         <p className="text-sm leading-7 text-text-secondary">
@@ -52,14 +52,14 @@ export function MentorChat({
       </div>
 
       {mentorContext?.goal && (
-        <div className="rounded-xl border border-border bg-background-elevated/55 p-5">
+        <div className="rounded-xl border border-border bg-background-elevated/55 p-6">
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-secondary">Objetivo atual</p>
           <p className="mt-2 text-sm leading-7 text-foreground">{mentorContext.goal}</p>
         </div>
       )}
 
       <div className="space-y-5">
-        <div className="min-h-[320px] rounded-[1rem] border border-border bg-background-elevated/60 p-5">
+        <div className="min-h-[320px] rounded-[1rem] border border-border bg-background-elevated/60 p-6">
           {messages.length === 0 && !loading ? (
             <div className="flex h-full min-h-[280px] flex-col justify-between gap-6">
               <div>
@@ -136,7 +136,7 @@ export function MentorChat({
           )}
         </div>
 
-        <div className="rounded-[1rem] border border-border bg-surface p-5">
+        <div className="rounded-[1rem] border border-border bg-surface p-6">
           <div className="mb-4 flex flex-wrap gap-2.5">
             {STARTER_PROMPTS.map((prompt) => (
               <button
