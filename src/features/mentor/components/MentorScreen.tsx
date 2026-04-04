@@ -24,7 +24,7 @@ export function MentorScreen() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-4 lg:px-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-5 lg:px-8">
       <div className="flex flex-wrap items-start justify-between gap-6">
         <MentorHeader profile={profile} analysis={analysis} />
 
@@ -62,7 +62,7 @@ export function MentorScreen() {
         initialPrompt={queuedPrompt?.value ?? ''}
       />
 
-      <div className="mt-12">
+      <div className="mt-14">
         <MentorQuickActions
           recommendations={recommendations}
           onAskMentor={(prompt) => setQueuedPrompt({ value: prompt, nonce: Date.now() })}

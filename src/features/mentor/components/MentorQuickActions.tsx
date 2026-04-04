@@ -17,7 +17,7 @@ export function MentorQuickActions({
     .slice(0, 4)
 
   return (
-    <section className="space-y-5">
+    <section className="space-y-6">
       <div className="max-w-3xl space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
           Acoes rapidas
@@ -38,7 +38,7 @@ export function MentorQuickActions({
           ))}
         </div>
       ) : (
-        <div className="rounded-[20px] border border-border bg-surface p-7 shadow-[0_16px_40px_rgba(10,22,40,0.05)] lg:p-8">
+        <div className="rounded-[20px] border border-border bg-surface p-7 shadow-[0_12px_32px_rgba(10,22,40,0.04)] lg:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
               O mentor nao encontrou um atalho prioritario agora. Use a conversa para definir a proxima acao.
