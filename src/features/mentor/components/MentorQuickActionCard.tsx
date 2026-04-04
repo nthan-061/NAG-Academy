@@ -51,7 +51,7 @@ export function MentorQuickActionCard({
         </p>
       </div>
 
-      <div className="mt-5 flex">
+      <div className="mt-6 flex">
         {action}
       </div>
     </Card>

@@ -79,8 +79,8 @@ export function MentorChat({
   }
 
   return (
-    <section className="mt-10 space-y-6">
-      <div className="max-w-3xl space-y-2">
+    <section className="mt-12 space-y-6">
+      <div className="max-w-4xl space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
           Chat do mentor
         </p>
@@ -89,27 +89,27 @@ export function MentorChat({
         </h2>
       </div>
 
-      <Card padding="lg" className="grid gap-7 rounded-[20px] border border-border bg-white p-7 shadow-[0_24px_60px_rgba(10,22,40,0.08)] lg:p-8">
-        <div className="min-h-[640px] rounded-[20px] border border-border bg-[linear-gradient(180deg,#fcfdff_0%,#f8faff_100%)] p-7 shadow-[0_18px_48px_rgba(10,22,40,0.06)] lg:p-8">
-          <div className="flex flex-col gap-7">
+      <Card padding="lg" className="grid gap-8 rounded-[20px] border border-border bg-white p-7 shadow-[0_28px_70px_rgba(10,22,40,0.10)] lg:p-8">
+        <div className="min-h-[680px] rounded-[20px] border border-border bg-[linear-gradient(180deg,#fcfdff_0%,#f7faff_100%)] p-7 shadow-[0_22px_56px_rgba(10,22,40,0.08)] lg:p-8">
+          <div className="flex flex-col gap-8">
             <div className="flex gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
                 <Brain size={17} />
               </div>
-              <div className="max-w-[85%] rounded-[16px] border border-border bg-white px-6 py-5 shadow-[0_12px_28px_rgba(10,22,40,0.05)] lg:px-7 lg:py-6">
+              <div className="max-w-[85%] rounded-[16px] border border-border bg-white px-6 py-5 shadow-[0_14px_32px_rgba(10,22,40,0.06)] lg:px-7 lg:py-6">
                 <p className="text-sm leading-relaxed text-text-secondary md:text-[15px]">
                   {openingMessage}
                 </p>
               </div>
             </div>
 
-            <div className="ml-[64px] flex flex-wrap gap-3.5">
+            <div className="ml-[64px] flex flex-wrap gap-3 rounded-[16px] border border-border/80 bg-white/80 px-5 py-4 shadow-[0_10px_24px_rgba(10,22,40,0.03)]">
               {quickPrompts.map((prompt, index) => (
                 <Button
                   key={`${prompt}-${index}`}
                   variant="outline"
                   size="sm"
-                  className="h-auto w-fit rounded-full border-border bg-white px-5 py-2.5 text-xs shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
+                  className="h-auto w-fit rounded-full border-border bg-white px-5 py-3 text-xs font-semibold shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
                   onClick={() => setDraft(prompt)}
                 >
                   {index === 0 ? 'corrigir erros' : index === 1 ? 'revisar conteudo' : index === 2 ? 'montar plano' : 'definir objetivo'}
@@ -129,7 +129,7 @@ export function MentorChat({
                 )}
 
                 <div
-                  className={`max-w-[85%] rounded-[16px] px-6 py-5 shadow-[0_12px_28px_rgba(10,22,40,0.05)] lg:px-7 lg:py-6 ${
+                  className={`max-w-[85%] rounded-[16px] px-6 py-5 shadow-[0_14px_32px_rgba(10,22,40,0.06)] lg:px-7 lg:py-6 ${
                     message.role === 'assistant'
                       ? 'border border-border bg-white'
                       : 'bg-primary text-white'
@@ -161,7 +161,7 @@ export function MentorChat({
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
                   <Brain size={17} />
                 </div>
-                <div className="rounded-[16px] border border-border bg-white px-6 py-5 shadow-[0_12px_28px_rgba(10,22,40,0.05)] lg:px-7 lg:py-6">
+                <div className="rounded-[16px] border border-border bg-white px-6 py-5 shadow-[0_14px_32px_rgba(10,22,40,0.06)] lg:px-7 lg:py-6">
                   <p className="text-sm leading-relaxed text-text-secondary">
                     O mentor esta preparando sua resposta...
                   </p>
@@ -172,23 +172,23 @@ export function MentorChat({
         </div>
 
         <div className="rounded-[20px] border border-border bg-white p-7 shadow-[0_16px_40px_rgba(10,22,40,0.04)] lg:p-8">
-          <div className="flex flex-col gap-7">
+          <div className="flex flex-col gap-6">
             <textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               rows={5}
               placeholder="Escreva sua duvida ou a decisao que voce quer tomar agora."
-              className="w-full min-h-[184px] resize-none rounded-[16px] border border-border bg-background-elevated px-5 py-4 text-sm leading-relaxed text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-secondary focus:ring-2 focus:ring-secondary/15 md:text-[15px] lg:px-6 lg:py-5"
+              className="w-full min-h-[196px] resize-none rounded-[16px] border border-border bg-background-elevated px-6 py-5 text-sm leading-relaxed text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-secondary focus:ring-2 focus:ring-secondary/15 md:text-[15px] lg:px-7 lg:py-5"
             />
 
-            <div className="flex flex-wrap items-end gap-4 rounded-[16px] border border-border/80 bg-[#FCFDFF] px-5 py-4 lg:px-6">
+            <div className="flex flex-wrap items-center gap-4 rounded-[16px] border border-border/80 bg-[#FCFDFF] px-5 py-4 lg:px-6">
               <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
                 Quanto mais direta for sua pergunta, mais acionavel fica a resposta.
               </p>
 
               <Button
                 size="lg"
-                className="ml-auto w-fit px-6 shadow-button transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:scale-95"
+                className="ml-auto w-fit shrink-0 px-6 shadow-button transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:scale-95"
                 onClick={() => void handleSubmit()}
                 loading={sending}
               >

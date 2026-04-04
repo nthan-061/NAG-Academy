@@ -18,7 +18,7 @@ export function MentorQuickActions({
 
   return (
     <section className="space-y-6">
-      <div className="max-w-3xl space-y-2">
+      <div className="max-w-3xl space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
           Acoes rapidas
         </p>
