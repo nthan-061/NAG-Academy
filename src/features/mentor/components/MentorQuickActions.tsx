@@ -28,7 +28,7 @@ export function MentorQuickActions({
       </div>
 
       {quickActions.length > 0 ? (
-        <div className="grid gap-6 lg:gap-8 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4 lg:gap-8">
           {quickActions.map((recommendation) => (
             <MentorQuickActionCard
               key={recommendation.id}
@@ -38,8 +38,8 @@ export function MentorQuickActions({
           ))}
         </div>
       ) : (
-        <div className="rounded-3xl border border-border bg-surface p-6 shadow-sm">
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div className="rounded-3xl border border-border bg-surface p-6 shadow-sm lg:p-8">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
               O mentor nao encontrou um atalho prioritario agora. Use a conversa para definir a proxima acao.
             </p>
