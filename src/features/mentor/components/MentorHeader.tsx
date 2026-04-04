@@ -25,17 +25,17 @@ export function MentorHeader({ profile, analysis }: MentorHeaderProps) {
     ?? 'Abrir a conversa para definir o foco.'
 
   return (
-    <section className="space-y-3">
-      <div className="max-w-3xl space-y-2">
+    <section className="space-y-5">
+      <div className="max-w-4xl space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
           Mentor IA
         </p>
-        <h1 className="text-3xl font-bold tracking-[-0.04em] text-foreground md:text-4xl">
+        <h1 className="text-4xl font-bold tracking-[-0.05em] text-foreground md:text-5xl">
           Converse e aja no proximo passo certo.
         </h1>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         <Badge variant={badge.variant}>{badge.label}</Badge>
         <Badge variant="default">Problema: {mainProblem}</Badge>
         <Badge variant="info">Foco: {focus}</Badge>

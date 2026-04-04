@@ -17,18 +17,18 @@ export function MentorQuickActions({
     .slice(0, 4)
 
   return (
-    <section className="space-y-4">
-      <div className="max-w-2xl space-y-2">
+    <section className="space-y-6">
+      <div className="max-w-3xl space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
           Acoes rapidas
         </p>
-        <h2 className="text-xl font-bold tracking-[-0.03em] text-foreground">
+        <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground">
           Atalhos inteligentes para agir agora
         </h2>
       </div>
 
       {quickActions.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {quickActions.map((recommendation) => (
             <MentorQuickActionCard
               key={recommendation.id}
@@ -38,9 +38,9 @@ export function MentorQuickActions({
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-border bg-surface p-5">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <p className="text-sm leading-6 text-text-secondary">
+        <div className="rounded-3xl border border-border bg-surface p-6 shadow-sm">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
               O mentor nao encontrou um atalho prioritario agora. Use a conversa para definir a proxima acao.
             </p>
             <Button

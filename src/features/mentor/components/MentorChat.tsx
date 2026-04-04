@@ -79,37 +79,37 @@ export function MentorChat({
   }
 
   return (
-    <section className="space-y-4">
-      <div className="max-w-2xl space-y-2">
+    <section className="space-y-6">
+      <div className="max-w-3xl space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
           Chat do mentor
         </p>
-        <h2 className="text-xl font-bold tracking-[-0.03em] text-foreground">
+        <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground md:text-[2rem]">
           Converse com o mentor para decidir o proximo passo
         </h2>
       </div>
 
-      <Card padding="lg" className="grid gap-5">
-        <div className="min-h-[420px] rounded-[1.5rem] border border-border bg-background-elevated p-5">
-          <div className="flex flex-col gap-4">
-            <div className="flex gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+      <Card padding="lg" className="grid gap-6 rounded-[1.75rem] border border-border/90 p-6 shadow-md lg:p-8">
+        <div className="min-h-[540px] rounded-[1.75rem] border border-border/90 bg-background-elevated p-6 shadow-sm lg:p-8">
+          <div className="flex flex-col gap-6">
+            <div className="flex gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
                 <Brain size={17} />
               </div>
-              <div className="max-w-[85%] rounded-2xl border border-border bg-white px-4 py-3">
-                <p className="text-sm leading-7 text-text-secondary">
+              <div className="max-w-[85%] rounded-3xl border border-border bg-white px-5 py-4 shadow-sm">
+                <p className="text-sm leading-relaxed text-text-secondary md:text-[15px]">
                   {openingMessage}
                 </p>
               </div>
             </div>
 
-            <div className="ml-[52px] flex flex-wrap gap-2">
+            <div className="ml-[60px] flex flex-wrap gap-3">
               {quickPrompts.map((prompt, index) => (
                 <Button
                   key={`${prompt}-${index}`}
                   variant="outline"
                   size="sm"
-                  className="h-auto rounded-full px-4 py-2 text-xs"
+                  className="h-auto rounded-full px-4 py-2.5 text-xs"
                   onClick={() => setDraft(prompt)}
                 >
                   {index === 0 ? 'corrigir erros' : index === 1 ? 'revisar conteudo' : index === 2 ? 'montar plano' : 'definir objetivo'}
@@ -120,28 +120,28 @@ export function MentorChat({
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex gap-3 ${message.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
+                className={`flex gap-4 ${message.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
               >
                 {message.role === 'assistant' && (
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
                     <Brain size={17} />
                   </div>
                 )}
 
                 <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                  className={`max-w-[85%] rounded-3xl px-5 py-4 shadow-sm ${
                     message.role === 'assistant'
                       ? 'border border-border bg-white'
                       : 'bg-primary text-white'
                   }`}
                 >
-                  <p className={`whitespace-pre-wrap text-sm leading-7 ${message.role === 'assistant' ? 'text-text-secondary' : 'text-white'}`}>
+                  <p className={`whitespace-pre-wrap text-sm leading-relaxed md:text-[15px] ${message.role === 'assistant' ? 'text-text-secondary' : 'text-white'}`}>
                     {message.content}
                   </p>
                 </div>
 
                 {message.role === 'user' && (
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
                     <UserRound size={17} />
                   </div>
                 )}
@@ -149,20 +149,20 @@ export function MentorChat({
             ))}
 
             {messages.length === 0 && !loading && (
-              <div className="rounded-2xl border border-dashed border-border bg-white/70 px-4 py-3">
-                <p className="text-sm leading-6 text-text-secondary">
+              <div className="rounded-3xl border border-dashed border-border bg-white/70 px-5 py-4">
+                <p className="text-sm leading-relaxed text-text-secondary">
                   O mentor nao espera contexto extra para comecar. Escolha uma acao rapida ou descreva a decisao que voce quer tomar.
                 </p>
               </div>
             )}
 
             {sending && (
-              <div className="flex gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+              <div className="flex gap-4">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
                   <Brain size={17} />
                 </div>
-                <div className="rounded-2xl border border-border bg-white px-4 py-3">
-                  <p className="text-sm leading-7 text-text-secondary">
+                <div className="rounded-3xl border border-border bg-white px-5 py-4 shadow-sm">
+                  <p className="text-sm leading-relaxed text-text-secondary">
                     O mentor esta preparando sua resposta...
                   </p>
                 </div>
@@ -171,18 +171,18 @@ export function MentorChat({
           </div>
         </div>
 
-        <div className="rounded-[1.5rem] border border-border bg-white p-4">
-          <div className="flex flex-col gap-4">
+        <div className="rounded-[1.5rem] border border-border bg-white p-5 shadow-sm lg:p-6">
+          <div className="flex flex-col gap-5">
             <textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              rows={3}
+              rows={5}
               placeholder="Escreva sua duvida ou a decisao que voce quer tomar agora."
-              className="w-full resize-none rounded-2xl border border-border bg-background-elevated px-4 py-3 text-sm leading-7 text-foreground outline-none transition placeholder:text-muted-foreground focus:border-secondary focus:shadow-focus"
+              className="w-full min-h-[144px] resize-none rounded-2xl border border-border bg-background-elevated px-5 py-4 text-sm leading-relaxed text-foreground outline-none transition placeholder:text-muted-foreground focus:border-secondary focus:shadow-focus md:text-[15px]"
             />
 
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-xs leading-6 text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
                 Quanto mais direta for sua pergunta, mais acionavel fica a resposta.
               </p>
 

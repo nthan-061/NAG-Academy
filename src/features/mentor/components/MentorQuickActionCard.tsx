@@ -36,17 +36,17 @@ export function MentorQuickActionCard({
     )
 
   return (
-    <Card padding="md" className="flex h-full flex-col gap-4">
-      <div className="space-y-2">
+    <Card padding="lg" className="flex h-full flex-col gap-5 rounded-[1.5rem] border border-border/90 shadow-sm">
+      <div className="space-y-3">
         <h3 className="text-base font-semibold text-foreground">
           {recommendation.title}
         </h3>
-        <p className="text-sm leading-6 text-text-secondary">
+        <p className="text-sm leading-relaxed text-text-secondary">
           {recommendation.message}
         </p>
       </div>
 
-      <div className="mt-auto">
+      <div className="mt-4">
         {action}
       </div>
     </Card>
