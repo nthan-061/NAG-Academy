@@ -1,101 +1,10 @@
-import { Link } from 'react-router-dom'
-import { AlertTriangle, ArrowRight, CheckCircle2, Lightbulb, Target, TrendingDown, X } from 'lucide-react'
-import type React from 'react'
+import { Activity, BookOpenCheck, Brain, Goal, Target, TrendingDown } from 'lucide-react'
+import { Badge, Button, Card } from '@/components/ui'
+import { MENTOR_PRIORITY_ORDER, MENTOR_STATUS_LABELS } from '../constants'
 import type { MentorInsight, MentorPerformanceAnalysis, MentorRecommendation, UserLearningProfile } from '../types'
-
-/* ─── Estilos base (idênticos ao Dashboard e Trilhas) ─── */
-
-const card: React.CSSProperties = {
-  backgroundColor: '#FFFFFF',
-  borderRadius: '12px',
-  border: '1px solid #E8ECF2',
-  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-  padding: '28px',
-}
-
-const innerCard: React.CSSProperties = {
-  backgroundColor: '#F8FAFF',
-  borderRadius: '10px',
-  border: '1px solid #E8ECF2',
-  padding: '20px',
-}
-
-/* ─── Mapeamentos semânticos ─── */
-
-const toneIcon = {
-  encouragement: CheckCircle2,
-  focus: Target,
-  warning: AlertTriangle,
-  opportunity: Lightbulb,
-} as const
-
-const toneColors: Record<string, { color: string; bg: string }> = {
-  encouragement: { color: '#16A34A', bg: '#F0FDF4' },
-  focus:         { color: '#2E5FD4', bg: '#EEF4FF' },
-  warning:       { color: '#D97706', bg: '#FFF8DB' },
-  opportunity:   { color: '#D97706', bg: '#FFF8DB' },
-}
-
-const statusBadge: Record<string, { bg: string; color: string; label: string }> = {
-  good:      { bg: '#DCFCE7', color: '#16A34A', label: 'Bom momento'       },
-  attention: { bg: '#FFF8DB', color: '#D97706', label: 'Momento de atenção' },
-  critical:  { bg: '#FEF2F2', color: '#DC2626', label: 'Estado crítico'    },
-}
-
-const priorityBadge: Record<string, { bg: string; color: string }> = {
-  low:    { bg: '#F5F6FA', color: '#9CA3AF' },
-  medium: { bg: '#FFF8DB', color: '#D97706' },
-  high:   { bg: '#FEF2F2', color: '#DC2626' },
-}
-
-/* ─── Subcomponente: cabeçalho de seção ─── */
-
-function SectionHeader({
-  label, title, subtitle,
-}: {
-  label: string
-  title: string
-  subtitle?: string
-}) {
-  return (
-    <div style={{ marginBottom: '20px' }}>
-      <p style={{ fontSize: '13px', fontWeight: 600, color: '#6B7280', letterSpacing: '0.05em', margin: '0 0 4px 0' }}>
-        {label}
-      </p>
-      <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#1A1F2E', margin: subtitle ? '0 0 6px 0' : '0' }}>
-        {title}
-      </h2>
-      {subtitle && (
-        <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.6', margin: 0 }}>
-          {subtitle}
-        </p>
-      )}
-    </div>
-  )
-}
-
-/* ─── Subcomponente: pill/badge inline ─── */
-
-function Pill({ bg, color, children, icon }: {
-  bg: string
-  color: string
-  children: React.ReactNode
-  icon?: React.ReactNode
-}) {
-  return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: '4px',
-      fontSize: '11px', fontWeight: 600,
-      padding: '3px 10px', borderRadius: '20px',
-      backgroundColor: bg, color,
-    }}>
-      {icon}
-      {children}
-    </span>
-  )
-}
-
-/* ─── Props ─── */
+import { MentorInsightCard } from './MentorInsightCard'
+import { MentorMetricCard, type MetricStatus } from './MentorMetricCard'
+import { MentorRecommendationCard } from './MentorRecommendationCard'
 
 interface MentorInsightsProps {
   profile: UserLearningProfile | null
@@ -106,6 +15,24 @@ interface MentorInsightsProps {
   onAskMentor: (prompt: string) => void
 }
 
+interface InterpretedMetric {
+  label: string
+  value: string
+  interpretation: string
+  detail?: string
+  status: MetricStatus
+  icon: typeof Activity
+}
+
+const insightImpacts: Record<string, string> = {
+  'topic-errors-primary': 'Se esse tema seguir instavel, cada novo conteudo apoiado nele tende a ficar mais confuso e exigir retrabalho.',
+  'consistency-drop': 'Quando o ritmo cai, o custo para retomar sobe e o mentor passa a gastar mais energia com recuperacao do que com progresso.',
+  'flashcards-backlog': 'A fila de revisao atrasada aumenta a chance de esquecer justamente o que mais precisa de reforco.',
+  'dominated-topic': 'Reconhecer um tema consolidado evita estudo repetitivo e abre espaco para desafios mais inteligentes.',
+  'missing-goal': 'Sem contexto claro, as recomendacoes ficam menos especificas e o mentor perde precisao nas prioridades.',
+  'positive-momentum': 'Manter esse equilibrio ajuda voce a avancar sem perder a retencao do que ja foi construindo.',
+}
+
 export function MentorInsights({
   profile,
   analysis,
@@ -114,258 +41,290 @@ export function MentorInsights({
   onAcknowledgeInsight,
   onAskMentor,
 }: MentorInsightsProps) {
-  const status = analysis?.status ?? 'good'
-  const badge = statusBadge[status] ?? statusBadge.good
+  const sortedInsights = [...insights].sort(
+    (a, b) => MENTOR_PRIORITY_ORDER[b.priority] - MENTOR_PRIORITY_ORDER[a.priority],
+  )
+
+  const secondaryRecommendations = [...recommendations]
+    .sort((a, b) => MENTOR_PRIORITY_ORDER[b.priority] - MENTOR_PRIORITY_ORDER[a.priority])
+    .slice(1)
+
+  const metrics: InterpretedMetric[] = profile && analysis ? [
+    {
+      label: 'Consistencia',
+      value: `${profile.consistency.consistencyScore}%`,
+      interpretation:
+        profile.consistency.consistencyScore < 25
+          ? 'Muito abaixo do ideal para consolidar memoria.'
+          : profile.consistency.consistencyScore < 55
+            ? 'Oscilando mais do que o recomendado.'
+            : 'Boa base para manter ritmo e evolucao.',
+      detail: `${profile.consistency.activeDaysLast7} dias ativos na ultima semana.`,
+      status:
+        profile.consistency.consistencyScore < 25
+          ? 'critical'
+          : profile.consistency.consistencyScore < 55
+            ? 'attention'
+            : 'good',
+      icon: Activity,
+    },
+    {
+      label: 'Acuracia recente',
+      value: `${Math.round(profile.studyVelocity.recentAccuracy * 100)}%`,
+      interpretation:
+        profile.studyVelocity.recentAccuracy < 0.35
+          ? 'Precisa reforco imediato antes de avancar.'
+          : profile.studyVelocity.recentAccuracy < 0.65
+            ? 'Ainda ha atrito em topicos importantes.'
+            : 'Mostra assimilacao suficiente para seguir.',
+      detail:
+        analysis.status === 'critical'
+          ? 'Seu historico mostra risco de acumular lacunas.'
+          : analysis.status === 'attention'
+            ? 'Vale validar os temas em risco antes de subir o nivel.'
+            : 'O mentor identifica um momento de consolidacao positiva.',
+      status:
+        profile.studyVelocity.recentAccuracy < 0.35
+          ? 'critical'
+          : profile.studyVelocity.recentAccuracy < 0.65
+            ? 'attention'
+            : 'good',
+      icon: Target,
+    },
+    {
+      label: 'Flashcards pendentes',
+      value: String(profile.recentEngagement.pendingFlashcards),
+      interpretation:
+        profile.recentEngagement.pendingFlashcards >= 8
+          ? 'Revisao acumulada alta.'
+          : profile.recentEngagement.pendingFlashcards > 0
+            ? 'Fila controlavel, mas pedindo atencao.'
+            : 'Revisao em dia no momento.',
+      detail: `${profile.recentEngagement.overdueFlashcards} em atraso e ${profile.recentEngagement.totalFlashcards} no total.`,
+      status:
+        profile.recentEngagement.pendingFlashcards >= 8
+          ? 'critical'
+          : profile.recentEngagement.pendingFlashcards > 0
+            ? 'attention'
+            : 'good',
+      icon: BookOpenCheck,
+    },
+    {
+      label: 'Leitura do mentor',
+      value: MENTOR_STATUS_LABELS[analysis.status],
+      interpretation:
+        analysis.status === 'critical'
+          ? 'Seu momento pede intervencao mais direta.'
+          : analysis.status === 'attention'
+            ? 'O progresso existe, mas esta disperso.'
+            : 'O sistema percebe base para avancar com criterio.',
+      detail: `${Math.round(analysis.confidence * 100)}% de confianca no diagnostico atual.`,
+      status: analysis.status,
+      icon: Brain,
+    },
+  ] : []
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="flex flex-col gap-10">
+      <section className="space-y-4">
+        <div className="max-w-3xl space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
+            Leitura resumida
+          </p>
+          <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground">
+            Indicadores com interpretacao
+          </h2>
+          <p className="text-sm leading-7 text-text-secondary">
+            Numeros so entram quando ajudam voce a decidir o que fazer agora.
+          </p>
+        </div>
 
-      {/* ── Leitura atual ── */}
-      <div style={card}>
-        <SectionHeader
-          label="Leitura atual"
-          title="Leitura atual do mentor"
-          subtitle={analysis?.summary ?? 'Carregando leitura comportamental do aluno.'}
-        />
-
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          <Pill bg={badge.bg} color={badge.color}>
-            {badge.label}
-          </Pill>
-
-          {profile?.evolutionTrend.direction === 'declining' && (
-            <Pill bg="#FEF2F2" color="#DC2626" icon={<TrendingDown size={11} />}>
-              ritmo em queda
-            </Pill>
-          )}
-
-          {analysis?.focusTopics.map((topic) => (
-            <Pill key={topic} bg="#EEF4FF" color="#2E5FD4">
-              {topic}
-            </Pill>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {metrics.map((metric) => (
+            <MentorMetricCard key={metric.label} {...metric} />
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* ── Perfil + Contexto ── */}
-      {profile && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
-
-          {/* Pontos fortes e fracos */}
-          <div style={card}>
-            <SectionHeader
-              label="Perfil"
-              title="Leitura do perfil de aprendizado"
-              subtitle={`${profile.userName}, o mentor estima seu nível como ${profile.estimatedLevel.label} e percebe tendência ${profile.evolutionTrend.direction} no seu desempenho recente.`}
-            />
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-              {/* Pontos fortes */}
-              <div style={innerCard}>
-                <p style={{ fontSize: '13px', fontWeight: 600, color: '#16A34A', margin: '0 0 12px 0' }}>
-                  Pontos fortes
-                </p>
-                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {profile.strengths.map((item) => (
-                    <li key={item} style={{ fontSize: '13px', color: '#1A1F2E', lineHeight: '1.55' }}>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Pontos fracos */}
-              <div style={innerCard}>
-                <p style={{ fontSize: '13px', fontWeight: 600, color: '#D97706', margin: '0 0 12px 0' }}>
-                  Pontos fracos
-                </p>
-                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {profile.weakPoints.map((item) => (
-                    <li key={item} style={{ fontSize: '13px', color: '#1A1F2E', lineHeight: '1.55' }}>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Contexto */}
-          <div style={card}>
-            <SectionHeader
-              label="Contexto"
-              title="Contexto conhecido do aluno"
-              subtitle="O mentor orienta melhor quando entende objetivo, experiência e contexto de uso."
-            />
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              {[
-                ['Objetivo',        profile.mentorContext?.goal ?? 'Ainda não informado ao mentor.'],
-                ['Experiência',     profile.mentorContext?.experience_level ?? 'Não informado'],
-                ['Contexto de uso', profile.mentorContext?.use_case ?? 'Não informado'],
-                ['Desafios',        profile.mentorContext?.declared_challenges?.join(', ') || 'Nenhum desafio declarado ainda.'],
-              ].map(([label, value]) => (
-                <div key={label}>
-                  <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', margin: '0 0 4px 0' }}>
-                    {label}
-                  </p>
-                  <p style={{ fontSize: '14px', color: '#1A1F2E', lineHeight: '1.55', margin: 0 }}>
-                    {value}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
+      <section className="space-y-4">
+        <div className="max-w-3xl space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
+            O que esta travando seu avanco
+          </p>
+          <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground">
+            Insights criticos
+          </h2>
+          <p className="text-sm leading-7 text-text-secondary">
+            O mentor resume apenas os sinais que realmente mudam sua proxima decisao.
+          </p>
         </div>
-      )}
 
-      {/* ── Insights ── */}
-      <div style={card}>
-        <SectionHeader
-          label="Insights"
-          title="Insights personalizados"
-          subtitle="Observações derivadas do uso real da plataforma."
-        />
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {insights.length > 0 ? insights.map((insight) => {
-            const Icon = toneIcon[insight.tone]
-            const tc = toneColors[insight.tone]
-            const pb = priorityBadge[insight.priority]
-            return (
-              <div key={insight.id} style={innerCard}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-                  <div style={{ display: 'flex', gap: '14px', minWidth: 0 }}>
-                    <div style={{
-                      width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
-                      backgroundColor: tc.bg,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <Icon size={16} color={tc.color} />
-                    </div>
-
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                        <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#1A1F2E', margin: 0 }}>
-                          {insight.title}
-                        </h4>
-                        <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: pb.bg, color: pb.color }}>
-                          {insight.priority}
-                        </span>
-                      </div>
-                      <p style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.6', margin: 0 }}>
-                        {insight.message}
-                      </p>
-                      {insight.actionHint && (
-                        <p style={{ fontSize: '13px', fontWeight: 500, color: '#1A1F2E', lineHeight: '1.6', margin: '6px 0 0 0' }}>
-                          {insight.actionHint}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => onAcknowledgeInsight(insight.id)}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
-                      border: 'none', backgroundColor: 'transparent', cursor: 'pointer',
-                      color: '#9CA3AF',
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#E8ECF2' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
-                    aria-label="Dispensar insight"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              </div>
-            )
-          }) : (
-            <div style={{ ...innerCard, border: '1px dashed #E8ECF2' }}>
-              <p style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.6', margin: 0 }}>
-                Sem insights pendentes no momento. O mentor segue acompanhando seu comportamento para intervir quando fizer sentido.
+        <div className="flex flex-col gap-4">
+          {sortedInsights.length > 0 ? sortedInsights.map((insight) => (
+            <MentorInsightCard
+              key={insight.id}
+              insight={insight}
+              impact={insightImpacts[insight.id] ?? 'Esse ponto altera a qualidade das proximas sessoes e merece decisao explicita agora.'}
+              onDismiss={onAcknowledgeInsight}
+            />
+          )) : (
+            <Card padding="md" className="border border-dashed border-border bg-background-elevated">
+              <p className="text-sm leading-7 text-text-secondary">
+                Nenhum alerta forte no momento. O mentor continua monitorando seu comportamento para intervir quando surgir um sinal relevante.
               </p>
-            </div>
+            </Card>
           )}
         </div>
-      </div>
+      </section>
 
-      {/* ── Recomendações ── */}
-      <div style={card}>
-        <SectionHeader
-          label="Próximos passos"
-          title="Recomendações do mentor"
-          subtitle="Ações práticas para destravar progresso e consolidar aprendizado."
-        />
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {recommendations.map((rec) => {
-            const pb = priorityBadge[rec.priority]
-            return (
-              <div key={rec.id} style={innerCard}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#1A1F2E', margin: 0 }}>
-                    {rec.title}
-                  </h4>
-                  <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: pb.bg, color: pb.color }}>
-                    {rec.priority}
-                  </span>
-                </div>
-                <p style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.6', margin: '0 0 16px 0' }}>
-                  {rec.message}
-                </p>
-
-                {rec.action.kind === 'route' && rec.action.href ? (
-                  <Link
-                    to={rec.action.href}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '6px',
-                      padding: '8px 16px', borderRadius: '8px',
-                      backgroundColor: '#0D1B3E', color: '#FFFFFF',
-                      fontSize: '13px', fontWeight: 500, textDecoration: 'none',
-                    }}
-                  >
-                    {rec.actionLabel}
-                    <ArrowRight size={14} />
-                  </Link>
-                ) : rec.action.kind === 'question' && rec.action.prompt ? (
-                  <button
-                    type="button"
-                    onClick={() => onAskMentor(rec.action.prompt!)}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '6px',
-                      padding: '8px 16px', borderRadius: '8px',
-                      border: '1px solid #E8ECF2', backgroundColor: '#FFFFFF',
-                      color: '#1A1F2E', fontSize: '13px', fontWeight: 500,
-                      cursor: 'pointer', fontFamily: 'inherit',
-                    }}
-                  >
-                    {rec.actionLabel}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => onAskMentor('Quero revisar meu plano atual de estudo com você.')}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '6px',
-                      padding: '8px 16px', borderRadius: '8px',
-                      border: 'none', backgroundColor: 'transparent',
-                      color: '#6B7280', fontSize: '13px', fontWeight: 500,
-                      cursor: 'pointer', fontFamily: 'inherit',
-                    }}
-                  >
-                    Conversar com o mentor
-                  </button>
-                )}
-              </div>
-            )
-          })}
+      <section className="space-y-4">
+        <div className="max-w-3xl space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
+            Sequencia recomendada
+          </p>
+          <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground">
+            Recomendacoes detalhadas
+          </h2>
+          <p className="text-sm leading-7 text-text-secondary">
+            Depois da prioridade principal, estas sao as proximas acoes que mantem o plano coerente.
+          </p>
         </div>
-      </div>
 
+        <div className="grid gap-4 xl:grid-cols-3">
+          {secondaryRecommendations.length > 0 ? secondaryRecommendations.map((recommendation) => (
+            <MentorRecommendationCard
+              key={recommendation.id}
+              recommendation={recommendation}
+              onAskMentor={onAskMentor}
+            />
+          )) : (
+            <Card padding="md" className="xl:col-span-3">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="max-w-2xl">
+                  <h3 className="text-base font-semibold text-foreground">
+                    O plano ja esta enxuto
+                  </h3>
+                  <p className="mt-2 text-sm leading-7 text-text-secondary">
+                    Neste momento, faz mais sentido executar a prioridade principal e usar a conversa com o mentor para adaptar o restante do plano em tempo real.
+                  </p>
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={() => onAskMentor('Quero transformar a prioridade principal em um plano de estudo curto para hoje.')}
+                >
+                  Montar plano com o mentor
+                </Button>
+              </div>
+            </Card>
+          )}
+        </div>
+      </section>
+
+      {profile && (
+        <section className="space-y-4">
+          <div className="max-w-3xl space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
+              Perfil e contexto
+            </p>
+            <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground">
+              Informacoes que deixam o mentor mais preciso
+            </h2>
+            <p className="text-sm leading-7 text-text-secondary">
+              Esse bloco fica por ultimo para apoiar a decisao, sem competir com a prioridade imediata.
+            </p>
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
+            <Card padding="lg" className="space-y-5">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="info">{profile.estimatedLevel.label}</Badge>
+                {profile.evolutionTrend.direction === 'declining' && (
+                  <Badge variant="danger" className="gap-1.5">
+                    <TrendingDown size={12} />
+                    Tendencia de queda
+                  </Badge>
+                )}
+                <Badge variant="default">
+                  {profile.studyMaturity.replace('_', ' ')}
+                </Badge>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-[1.25rem] bg-success-soft/65 p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-success">
+                    O que ja sustenta seu progresso
+                  </p>
+                  <ul className="mt-3 space-y-2 text-sm leading-6 text-foreground">
+                    {profile.strengths.slice(0, 4).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="rounded-[1.25rem] bg-warning-soft/65 p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-warning">
+                    O que ainda pede reforco
+                  </p>
+                  <ul className="mt-3 space-y-2 text-sm leading-6 text-foreground">
+                    {profile.weakPoints.slice(0, 4).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </Card>
+
+            <Card padding="lg" className="space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary-soft text-secondary">
+                  <Goal size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">
+                    Contexto informado ao mentor
+                  </h3>
+                  <p className="text-sm leading-6 text-text-secondary">
+                    Quando seu objetivo esta claro, o mentor reduz generalidades e aumenta a qualidade das recomendacoes.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  ['Objetivo', profile.mentorContext?.goal, 'Voce ainda nao definiu seu objetivo. Definir isso melhora a precisao das recomendacoes.'],
+                  ['Experiencia', profile.mentorContext?.experience_level, 'Seu nivel de experiencia ainda nao foi informado ao mentor.'],
+                  ['Contexto de uso', profile.mentorContext?.use_case, 'Informar como voce aplica o conteudo ajuda o mentor a ajustar profundidade e exemplos.'],
+                  ['Desafios', profile.mentorContext?.declared_challenges?.join(', '), 'Seus desafios atuais ainda nao foram declarados.'],
+                ].map(([label, value, emptyMessage]) => {
+                  const filled = Boolean(value)
+                  return (
+                    <div
+                      key={label}
+                      className={`rounded-2xl border p-4 ${filled ? 'border-border bg-background-elevated' : 'border-warning/20 bg-warning-soft/55'}`}
+                    >
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                        {label}
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-foreground">
+                        {filled ? value : emptyMessage}
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <Button
+                variant="secondary"
+                fullWidth
+                onClick={() => onAskMentor('Quero preencher meu objetivo, minha experiencia e meu contexto para melhorar suas recomendacoes.')}
+              >
+                Atualizar contexto com o mentor
+              </Button>
+            </Card>
+          </div>
+        </section>
+      )}
     </div>
   )
 }
