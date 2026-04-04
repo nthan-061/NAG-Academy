@@ -14,6 +14,7 @@ export function MentorScreen() {
   } = useMentor()
 
   const [queuedPrompt, setQueuedPrompt] = useState<{ value: string; nonce: number } | null>(null)
+  const primaryRecommendation = recommendations[0] ?? null
 
   if (loading) {
     return (
@@ -26,7 +27,11 @@ export function MentorScreen() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-5 lg:px-8">
       <div className="flex flex-wrap items-start justify-between gap-6">
-        <MentorHeader profile={profile} analysis={analysis} />
+        <MentorHeader
+          profile={profile}
+          analysis={analysis}
+          primaryRecommendation={primaryRecommendation}
+        />
 
         <Button
           variant="outline"

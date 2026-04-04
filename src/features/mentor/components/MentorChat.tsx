@@ -173,28 +173,32 @@ export function MentorChat({
 
         <div className="rounded-[20px] border border-border bg-white p-7 shadow-[0_16px_40px_rgba(10,22,40,0.04)] lg:p-8">
           <div className="flex flex-col gap-6">
-            <textarea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              rows={5}
-              placeholder="Escreva sua duvida ou a decisao que voce quer tomar agora."
-              className="w-full min-h-[196px] resize-none rounded-[16px] border border-border bg-background-elevated px-6 py-5 text-sm leading-relaxed text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-secondary focus:ring-2 focus:ring-secondary/15 md:text-[15px] lg:px-7 lg:py-5"
-            />
+            <div className="space-y-3">
+              <div className="relative">
+                <textarea
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  rows={4}
+                  placeholder="Escreva sua duvida ou a decisao que voce quer tomar agora."
+                  className="w-full min-h-[128px] resize-none rounded-[16px] border border-border bg-background-elevated px-6 py-5 pr-36 text-sm leading-relaxed text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-secondary focus:ring-2 focus:ring-secondary/15 md:text-[15px] lg:px-7 lg:py-5"
+                />
 
-            <div className="flex flex-wrap items-center gap-4 rounded-[16px] border border-border/80 bg-[#FCFDFF] px-5 py-4 lg:px-6">
-              <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
-                Quanto mais direta for sua pergunta, mais acionavel fica a resposta.
-              </p>
+                <Button
+                  size="lg"
+                  className="absolute bottom-4 right-4 w-fit shrink-0 px-6 shadow-button transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:scale-95"
+                  onClick={() => void handleSubmit()}
+                  loading={sending}
+                >
+                  {!sending && <Send size={15} />}
+                  Enviar
+                </Button>
+              </div>
 
-              <Button
-                size="lg"
-                className="ml-auto w-fit shrink-0 px-6 shadow-button transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:scale-95"
-                onClick={() => void handleSubmit()}
-                loading={sending}
-              >
-                {!sending && <Send size={15} />}
-                Enviar
-              </Button>
+              <div className="rounded-[16px] border border-border/80 bg-[#FCFDFF] px-5 py-4 lg:px-6">
+                <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
+                  Quanto mais direta for sua pergunta, mais acionavel fica a resposta.
+                </p>
+              </div>
             </div>
           </div>
         </div>

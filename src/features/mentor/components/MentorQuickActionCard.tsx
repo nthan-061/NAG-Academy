@@ -5,11 +5,13 @@ import type { MentorRecommendation } from '../types'
 
 interface MentorQuickActionCardProps {
   recommendation: MentorRecommendation
+  featured?: boolean
   onAskMentor: (prompt: string) => void
 }
 
 export function MentorQuickActionCard({
   recommendation,
+  featured = false,
   onAskMentor,
 }: MentorQuickActionCardProps) {
   const action =
@@ -41,7 +43,14 @@ export function MentorQuickActionCard({
     )
 
   return (
-    <Card padding="lg" className="flex h-full flex-col gap-7 rounded-[20px] border border-border bg-white p-7 shadow-[0_12px_32px_rgba(10,22,40,0.04)] transition-all duration-200 hover:-translate-y-1 hover:shadow-md lg:p-8">
+    <Card
+      padding="lg"
+      className={`flex h-full min-h-[200px] flex-col gap-7 rounded-[20px] border bg-white p-7 transition-all duration-200 hover:-translate-y-1 hover:shadow-md lg:p-8 ${
+        featured
+          ? 'border-secondary/25 shadow-[0_18px_36px_rgba(46,95,212,0.12)] md:col-span-2'
+          : 'border-border shadow-[0_12px_32px_rgba(10,22,40,0.04)]'
+      }`}
+    >
       <div className="space-y-5">
         <h3 className="text-base font-semibold text-foreground">
           {recommendation.title}
@@ -49,9 +58,12 @@ export function MentorQuickActionCard({
         <p className="text-sm leading-relaxed text-text-secondary">
           {recommendation.message}
         </p>
+        <div className="inline-flex w-fit rounded-full bg-background-elevated px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          {featured ? 'Acao principal' : 'Acao rapida'}
+        </div>
       </div>
 
-      <div className="mt-6 flex">
+      <div className="mt-auto flex pt-2">
         {action}
       </div>
     </Card>

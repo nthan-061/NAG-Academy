@@ -23,10 +23,16 @@ export function MentorSidebar({ navItemStyle }: MentorSidebarProps) {
         <div
           style={navItemStyle(isActive)}
           onMouseEnter={(event) => {
-            if (!isActive) event.currentTarget.style.backgroundColor = '#F5F6FA'
+            if (!isActive) {
+              event.currentTarget.style.backgroundColor = '#F5F6FA'
+              event.currentTarget.style.boxShadow = '0 10px 24px rgba(10,22,40,0.04)'
+            }
           }}
           onMouseLeave={(event) => {
-            if (!isActive) event.currentTarget.style.backgroundColor = 'transparent'
+            if (!isActive) {
+              event.currentTarget.style.backgroundColor = 'transparent'
+              event.currentTarget.style.boxShadow = 'none'
+            }
           }}
         >
           <Brain size={18} strokeWidth={1.5} color={isActive ? '#0D1B3E' : '#9CA3AF'} />

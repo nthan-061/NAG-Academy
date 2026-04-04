@@ -36,15 +36,17 @@ export function Sidebar() {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    padding: '12px 14px',
-    borderRadius: '12px',
+    padding: '14px 16px',
+    borderRadius: '14px',
     fontSize: '14px',
     fontWeight: isActive ? 500 : 400,
     cursor: 'pointer',
-    backgroundColor: isActive ? '#EBF0FA' : 'transparent',
+    backgroundColor: isActive ? '#E9F0FF' : 'transparent',
     color: isActive ? '#0D1B3E' : '#6B7280',
-    transition: 'background-color 0.15s, transform 0.15s',
+    transition: 'background-color 0.15s, transform 0.15s, box-shadow 0.15s',
     textDecoration: 'none',
+    position: 'relative',
+    boxShadow: isActive ? 'inset 3px 0 0 #2E5FD4, 0 10px 24px rgba(10,22,40,0.04)' : 'none',
   })
 
   return (
@@ -111,11 +113,11 @@ export function Sidebar() {
       </nav>
 
       {/* Base — avatar + nome + XP */}
-      <div style={{ padding: '16px', borderTop: '1px solid #E8ECF2', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+      <div style={{ padding: '18px 16px 20px', borderTop: '1px solid #E8ECF2', flexShrink: 0, backgroundColor: '#FCFDFF' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
           <div style={{
-            width: '36px',
-            height: '36px',
+            width: '40px',
+            height: '40px',
             borderRadius: '50%',
             backgroundColor: '#0D1B3E',
             display: 'flex',
@@ -148,10 +150,11 @@ export function Sidebar() {
 
         <div style={{
           width: '100%',
-          height: '3px',
+          height: '4px',
           borderRadius: '999px',
           backgroundColor: '#E8ECF2',
           overflow: 'hidden',
+          marginBottom: '6px',
         }}>
           <div style={{
             height: '100%',

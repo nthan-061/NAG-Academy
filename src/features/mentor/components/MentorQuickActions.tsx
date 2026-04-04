@@ -29,10 +29,11 @@ export function MentorQuickActions({
 
       {quickActions.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4 lg:gap-8">
-          {quickActions.map((recommendation) => (
+          {quickActions.map((recommendation, index) => (
             <MentorQuickActionCard
               key={recommendation.id}
               recommendation={recommendation}
+              featured={index === 0}
               onAskMentor={onAskMentor}
             />
           ))}
