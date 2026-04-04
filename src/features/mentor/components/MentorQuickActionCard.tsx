@@ -16,7 +16,7 @@ export function MentorQuickActionCard({
     recommendation.action.kind === 'route' && recommendation.action.href ? (
       <Link
         to={recommendation.action.href}
-        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white shadow-button transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-strong hover:brightness-110 hover:shadow-md active:scale-95"
+        className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white shadow-button transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-strong hover:brightness-110 hover:shadow-md active:scale-95"
       >
         {recommendation.actionLabel}
         <ArrowRight size={14} />
@@ -24,7 +24,7 @@ export function MentorQuickActionCard({
     ) : recommendation.action.kind === 'question' && recommendation.action.prompt ? (
       <Button
         size="sm"
-        className="shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:scale-95"
+        className="w-fit px-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:scale-95"
         onClick={() => onAskMentor(recommendation.action.prompt!)}
       >
         {recommendation.actionLabel}
@@ -33,7 +33,7 @@ export function MentorQuickActionCard({
       <Button
         size="sm"
         variant="outline"
-        className="shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
+        className="w-fit px-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
         onClick={() => onAskMentor(`Quero executar esta acao agora: ${recommendation.title}.`)}
       >
         Abrir no mentor
@@ -51,7 +51,7 @@ export function MentorQuickActionCard({
         </p>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-5 flex">
         {action}
       </div>
     </Card>

@@ -109,7 +109,7 @@ export function MentorChat({
                   key={`${prompt}-${index}`}
                   variant="outline"
                   size="sm"
-                  className="h-auto rounded-full border-border bg-white px-4 py-2.5 text-xs shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
+                  className="h-auto w-fit rounded-full border-border bg-white px-5 py-2.5 text-xs shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
                   onClick={() => setDraft(prompt)}
                 >
                   {index === 0 ? 'corrigir erros' : index === 1 ? 'revisar conteudo' : index === 2 ? 'montar plano' : 'definir objetivo'}
@@ -181,14 +181,14 @@ export function MentorChat({
               className="w-full min-h-[184px] resize-none rounded-[16px] border border-border bg-background-elevated px-5 py-4 text-sm leading-relaxed text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-secondary focus:ring-2 focus:ring-secondary/15 md:text-[15px] lg:px-6 lg:py-5"
             />
 
-            <div className="flex flex-wrap items-end justify-between gap-6 rounded-[16px] border border-border/80 bg-[#FCFDFF] px-5 py-4 lg:px-6">
+            <div className="flex flex-wrap items-end gap-4 rounded-[16px] border border-border/80 bg-[#FCFDFF] px-5 py-4 lg:px-6">
               <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
                 Quanto mais direta for sua pergunta, mais acionavel fica a resposta.
               </p>
 
               <Button
                 size="lg"
-                className="min-w-[132px] shadow-button transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:scale-95"
+                className="ml-auto w-fit px-6 shadow-button transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:scale-95"
                 onClick={() => void handleSubmit()}
                 loading={sending}
               >
