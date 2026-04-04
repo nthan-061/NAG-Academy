@@ -79,31 +79,31 @@ export function MentorChat({
   }
 
   return (
-    <section className="mt-10 space-y-7">
-      <div className="max-w-3xl space-y-3">
+    <section className="mt-10 space-y-5">
+      <div className="max-w-3xl space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
           Chat do mentor
         </p>
-        <h2 className="text-3xl font-bold tracking-[-0.04em] text-foreground md:text-[2.2rem]">
+        <h2 className="text-[20px] font-bold leading-[1.2] tracking-[-0.03em] text-foreground md:text-[24px]">
           Converse com o mentor para decidir o proximo passo
         </h2>
       </div>
 
-      <Card padding="lg" className="grid gap-8 rounded-[2rem] border border-border/90 bg-white/95 p-6 shadow-md lg:p-8">
-        <div className="min-h-[620px] rounded-[2rem] border border-border/90 bg-background-elevated/90 p-6 shadow-sm lg:p-8">
-          <div className="flex flex-col gap-8">
+      <Card padding="lg" className="grid gap-6 rounded-[20px] border border-border bg-white p-7 shadow-[0_16px_40px_rgba(10,22,40,0.05)] lg:p-8">
+        <div className="min-h-[620px] rounded-[20px] border border-border bg-[#FCFDFF] p-7 shadow-[0_16px_40px_rgba(10,22,40,0.04)] lg:p-8">
+          <div className="flex flex-col gap-6">
             <div className="flex gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
                 <Brain size={17} />
               </div>
-              <div className="max-w-[85%] rounded-[1.75rem] border border-border bg-white px-6 py-5 shadow-sm lg:px-7 lg:py-6">
+              <div className="max-w-[85%] rounded-[16px] border border-border bg-white px-6 py-5 shadow-[0_10px_24px_rgba(10,22,40,0.04)] lg:px-7 lg:py-6">
                 <p className="text-sm leading-relaxed text-text-secondary md:text-[15px]">
                   {openingMessage}
                 </p>
               </div>
             </div>
 
-            <div className="ml-[64px] flex flex-wrap gap-3.5">
+            <div className="ml-[64px] flex flex-wrap gap-3">
               {quickPrompts.map((prompt, index) => (
                 <Button
                   key={`${prompt}-${index}`}
@@ -129,7 +129,7 @@ export function MentorChat({
                 )}
 
                 <div
-                  className={`max-w-[85%] rounded-[1.75rem] px-6 py-5 shadow-sm lg:px-7 lg:py-6 ${
+                  className={`max-w-[85%] rounded-[16px] px-6 py-5 shadow-[0_10px_24px_rgba(10,22,40,0.04)] lg:px-7 lg:py-6 ${
                     message.role === 'assistant'
                       ? 'border border-border bg-white'
                       : 'bg-primary text-white'
@@ -149,7 +149,7 @@ export function MentorChat({
             ))}
 
             {messages.length === 0 && !loading && (
-              <div className="rounded-[1.75rem] border border-dashed border-border bg-white/80 px-6 py-5 lg:px-7 lg:py-6">
+              <div className="rounded-[16px] border border-dashed border-border bg-white px-6 py-5 lg:px-7 lg:py-6">
                 <p className="text-sm leading-relaxed text-text-secondary">
                   O mentor nao espera contexto extra para comecar. Escolha uma acao rapida ou descreva a decisao que voce quer tomar.
                 </p>
@@ -161,7 +161,7 @@ export function MentorChat({
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
                   <Brain size={17} />
                 </div>
-                <div className="rounded-[1.75rem] border border-border bg-white px-6 py-5 shadow-sm lg:px-7 lg:py-6">
+                <div className="rounded-[16px] border border-border bg-white px-6 py-5 shadow-[0_10px_24px_rgba(10,22,40,0.04)] lg:px-7 lg:py-6">
                   <p className="text-sm leading-relaxed text-text-secondary">
                     O mentor esta preparando sua resposta...
                   </p>
@@ -171,14 +171,14 @@ export function MentorChat({
           </div>
         </div>
 
-        <div className="rounded-[1.75rem] border border-border bg-white p-6 shadow-sm lg:p-8">
+        <div className="rounded-[20px] border border-border bg-white p-7 shadow-[0_16px_40px_rgba(10,22,40,0.04)] lg:p-8">
           <div className="flex flex-col gap-6">
             <textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               rows={5}
               placeholder="Escreva sua duvida ou a decisao que voce quer tomar agora."
-              className="w-full min-h-[168px] resize-none rounded-[1.25rem] border border-border bg-background-elevated px-5 py-4 text-sm leading-relaxed text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-secondary focus:ring-2 focus:ring-secondary/15 md:text-[15px] lg:px-6 lg:py-5"
+              className="w-full min-h-[168px] resize-none rounded-[16px] border border-border bg-background-elevated px-5 py-4 text-sm leading-relaxed text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-secondary focus:ring-2 focus:ring-secondary/15 md:text-[15px] lg:px-6 lg:py-5"
             />
 
             <div className="flex flex-wrap items-end justify-between gap-6">

@@ -41,7 +41,7 @@ export function MentorQuickActionCard({
     )
 
   return (
-    <Card padding="lg" className="flex h-full flex-col gap-6 rounded-[1.5rem] border border-border/90 bg-white/95 p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md lg:p-7">
+    <Card padding="lg" className="flex h-full flex-col gap-6 rounded-[20px] border border-border bg-white p-7 shadow-[0_16px_40px_rgba(10,22,40,0.05)] transition-all duration-200 hover:-translate-y-1 hover:shadow-md lg:p-8">
       <div className="space-y-4">
         <h3 className="text-base font-semibold text-foreground">
           {recommendation.title}

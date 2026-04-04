@@ -17,12 +17,12 @@ export function MentorQuickActions({
     .slice(0, 4)
 
   return (
-    <section className="space-y-7">
-      <div className="max-w-3xl space-y-3">
+    <section className="space-y-5">
+      <div className="max-w-3xl space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
           Acoes rapidas
         </p>
-        <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground md:text-[2rem]">
+        <h2 className="text-[20px] font-bold leading-[1.2] tracking-[-0.03em] text-foreground md:text-[24px]">
           Atalhos inteligentes para agir agora
         </h2>
       </div>
@@ -38,7 +38,7 @@ export function MentorQuickActions({
           ))}
         </div>
       ) : (
-        <div className="rounded-3xl border border-border bg-surface p-6 shadow-sm lg:p-8">
+        <div className="rounded-[20px] border border-border bg-surface p-7 shadow-[0_16px_40px_rgba(10,22,40,0.05)] lg:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
               O mentor nao encontrou um atalho prioritario agora. Use a conversa para definir a proxima acao.

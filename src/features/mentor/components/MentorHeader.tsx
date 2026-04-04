@@ -26,11 +26,11 @@ export function MentorHeader({ profile, analysis }: MentorHeaderProps) {
 
   return (
     <section className="space-y-6">
-      <div className="max-w-4xl space-y-4">
+      <div className="max-w-4xl space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
           Mentor IA
         </p>
-        <h1 className="text-4xl font-bold tracking-[-0.05em] text-foreground md:text-5xl">
+        <h1 className="text-[28px] font-bold leading-[1.1] tracking-[-0.04em] text-foreground md:text-[34px]">
           Converse e aja no proximo passo certo.
         </h1>
       </div>

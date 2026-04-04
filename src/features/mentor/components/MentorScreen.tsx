@@ -24,7 +24,7 @@ export function MentorScreen() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col px-6 py-4 lg:px-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-4 lg:px-8">
       <div className="flex flex-wrap items-start justify-between gap-6">
         <MentorHeader profile={profile} analysis={analysis} />
 
@@ -39,7 +39,7 @@ export function MentorScreen() {
       </div>
 
       {error && (
-        <div className="mt-6 flex items-start gap-4 rounded-3xl border border-danger/20 bg-danger-soft px-6 py-5 shadow-sm">
+        <div className="mt-6 flex items-start gap-4 rounded-[20px] border border-danger/20 bg-danger-soft px-7 py-6 shadow-[0_16px_40px_rgba(10,22,40,0.05)]">
           <AlertCircle size={17} className="mt-1 shrink-0 text-danger" />
           <div>
             <p className="text-sm font-semibold text-danger">
@@ -62,10 +62,10 @@ export function MentorScreen() {
         initialPrompt={queuedPrompt?.value ?? ''}
       />
 
-      <div className="mt-14">
+      <div className="mt-12">
         <MentorQuickActions
-        recommendations={recommendations}
-        onAskMentor={(prompt) => setQueuedPrompt({ value: prompt, nonce: Date.now() })}
+          recommendations={recommendations}
+          onAskMentor={(prompt) => setQueuedPrompt({ value: prompt, nonce: Date.now() })}
         />
       </div>
     </div>
