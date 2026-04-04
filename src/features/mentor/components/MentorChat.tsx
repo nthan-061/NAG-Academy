@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
-import { Brain, Compass, Send, UserRound } from 'lucide-react'
-import { Badge, Button, Card } from '@/components/ui'
+import { useEffect, useMemo, useState } from 'react'
+import { Brain, Send, UserRound } from 'lucide-react'
+import { Button, Card } from '@/components/ui'
 import type { MentorChatMessage, MentorPerformanceAnalysis, MentorRecommendation, MentorUserContext, UserLearningProfile } from '../types'
 
 interface MentorChatProps {
@@ -13,6 +13,29 @@ interface MentorChatProps {
   sending?: boolean
   onSendMessage: (message: string) => Promise<void>
   initialPrompt?: string
+}
+
+function buildOpeningMessage(
+  profile: UserLearningProfile | null,
+  analysis: MentorPerformanceAnalysis | null,
+) {
+  const topic = profile?.topicErrors[0]?.topic
+  const pendingFlashcards = profile?.recentEngagement.pendingFlashcards ?? 0
+  const nextFocus = analysis?.focusTopics[0]
+
+  if (topic && pendingFlashcards > 0) {
+    return `Com base no seu desempenho recente, identifiquei que seu maior gargalo esta em ${topic} e sua revisao esta acumulando. Posso te ajudar a corrigir isso ou montar um plano de estudo agora.`
+  }
+
+  if (topic) {
+    return `Analisei seu historico e o principal ponto de atrito agora esta em ${topic}. Posso te ajudar a corrigir os erros, revisar o conteudo ou decidir seu proximo passo.`
+  }
+
+  if (nextFocus) {
+    return `Ja li seu momento recente e o foco mais util agora esta em ${nextFocus}. Se quiser, eu transformo isso em um plano de estudo simples.`
+  }
+
+  return 'Ja estou com seu historico em maos. Posso resumir seu momento, sugerir a proxima acao ou montar um plano curto agora.'
 }
 
 export function MentorChat({
@@ -28,34 +51,25 @@ export function MentorChat({
 }: MentorChatProps) {
   const [draft, setDraft] = useState(initialPrompt)
 
-  const starterPrompts = useMemo(() => {
+  useEffect(() => {
+    setDraft(initialPrompt)
+  }, [initialPrompt])
+
+  const openingMessage = useMemo(
+    () => buildOpeningMessage(profile, analysis),
+    [analysis, profile],
+  )
+
+  const quickPrompts = useMemo(() => {
     const prompts = [
-      recommendations[0]?.action.prompt,
-      profile?.topicErrors[0]?.topic ? `Quero corrigir meus erros em ${profile.topicErrors[0].topic}.` : null,
-      mentorContext?.goal
-        ? `Meu objetivo e ${mentorContext.goal}. Como eu devo estudar agora?`
-        : 'Quero definir meu objetivo para melhorar suas recomendacoes.',
-      'Monte um plano curto para meu proximo bloco de estudo.',
+      profile?.topicErrors[0]?.topic ? `Quero corrigir meus erros em ${profile.topicErrors[0].topic}.` : 'Quero corrigir meus erros agora.',
+      recommendations.find((item) => item.type === 'review_flashcards')?.action.prompt ?? 'Quero revisar o conteudo mais importante agora.',
+      'Monte um plano de estudo curto para hoje.',
+      mentorContext?.goal ? `Meu objetivo e ${mentorContext.goal}. Ajuste meu proximo passo.` : 'Quero definir meu objetivo para estudar melhor.',
     ]
 
-    return prompts.filter((value, index, array): value is string => Boolean(value) && array.indexOf(value) === index).slice(0, 4)
+    return prompts.filter((value, index, array) => array.indexOf(value) === index).slice(0, 4)
   }, [mentorContext?.goal, profile?.topicErrors, recommendations])
-
-  const openingMessage = useMemo(() => {
-    if (!analysis) {
-      return 'Ja tenho seu historico em processamento. Assim que a leitura terminar, posso sugerir seu proximo passo.'
-    }
-
-    if (analysis.status === 'critical') {
-      return 'Com base no seu desempenho recente, eu recomendo atacar o principal bloqueio antes de avancar. Posso te ajudar a corrigir os erros mais urgentes ou montar um plano de recuperacao.'
-    }
-
-    if (analysis.status === 'attention') {
-      return 'Ja analisei seu historico recente e existe um ponto de atencao claro. Posso te ajudar a organizar o proximo passo sem dispersar sua energia.'
-    }
-
-    return 'Seu historico indica espaco para avancar com criterio. Se quiser, eu transformo isso em um plano de estudo objetivo para a proxima sessao.'
-  }, [analysis])
 
   async function handleSubmit() {
     const content = draft.trim()
@@ -65,159 +79,121 @@ export function MentorChat({
   }
 
   return (
-    <Card padding="lg" className="space-y-6">
-      <div className="space-y-3">
+    <section className="space-y-4">
+      <div className="max-w-2xl space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
-          Conversa guiada
+          Chat do mentor
         </p>
-        <div className="max-w-3xl">
-          <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground">
-            Continue a analise com o mentor
-          </h2>
-          <p className="mt-2 text-sm leading-7 text-text-secondary">
-            O mentor ja conhece seu historico, seus erros recorrentes e a prioridade da tela. Use a conversa para transformar isso em decisao pratica.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {mentorContext?.goal && <Badge variant="info">Objetivo: {mentorContext.goal}</Badge>}
-          {profile?.topicErrors[0]?.topic && <Badge variant="warning">Tema critico: {profile.topicErrors[0].topic}</Badge>}
-          {recommendations[0] && <Badge variant="default">Foco atual: {recommendations[0].title}</Badge>}
-        </div>
+        <h2 className="text-xl font-bold tracking-[-0.03em] text-foreground">
+          Converse com o mentor para decidir o proximo passo
+        </h2>
       </div>
 
-      <div className="rounded-[1.5rem] border border-border bg-background-elevated p-5">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-secondary-soft text-secondary">
-            <Compass size={18} />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-foreground">
-              Primeira orientacao do mentor
-            </p>
-            <p className="mt-1 text-sm leading-7 text-text-secondary">
-              {openingMessage}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-[1.5rem] border border-border bg-background-elevated p-5">
-        {messages.length === 0 && !loading ? (
-          <div className="flex min-h-[240px] flex-col justify-between gap-6">
-            <div>
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary-soft text-secondary">
-                <Brain size={18} />
+      <Card padding="lg" className="grid gap-5">
+        <div className="min-h-[420px] rounded-[1.5rem] border border-border bg-background-elevated p-5">
+          <div className="flex flex-col gap-4">
+            <div className="flex gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+                <Brain size={17} />
               </div>
-              <p className="text-base font-semibold text-foreground">
-                A conversa ja nasce com contexto.
-              </p>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-text-secondary">
-                Em vez de partir de um campo vazio, voce pode pedir que eu explique a prioridade atual, corrija seus erros ou monte um plano de estudo coerente com o seu momento.
-              </p>
+              <div className="max-w-[85%] rounded-2xl border border-border bg-white px-4 py-3">
+                <p className="text-sm leading-7 text-text-secondary">
+                  {openingMessage}
+                </p>
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {starterPrompts.map((prompt) => (
+            <div className="ml-[52px] flex flex-wrap gap-2">
+              {quickPrompts.map((prompt, index) => (
                 <Button
-                  key={prompt}
+                  key={`${prompt}-${index}`}
                   variant="outline"
                   size="sm"
+                  className="h-auto rounded-full px-4 py-2 text-xs"
                   onClick={() => setDraft(prompt)}
-                  className="h-auto rounded-full px-4 py-2 text-left whitespace-normal"
                 >
-                  {prompt}
+                  {index === 0 ? 'corrigir erros' : index === 1 ? 'revisar conteudo' : index === 2 ? 'montar plano' : 'definir objetivo'}
                 </Button>
               ))}
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-4">
+
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex gap-3 ${message.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
               >
                 {message.role === 'assistant' && (
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
-                    <Brain size={15} />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+                    <Brain size={17} />
                   </div>
                 )}
 
                 <div
-                  className={`max-w-[82%] rounded-2xl px-4 py-3 ${
+                  className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                     message.role === 'assistant'
-                      ? 'border border-border bg-white text-foreground'
+                      ? 'border border-border bg-white'
                       : 'bg-primary text-white'
                   }`}
                 >
-                  <p
-                    className={`whitespace-pre-wrap text-sm leading-7 ${
-                      message.role === 'assistant' ? 'text-text-secondary' : 'text-white'
-                    }`}
-                  >
+                  <p className={`whitespace-pre-wrap text-sm leading-7 ${message.role === 'assistant' ? 'text-text-secondary' : 'text-white'}`}>
                     {message.content}
                   </p>
                 </div>
 
                 {message.role === 'user' && (
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
-                    <UserRound size={15} />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+                    <UserRound size={17} />
                   </div>
                 )}
               </div>
             ))}
 
+            {messages.length === 0 && !loading && (
+              <div className="rounded-2xl border border-dashed border-border bg-white/70 px-4 py-3">
+                <p className="text-sm leading-6 text-text-secondary">
+                  O mentor nao espera contexto extra para comecar. Escolha uma acao rapida ou descreva a decisao que voce quer tomar.
+                </p>
+              </div>
+            )}
+
             {sending && (
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary-soft text-secondary">
-                  <Brain size={15} />
+              <div className="flex gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+                  <Brain size={17} />
                 </div>
                 <div className="rounded-2xl border border-border bg-white px-4 py-3">
-                  <p className="text-sm text-text-secondary">
-                    O mentor esta cruzando seu historico, seus erros e seu contexto para responder.
+                  <p className="text-sm leading-7 text-text-secondary">
+                    O mentor esta preparando sua resposta...
                   </p>
                 </div>
               </div>
             )}
           </div>
-        )}
-      </div>
-
-      <div className="rounded-[1.5rem] border border-border bg-white p-5">
-        <div className="mb-4 flex flex-wrap gap-2">
-          {starterPrompts.map((prompt) => (
-            <Button
-              key={prompt}
-              variant="ghost"
-              size="sm"
-              onClick={() => setDraft(prompt)}
-              className="h-auto rounded-full border border-border px-4 py-2 text-xs whitespace-normal"
-            >
-              {prompt}
-            </Button>
-          ))}
         </div>
 
-        <textarea
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          rows={4}
-          placeholder="Pergunte o que deve fazer agora, peça um plano curto ou traga a decisao que voce quer tomar."
-          className="w-full resize-none rounded-2xl border border-border bg-background-elevated px-4 py-3 text-sm leading-7 text-foreground outline-none transition placeholder:text-muted-foreground focus:border-secondary focus:shadow-focus"
-        />
+        <div className="rounded-[1.5rem] border border-border bg-white p-4">
+          <div className="flex flex-col gap-4">
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              rows={3}
+              placeholder="Escreva sua duvida ou a decisao que voce quer tomar agora."
+              className="w-full resize-none rounded-2xl border border-border bg-background-elevated px-4 py-3 text-sm leading-7 text-foreground outline-none transition placeholder:text-muted-foreground focus:border-secondary focus:shadow-focus"
+            />
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
-          <p className="max-w-md text-xs leading-6 text-muted-foreground">
-            Se quiser, voce pode pedir uma decisao objetiva, um plano de estudo curto ou uma explicacao do risco mais importante.
-          </p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs leading-6 text-muted-foreground">
+                Quanto mais direta for sua pergunta, mais acionavel fica a resposta.
+              </p>
 
-          <Button size="lg" onClick={() => void handleSubmit()} loading={sending}>
-            {!sending && <Send size={15} />}
-            Enviar para o mentor
-          </Button>
+              <Button size="lg" onClick={() => void handleSubmit()} loading={sending}>
+                {!sending && <Send size={15} />}
+                Enviar
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+    </section>
   )
 }
