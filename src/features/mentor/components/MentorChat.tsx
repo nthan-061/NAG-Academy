@@ -79,37 +79,37 @@ export function MentorChat({
   }
 
   return (
-    <section className="space-y-6">
+    <section className="mt-10 space-y-7">
       <div className="max-w-3xl space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
           Chat do mentor
         </p>
-        <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground md:text-[2rem]">
+        <h2 className="text-3xl font-bold tracking-[-0.04em] text-foreground md:text-[2.2rem]">
           Converse com o mentor para decidir o proximo passo
         </h2>
       </div>
 
-      <Card padding="lg" className="grid gap-6 rounded-[1.75rem] border border-border/90 p-6 shadow-md lg:p-8">
-        <div className="min-h-[540px] rounded-[1.75rem] border border-border/90 bg-background-elevated p-6 shadow-sm lg:p-8">
-          <div className="flex flex-col gap-6">
+      <Card padding="lg" className="grid gap-7 rounded-[2rem] border border-border/90 bg-white/95 p-7 shadow-md lg:p-9">
+        <div className="min-h-[620px] rounded-[2rem] border border-border/90 bg-background-elevated/90 p-7 shadow-sm lg:p-9">
+          <div className="flex flex-col gap-7">
             <div className="flex gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
                 <Brain size={17} />
               </div>
-              <div className="max-w-[85%] rounded-3xl border border-border bg-white px-5 py-4 shadow-sm">
+              <div className="max-w-[85%] rounded-[1.75rem] border border-border bg-white px-6 py-5 shadow-sm">
                 <p className="text-sm leading-relaxed text-text-secondary md:text-[15px]">
                   {openingMessage}
                 </p>
               </div>
             </div>
 
-            <div className="ml-[60px] flex flex-wrap gap-3">
+            <div className="ml-[64px] flex flex-wrap gap-3.5">
               {quickPrompts.map((prompt, index) => (
                 <Button
                   key={`${prompt}-${index}`}
                   variant="outline"
                   size="sm"
-                  className="h-auto rounded-full px-4 py-2.5 text-xs"
+                  className="h-auto rounded-full border-border bg-white px-4 py-2.5 text-xs shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
                   onClick={() => setDraft(prompt)}
                 >
                   {index === 0 ? 'corrigir erros' : index === 1 ? 'revisar conteudo' : index === 2 ? 'montar plano' : 'definir objetivo'}
@@ -123,13 +123,13 @@ export function MentorChat({
                 className={`flex gap-4 ${message.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
               >
                 {message.role === 'assistant' && (
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
                     <Brain size={17} />
                   </div>
                 )}
 
                 <div
-                  className={`max-w-[85%] rounded-3xl px-5 py-4 shadow-sm ${
+                  className={`max-w-[85%] rounded-[1.75rem] px-6 py-5 shadow-sm ${
                     message.role === 'assistant'
                       ? 'border border-border bg-white'
                       : 'bg-primary text-white'
@@ -141,7 +141,7 @@ export function MentorChat({
                 </div>
 
                 {message.role === 'user' && (
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
                     <UserRound size={17} />
                   </div>
                 )}
@@ -149,7 +149,7 @@ export function MentorChat({
             ))}
 
             {messages.length === 0 && !loading && (
-              <div className="rounded-3xl border border-dashed border-border bg-white/70 px-5 py-4">
+              <div className="rounded-[1.75rem] border border-dashed border-border bg-white/80 px-6 py-5">
                 <p className="text-sm leading-relaxed text-text-secondary">
                   O mentor nao espera contexto extra para comecar. Escolha uma acao rapida ou descreva a decisao que voce quer tomar.
                 </p>
@@ -158,10 +158,10 @@ export function MentorChat({
 
             {sending && (
               <div className="flex gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
                   <Brain size={17} />
                 </div>
-                <div className="rounded-3xl border border-border bg-white px-5 py-4 shadow-sm">
+                <div className="rounded-[1.75rem] border border-border bg-white px-6 py-5 shadow-sm">
                   <p className="text-sm leading-relaxed text-text-secondary">
                     O mentor esta preparando sua resposta...
                   </p>
@@ -171,22 +171,27 @@ export function MentorChat({
           </div>
         </div>
 
-        <div className="rounded-[1.5rem] border border-border bg-white p-5 shadow-sm lg:p-6">
+        <div className="rounded-[1.75rem] border border-border bg-white p-5 shadow-sm lg:p-6">
           <div className="flex flex-col gap-5">
             <textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               rows={5}
               placeholder="Escreva sua duvida ou a decisao que voce quer tomar agora."
-              className="w-full min-h-[144px] resize-none rounded-2xl border border-border bg-background-elevated px-5 py-4 text-sm leading-relaxed text-foreground outline-none transition placeholder:text-muted-foreground focus:border-secondary focus:shadow-focus md:text-[15px]"
+              className="w-full min-h-40 resize-none rounded-[1.25rem] border border-border bg-background-elevated px-5 py-4 text-sm leading-relaxed text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-secondary focus:ring-2 focus:ring-secondary/15 md:text-[15px]"
             />
 
-            <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-end justify-between gap-5">
               <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
                 Quanto mais direta for sua pergunta, mais acionavel fica a resposta.
               </p>
 
-              <Button size="lg" onClick={() => void handleSubmit()} loading={sending}>
+              <Button
+                size="lg"
+                className="shadow-button transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:scale-95"
+                onClick={() => void handleSubmit()}
+                loading={sending}
+              >
                 {!sending && <Send size={15} />}
                 Enviar
               </Button>

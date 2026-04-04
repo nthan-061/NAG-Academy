@@ -17,18 +17,18 @@ export function MentorQuickActions({
     .slice(0, 4)
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-7">
       <div className="max-w-3xl space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
           Acoes rapidas
         </p>
-        <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground">
+        <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground md:text-[2rem]">
           Atalhos inteligentes para agir agora
         </h2>
       </div>
 
       {quickActions.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-6 lg:gap-8 md:grid-cols-2 xl:grid-cols-4">
           {quickActions.map((recommendation) => (
             <MentorQuickActionCard
               key={recommendation.id}
@@ -45,6 +45,7 @@ export function MentorQuickActions({
             </p>
             <Button
               variant="outline"
+              className="shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
               onClick={() => onAskMentor('Quero que voce defina minha proxima acao com base no meu historico recente.')}
             >
               Pedir proximo passo

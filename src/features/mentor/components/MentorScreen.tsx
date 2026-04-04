@@ -24,18 +24,22 @@ export function MentorScreen() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-2 lg:px-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col px-6 py-4 lg:px-8">
       <div className="flex flex-wrap items-start justify-between gap-6">
         <MentorHeader profile={profile} analysis={analysis} />
 
-        <Button variant="outline" className="shrink-0" onClick={() => void refreshMentor()}>
+        <Button
+          variant="outline"
+          className="shrink-0 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
+          onClick={() => void refreshMentor()}
+        >
           <RefreshCcw size={14} />
           Atualizar
         </Button>
       </div>
 
       {error && (
-        <div className="flex items-start gap-4 rounded-3xl border border-danger/20 bg-danger-soft px-6 py-5 shadow-sm">
+        <div className="mt-6 flex items-start gap-4 rounded-3xl border border-danger/20 bg-danger-soft px-6 py-5 shadow-sm">
           <AlertCircle size={17} className="mt-1 shrink-0 text-danger" />
           <div>
             <p className="text-sm font-semibold text-danger">
@@ -58,10 +62,12 @@ export function MentorScreen() {
         initialPrompt={queuedPrompt?.value ?? ''}
       />
 
-      <MentorQuickActions
+      <div className="mt-14">
+        <MentorQuickActions
         recommendations={recommendations}
         onAskMentor={(prompt) => setQueuedPrompt({ value: prompt, nonce: Date.now() })}
-      />
+        />
+      </div>
     </div>
   )
 }
