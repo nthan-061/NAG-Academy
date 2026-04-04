@@ -25,7 +25,7 @@ export function MentorHeader({ profile, analysis }: MentorHeaderProps) {
     ?? 'Abrir a conversa para definir o foco.'
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-3">
       <div className="max-w-3xl space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
           Mentor IA
@@ -33,9 +33,6 @@ export function MentorHeader({ profile, analysis }: MentorHeaderProps) {
         <h1 className="text-3xl font-bold tracking-[-0.04em] text-foreground md:text-4xl">
           Converse e aja no proximo passo certo.
         </h1>
-        <p className="text-sm leading-7 text-text-secondary">
-          O mentor ja leu seu historico. Agora a interface prioriza decisao rapida, nao relatorio.
-        </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
