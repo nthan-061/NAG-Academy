@@ -92,32 +92,135 @@ function FlashcardFlip({
 // ---------- Tela final ----------
 function TelaFinal({ revisados, proximaDias }: { revisados: number; proximaDias: number }) {
   return (
-    <div className="flex flex-col items-center gap-6 text-center animate-slideUp py-8">
-      <div
-        className="w-20 h-20 rounded-full flex items-center justify-center"
-        style={{ backgroundColor: '#F0FDF4' }}
-      >
-        <CheckCircle size={40} style={{ color: '#16A34A' }} />
-      </div>
-      <div>
-        <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A1F2E' }}>
-          Revisão completa!
-        </h2>
-        <p className="text-sm" style={{ color: '#6B7280' }}>
-          Você revisou {revisados} {revisados === 1 ? 'flashcard' : 'flashcards'} hoje.
-        </p>
-        {proximaDias > 0 && (
-          <p className="text-sm mt-1" style={{ color: '#9CA3AF' }}>
-            Próxima revisão em {proximaDias} {proximaDias === 1 ? 'dia' : 'dias'}.
+    /*
+      Completion state treated as a premium final screen — not a placeholder.
+      Structure:
+        1. Success icon with ring (visual anchor)
+        2. Title + subtitle
+        3. Stats row (cards reviewed | next review)
+        4. Strong primary CTA
+    */
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+
+      {/* ── Icon + heading ── */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', textAlign: 'center' }}>
+        {/* Layered success icon: inner circle + outer ring */}
+        <div
+          style={{
+            width: '88px',
+            height: '88px',
+            borderRadius: '50%',
+            backgroundColor: '#F0FDF4',
+            border: '8px solid #DCFCE7',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <CheckCircle size={40} style={{ color: '#16A34A' }} />
+        </div>
+
+        <div>
+          <h2
+            style={{
+              fontSize: '26px',
+              fontWeight: 700,
+              lineHeight: 1.2,
+              color: '#1A1F2E',
+              margin: '0 0 8px 0',
+            }}
+          >
+            Revisão concluída!
+          </h2>
+          <p style={{ fontSize: '15px', lineHeight: 1.7, color: '#6B7280', margin: 0 }}>
+            Você completou toda a fila de revisão de hoje.
           </p>
-        )}
+        </div>
       </div>
+
+      {/* ── Stats card ── */}
+      <div
+        style={{
+          backgroundColor: '#FFFFFF',
+          border: '1px solid #E8ECF2',
+          borderRadius: '12px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            padding: '20px 24px',
+            borderRight: '1px solid #E8ECF2',
+            textAlign: 'center',
+          }}
+        >
+          <p
+            style={{
+              fontSize: '32px',
+              fontWeight: 700,
+              color: '#0D1B3E',
+              margin: '0 0 4px 0',
+              lineHeight: 1,
+            }}
+          >
+            {revisados}
+          </p>
+          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+            {revisados === 1 ? 'flashcard revisado' : 'flashcards revisados'}
+          </p>
+        </div>
+
+        <div style={{ padding: '20px 24px', textAlign: 'center' }}>
+          <p
+            style={{
+              fontSize: '32px',
+              fontWeight: 700,
+              color: '#0D1B3E',
+              margin: '0 0 4px 0',
+              lineHeight: 1,
+            }}
+          >
+            {proximaDias > 0 ? proximaDias : '—'}
+          </p>
+          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+            {proximaDias === 1 ? 'dia até a próxima' : proximaDias > 1 ? 'dias até a próxima' : 'revisão agendada'}
+          </p>
+        </div>
+      </div>
+
+      {/* ── CTA ── */}
       <Link
         to="/"
-        className="px-6 py-3 rounded-xl text-sm font-semibold text-white transition-colors"
-        style={{ backgroundColor: '#0D1B3E' }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          padding: '14px 24px',
+          borderRadius: '10px',
+          backgroundColor: '#0D1B3E',
+          color: '#FFFFFF',
+          fontSize: '15px',
+          fontWeight: 600,
+          textDecoration: 'none',
+          boxShadow: '0 4px 14px rgba(13,27,62,0.20)',
+          transition: 'transform 0.15s, box-shadow 0.15s',
+        }}
+        onMouseEnter={e => {
+          const el = e.currentTarget as HTMLElement
+          el.style.transform = 'translateY(-1px)'
+          el.style.boxShadow = '0 8px 20px rgba(13,27,62,0.28)'
+        }}
+        onMouseLeave={e => {
+          const el = e.currentTarget as HTMLElement
+          el.style.transform = ''
+          el.style.boxShadow = '0 4px 14px rgba(13,27,62,0.20)'
+        }}
       >
-        Voltar ao dashboard
+        Voltar ao início
       </Link>
     </div>
   )

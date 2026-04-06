@@ -4,9 +4,7 @@ import { AlertCircle, CheckCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { AuthLeftColumn } from '@/components/auth/AuthLeftColumn'
 import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
-import { Text } from '@/components/ui/Text'
 
 const LEFT_BULLETS = [
   { icon: 'check' as const, text: 'Trilhas de conteudo estruturadas' },
@@ -60,42 +58,131 @@ export function Login() {
         bullets={LEFT_BULLETS}
       />
 
-      <main className="auth-content">
-        <Card className="auth-surface" padding="none">
-          <div className="flex flex-col gap-8">
+      {/* Right side — authentication panel */}
+      <main
+        style={{
+          display: 'flex',
+          minHeight: '100vh',
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '40px 20px',
+        }}
+        className="lg:w-1/2"
+      >
+        {/*
+          Card — same vocabulary as Dashboard cards but adapted for auth:
+          white bg, clean border, strong shadow.
+          max-w 480px — wide enough for comfortable form, contained for focus.
+          No nested Card component: plain div with explicit inline styles.
+        */}
+        <div
+          style={{
+            width: '100%',
+            maxWidth: '480px',
+            backgroundColor: '#FFFFFF',
+            borderRadius: '20px',
+            border: '1px solid #E8ECF2',
+            boxShadow: '0 8px 40px rgba(10,22,40,0.10)',
+            overflow: 'hidden',
+          }}
+        >
+          {/* ── Header section ── */}
+          <div
+            style={{
+              padding: '36px 40px 28px',
+              borderBottom: '1px solid #E8ECF2',
+            }}
+          >
+            {/* Kicker */}
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '3px 10px',
+                borderRadius: '6px',
+                backgroundColor: '#EBF0FA',
+                color: '#2E5FD4',
+                fontSize: '11px',
+                fontWeight: 700,
+                letterSpacing: '0.10em',
+                textTransform: 'uppercase',
+                marginBottom: '16px',
+              }}
+            >
+              NAG Academy
+            </span>
+
+            <h2
+              style={{
+                fontSize: '24px',
+                fontWeight: 700,
+                lineHeight: 1.2,
+                color: '#1A1F2E',
+                margin: '0 0 8px 0',
+              }}
+            >
+              Entrar na plataforma
+            </h2>
+
+            <p
+              style={{
+                fontSize: '14px',
+                lineHeight: 1.7,
+                color: '#6B7280',
+                margin: 0,
+              }}
+            >
+              Bem-vindo de volta à NAG Academy
+            </p>
+          </div>
+
+          {/* ── Form section ── */}
+          <div style={{ padding: '28px 40px 32px' }}>
+
+            {/* Success alert */}
             {confirmed && (
-              <div className="auth-alert auth-alert-success">
-                <CheckCircle size={18} className="mt-0.5 shrink-0" />
-                <Text className="text-sm font-medium leading-6 text-success">
-                  Email confirmado! Faca login para continuar.
-                </Text>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                  padding: '12px 16px',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(22,163,74,0.20)',
+                  backgroundColor: '#F0FDF4',
+                  marginBottom: '24px',
+                }}
+              >
+                <CheckCircle size={16} style={{ color: '#16A34A', marginTop: '2px', flexShrink: 0 }} />
+                <p style={{ fontSize: '13px', lineHeight: 1.6, color: '#16A34A', margin: 0 }}>
+                  Email confirmado! Faça login para continuar.
+                </p>
               </div>
             )}
 
-            <div className="auth-card-section">
-              <div className="auth-kicker">
-                NAG Academy
-              </div>
-
-              <Text as="h2" variant="h2">
-                Entrar na plataforma
-              </Text>
-
-              <Text tone="muted" className="max-w-[28rem] text-[1rem] leading-7">
-                Bem-vindo de volta a NAG Academy
-              </Text>
-            </div>
-
+            {/* Error alert */}
             {error && (
-              <div className="auth-alert auth-alert-danger">
-                <AlertCircle size={18} className="mt-0.5 shrink-0" />
-                <Text className="text-sm leading-6 text-danger">
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                  padding: '12px 16px',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(220,38,38,0.15)',
+                  backgroundColor: '#FEF2F2',
+                  marginBottom: '24px',
+                }}
+              >
+                <AlertCircle size={16} style={{ color: '#DC2626', marginTop: '2px', flexShrink: 0 }} />
+                <p style={{ fontSize: '13px', lineHeight: 1.6, color: '#DC2626', margin: 0 }}>
                   {error}
-                </Text>
+                </p>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="auth-form-stack">
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <Input
                 type="email"
                 label="Email"
@@ -106,7 +193,7 @@ export function Login() {
                 autoComplete="email"
               />
 
-              <div className="flex flex-col gap-4">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <Input
                   type="password"
                   label="Senha"
@@ -116,9 +203,16 @@ export function Login() {
                   required
                   autoComplete="current-password"
                 />
-
-                <div className="flex justify-end">
-                  <Link to="/forgot-password" className="auth-link text-sm">
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Link
+                    to="/forgot-password"
+                    style={{
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      color: '#2E5FD4',
+                      textDecoration: 'none',
+                    }}
+                  >
                     Esqueci minha senha
                   </Link>
                 </div>
@@ -128,17 +222,32 @@ export function Login() {
                 {loading ? 'Entrando...' : 'Entrar'}
               </Button>
             </form>
-
-            <div className="border-t border-border/80 pt-6">
-              <Text className="text-center text-[0.98rem] leading-7">
-              Nao tem uma conta?{' '}
-                <Link to="/register" className="auth-link">
-                  Criar conta
-                </Link>
-              </Text>
-            </div>
           </div>
-        </Card>
+
+          {/* ── Footer section ── */}
+          <div
+            style={{
+              borderTop: '1px solid #E8ECF2',
+              padding: '20px 40px 28px',
+              textAlign: 'center',
+            }}
+          >
+            <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>
+              Não tem uma conta?{' '}
+              <Link
+                to="/register"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#2E5FD4',
+                  textDecoration: 'none',
+                }}
+              >
+                Criar conta
+              </Link>
+            </p>
+          </div>
+        </div>
       </main>
     </div>
   )
