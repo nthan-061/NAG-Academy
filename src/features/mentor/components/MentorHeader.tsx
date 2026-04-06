@@ -25,7 +25,7 @@ export function MentorHeader({ analysis, onRefresh, refreshing }: MentorHeaderPr
           <Brain size={16} />
         </div>
         <span className="text-[15px] font-semibold text-foreground">Mentor IA</span>
-        <Badge variant={config.variant}>{config.label}</Badge>
+        <Badge variant={config.variant} className="min-h-0 py-0.5 px-2.5">{config.label}</Badge>
         <span className="hidden text-xs text-muted-foreground sm:block">· Atualizado agora</span>
       </div>
       <Button
@@ -33,7 +33,7 @@ export function MentorHeader({ analysis, onRefresh, refreshing }: MentorHeaderPr
         size="sm"
         onClick={onRefresh}
         loading={refreshing}
-        className="shrink-0 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
+        className="h-9 shrink-0 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-95"
       >
         <RefreshCcw size={13} />
         Atualizar
