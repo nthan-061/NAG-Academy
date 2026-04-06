@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { AlertTriangle, ArrowRight, TrendingUp, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { MentorPerformanceAnalysis, MentorRecommendation, UserLearningProfile } from '../types'
@@ -9,11 +10,26 @@ interface MentorNextStepHeroProps {
   onAskMentor: (prompt: string) => void
 }
 
+const chipStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  borderRadius: '999px',
+  background: 'rgba(255,255,255,0.13)',
+  padding: '6px 14px',
+  fontSize: '11px',
+  fontWeight: 700,
+  letterSpacing: '0.10em',
+  textTransform: 'uppercase',
+  color: 'rgba(255,255,255,0.82)',
+  lineHeight: 1,
+  whiteSpace: 'nowrap',
+}
+
 function UrgencyBadge({ score }: { score: number }) {
-  const base = 'inline-flex items-center gap-1.5 rounded-full bg-white/[0.14] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white/80'
-  if (score >= 7) return <span className={base}><AlertTriangle size={10} />Urgente agora</span>
-  if (score >= 4) return <span className={base}><Zap size={10} />Alta prioridade</span>
-  return <span className={base}><TrendingUp size={10} />Próximo passo</span>
+  if (score >= 7) return <span style={chipStyle}><AlertTriangle size={10} />Urgente agora</span>
+  if (score >= 4) return <span style={chipStyle}><Zap size={10} />Alta prioridade</span>
+  return <span style={chipStyle}><TrendingUp size={10} />Próximo passo</span>
 }
 
 export function MentorNextStepHero({
@@ -140,7 +156,10 @@ export function MentorNextStepHero({
                 padding: '6px 14px',
                 fontSize: '11px',
                 fontWeight: 600,
-                color: 'rgba(255,255,255,0.65)',
+                letterSpacing: '0.04em',
+                color: 'rgba(255,255,255,0.60)',
+                lineHeight: 1,
+                whiteSpace: 'nowrap',
               }}
             >
               {topic}
