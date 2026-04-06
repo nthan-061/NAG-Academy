@@ -1,20 +1,33 @@
 import { useState } from 'react'
-import { AlertCircle, RefreshCcw } from 'lucide-react'
-import { Button } from '@/components/ui'
+import { AlertCircle } from 'lucide-react'
 import { useMentor } from '../hooks'
 import { MentorChat } from './MentorChat'
+import { MentorDecisionPanel } from './MentorDecisionPanel'
 import { MentorHeader } from './MentorHeader'
-import { MentorQuickActions } from './MentorQuickActions'
+import { MentorNextStepHero } from './MentorNextStepHero'
 
 export function MentorScreen() {
   const {
-    profile, analysis, recommendations,
-    messages, mentorContext, loading, sending, error,
-    refreshMentor, sendMessage,
+    profile,
+    analysis,
+    recommendations,
+    messages,
+    mentorContext,
+    loading,
+    sending,
+    error,
+    refreshMentor,
+    sendMessage,
   } = useMentor()
 
   const [queuedPrompt, setQueuedPrompt] = useState<{ value: string; nonce: number } | null>(null)
+
   const primaryRecommendation = recommendations[0] ?? null
+  const secondaryRecommendations = recommendations.slice(1, 4)
+
+  function handleAskMentor(prompt: string) {
+    setQueuedPrompt({ value: prompt, nonce: Date.now() })
+  }
 
   if (loading) {
     return (
@@ -25,52 +38,48 @@ export function MentorScreen() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-5 lg:px-8">
-      <div className="flex flex-wrap items-start justify-between gap-6">
-        <MentorHeader
-          profile={profile}
-          analysis={analysis}
-          primaryRecommendation={primaryRecommendation}
-        />
-
-        <Button
-          variant="outline"
-          className="shrink-0 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
-          onClick={() => void refreshMentor()}
-        >
-          <RefreshCcw size={14} />
-          Atualizar
-        </Button>
-      </div>
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-6 py-6 lg:px-8 lg:py-7">
+      {/* Zone 1 — Command bar */}
+      <MentorHeader
+        analysis={analysis}
+        onRefresh={() => void refreshMentor()}
+      />
 
       {error && (
-        <div className="mt-6 flex items-start gap-4 rounded-[20px] border border-danger/20 bg-danger-soft px-7 py-6 shadow-[0_16px_40px_rgba(10,22,40,0.05)]">
-          <AlertCircle size={17} className="mt-1 shrink-0 text-danger" />
+        <div className="flex items-start gap-3 rounded-[14px] border border-danger/20 bg-danger-soft px-5 py-4">
+          <AlertCircle size={15} className="mt-0.5 shrink-0 text-danger" />
           <div>
-            <p className="text-sm font-semibold text-danger">
-              Nao foi possivel atualizar a leitura do mentor.
-            </p>
-            <p className="mt-1 text-sm leading-relaxed text-danger/85">{error}</p>
+            <p className="text-sm font-semibold text-danger">Não foi possível atualizar o mentor.</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-danger/80">{error}</p>
           </div>
         </div>
       )}
 
-      <MentorChat
-        key={queuedPrompt?.nonce ?? 0}
-        messages={messages}
-        mentorContext={mentorContext}
-        profile={profile}
+      {/* Zone 2 — Primary: next step hero */}
+      <MentorNextStepHero
+        primaryRecommendation={primaryRecommendation}
         analysis={analysis}
-        recommendations={recommendations}
-        sending={sending}
-        onSendMessage={sendMessage}
-        initialPrompt={queuedPrompt?.value ?? ''}
+        profile={profile}
+        onAskMentor={handleAskMentor}
       />
 
-      <div className="mt-14">
-        <MentorQuickActions
+      {/* Zone 3 — Secondary + Tertiary: chat + decision panel */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_360px]">
+        <MentorChat
+          key={queuedPrompt?.nonce ?? 0}
+          messages={messages}
+          mentorContext={mentorContext}
+          profile={profile}
+          analysis={analysis}
           recommendations={recommendations}
-          onAskMentor={(prompt) => setQueuedPrompt({ value: prompt, nonce: Date.now() })}
+          sending={sending}
+          onSendMessage={sendMessage}
+          initialPrompt={queuedPrompt?.value ?? ''}
+        />
+
+        <MentorDecisionPanel
+          recommendations={secondaryRecommendations}
+          onAskMentor={handleAskMentor}
         />
       </div>
     </div>

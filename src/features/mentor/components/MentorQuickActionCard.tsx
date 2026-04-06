@@ -1,32 +1,33 @@
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Button, Card } from '@/components/ui'
+import { Button } from '@/components/ui'
 import type { MentorRecommendation } from '../types'
 
 interface MentorQuickActionCardProps {
   recommendation: MentorRecommendation
-  featured?: boolean
   onAskMentor: (prompt: string) => void
 }
 
-export function MentorQuickActionCard({
-  recommendation,
-  featured = false,
-  onAskMentor,
-}: MentorQuickActionCardProps) {
+const priorityDot: Record<string, string> = {
+  high: 'bg-danger',
+  medium: 'bg-warning',
+  low: 'bg-border',
+}
+
+export function MentorQuickActionCard({ recommendation, onAskMentor }: MentorQuickActionCardProps) {
   const action =
     recommendation.action.kind === 'route' && recommendation.action.href ? (
       <Link
         to={recommendation.action.href}
-        className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white shadow-button transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-strong hover:brightness-110 hover:shadow-md active:scale-95"
+        className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-secondary-soft px-4 text-xs font-semibold text-secondary transition-all duration-150 hover:bg-secondary hover:text-white active:scale-95"
       >
         {recommendation.actionLabel}
-        <ArrowRight size={14} />
+        <ArrowRight size={12} />
       </Link>
     ) : recommendation.action.kind === 'question' && recommendation.action.prompt ? (
       <Button
         size="sm"
-        className="w-fit px-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:scale-95"
+        className="h-9 px-4 text-xs"
         onClick={() => onAskMentor(recommendation.action.prompt!)}
       >
         {recommendation.actionLabel}
@@ -35,37 +36,29 @@ export function MentorQuickActionCard({
       <Button
         size="sm"
         variant="outline"
-        className="w-fit px-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
-        onClick={() => onAskMentor(`Quero executar esta acao agora: ${recommendation.title}.`)}
+        className="h-9 px-4 text-xs"
+        onClick={() => onAskMentor(`Quero executar agora: ${recommendation.title}.`)}
       >
         Abrir no mentor
       </Button>
     )
 
   return (
-    <Card
-      padding="lg"
-      className={`flex h-full min-h-[200px] flex-col gap-7 rounded-[20px] border bg-white p-7 transition-all duration-200 hover:-translate-y-1 hover:shadow-md lg:p-8 ${
-        featured
-          ? 'border-secondary/25 shadow-[0_18px_36px_rgba(46,95,212,0.12)] md:col-span-2'
-          : 'border-border shadow-[0_12px_32px_rgba(10,22,40,0.04)]'
-      }`}
-    >
-      <div className="space-y-5">
-        <h3 className="text-base font-semibold text-foreground">
+    <div className="flex flex-col gap-4 rounded-[16px] border border-border bg-white p-5 shadow-[0_8px_24px_rgba(10,22,40,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="text-sm font-semibold leading-snug text-foreground">
           {recommendation.title}
         </h3>
-        <p className="text-sm leading-relaxed text-text-secondary">
-          {recommendation.message}
-        </p>
-        <div className="inline-flex w-fit rounded-full bg-background-elevated px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          {featured ? 'Acao principal' : 'Acao rapida'}
-        </div>
+        <span
+          className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${priorityDot[recommendation.priority] ?? 'bg-border'}`}
+        />
       </div>
 
-      <div className="mt-auto flex pt-2">
-        {action}
-      </div>
-    </Card>
+      <p className="line-clamp-2 text-xs leading-relaxed text-text-secondary">
+        {recommendation.message}
+      </p>
+
+      {action}
+    </div>
   )
 }
