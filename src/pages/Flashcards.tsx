@@ -318,21 +318,188 @@ export function Flashcards() {
 
   if (cards.length === 0) {
     return (
-      <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Layers size={48} style={{ color: '#9CA3AF' }} />
-        <h2 className="text-xl font-semibold" style={{ color: '#1A1F2E' }}>
-          Nenhum flashcard para revisar hoje
-        </h2>
-        <p className="text-sm text-center max-w-xs" style={{ color: '#6B7280' }}>
-          Continue fazendo quizzes para gerar flashcards automaticamente ao errar questões.
-        </p>
-        <Link
-          to="/trilhas"
-          className="px-5 py-2.5 rounded-lg text-sm font-medium text-white mt-2"
-          style={{ backgroundColor: '#0D1B3E' }}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '70vh',
+          padding: '40px 20px',
+        }}
+      >
+        {/*
+          Empty state treated as a premium product state — not a placeholder.
+          Card sits centered, max-w 440px, with real padding and clear hierarchy:
+            1. Icon with layered ring (visual anchor)
+            2. Title + description
+            3. Context tip card
+            4. Strong CTA + secondary link
+        */}
+        <div
+          style={{
+            width: '100%',
+            maxWidth: '440px',
+            backgroundColor: '#FFFFFF',
+            borderRadius: '16px',
+            border: '1px solid #E8ECF2',
+            boxShadow: '0 4px 24px rgba(10,22,40,0.07)',
+            overflow: 'hidden',
+          }}
         >
-          Ver trilhas
-        </Link>
+          {/* ── Main content zone ── */}
+          <div
+            style={{
+              padding: '48px 40px 36px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              gap: '20px',
+            }}
+          >
+            {/* Icon with outer ring */}
+            <div
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                backgroundColor: '#F0F4FF',
+                border: '8px solid #E5EAFF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Layers size={36} style={{ color: '#2E5FD4' }} />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <h2
+                style={{
+                  fontSize: '22px',
+                  fontWeight: 700,
+                  lineHeight: 1.2,
+                  color: '#1A1F2E',
+                  margin: 0,
+                }}
+              >
+                Revisão em dia
+              </h2>
+              <p
+                style={{
+                  fontSize: '14px',
+                  lineHeight: 1.75,
+                  color: '#6B7280',
+                  margin: 0,
+                  maxWidth: '320px',
+                }}
+              >
+                Você não tem flashcards para revisar hoje. Continue aprendendo para acumular novos cartões.
+              </p>
+            </div>
+          </div>
+
+          {/* ── Tip card ── */}
+          <div
+            style={{
+              margin: '0 24px',
+              padding: '16px 20px',
+              borderRadius: '10px',
+              backgroundColor: '#F7F9FD',
+              border: '1px solid #E8ECF2',
+              marginBottom: '28px',
+            }}
+          >
+            <p
+              style={{
+                fontSize: '12px',
+                fontWeight: 700,
+                color: '#2E5FD4',
+                textTransform: 'uppercase',
+                letterSpacing: '0.10em',
+                margin: '0 0 6px 0',
+              }}
+            >
+              Como funciona
+            </p>
+            <p style={{ fontSize: '13px', lineHeight: 1.7, color: '#6B7280', margin: 0 }}>
+              Ao errar questões nos quizzes, flashcards são criados automaticamente. Eles aparecem aqui na data certa para revisão.
+            </p>
+          </div>
+
+          {/* ── Actions zone ── */}
+          <div
+            style={{
+              borderTop: '1px solid #E8ECF2',
+              padding: '24px 40px 32px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+            }}
+          >
+            <Link
+              to="/trilhas"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                padding: '13px 24px',
+                borderRadius: '10px',
+                backgroundColor: '#0D1B3E',
+                color: '#FFFFFF',
+                fontSize: '14px',
+                fontWeight: 600,
+                textDecoration: 'none',
+                boxShadow: '0 4px 14px rgba(13,27,62,0.18)',
+                transition: 'transform 0.15s, box-shadow 0.15s',
+              }}
+              onMouseEnter={e => {
+                const el = e.currentTarget as HTMLElement
+                el.style.transform = 'translateY(-1px)'
+                el.style.boxShadow = '0 8px 20px rgba(13,27,62,0.26)'
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget as HTMLElement
+                el.style.transform = ''
+                el.style.boxShadow = '0 4px 14px rgba(13,27,62,0.18)'
+              }}
+            >
+              Continuar aprendendo
+            </Link>
+
+            <Link
+              to="/"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                padding: '11px 24px',
+                borderRadius: '10px',
+                backgroundColor: 'transparent',
+                border: '1px solid #E8ECF2',
+                color: '#6B7280',
+                fontSize: '14px',
+                fontWeight: 500,
+                textDecoration: 'none',
+                transition: 'border-color 0.15s, color 0.15s',
+              }}
+              onMouseEnter={e => {
+                const el = e.currentTarget as HTMLElement
+                el.style.borderColor = '#D1D5DB'
+                el.style.color = '#374151'
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget as HTMLElement
+                el.style.borderColor = '#E8ECF2'
+                el.style.color = '#6B7280'
+              }}
+            >
+              Voltar ao início
+            </Link>
+          </div>
+        </div>
       </div>
     )
   }
