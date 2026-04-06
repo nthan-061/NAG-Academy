@@ -5,6 +5,7 @@ import type { MentorRecommendation } from '../types'
 
 interface MentorQuickActionCardProps {
   recommendation: MentorRecommendation
+  featured?: boolean
   onAskMentor: (prompt: string) => void
 }
 
@@ -14,7 +15,11 @@ const priorityDot: Record<string, string> = {
   low: 'bg-border',
 }
 
-export function MentorQuickActionCard({ recommendation, onAskMentor }: MentorQuickActionCardProps) {
+export function MentorQuickActionCard({
+  recommendation,
+  featured = false,
+  onAskMentor,
+}: MentorQuickActionCardProps) {
   const action =
     recommendation.action.kind === 'route' && recommendation.action.href ? (
       <Link
@@ -44,11 +49,24 @@ export function MentorQuickActionCard({ recommendation, onAskMentor }: MentorQui
     )
 
   return (
-    <div className="flex flex-col gap-4 rounded-[16px] border border-border bg-white p-5 shadow-[0_8px_24px_rgba(10,22,40,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <div
+      className={`flex flex-col gap-4 rounded-[16px] border bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+        featured
+          ? 'border-secondary/30 shadow-[0_12px_32px_rgba(37,99,235,0.12)]'
+          : 'border-border shadow-[0_8px_24px_rgba(10,22,40,0.04)]'
+      }`}
+    >
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-sm font-semibold leading-snug text-foreground">
-          {recommendation.title}
-        </h3>
+        <div className="space-y-1.5">
+          {featured && (
+            <span className="inline-flex rounded-full bg-secondary-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-secondary">
+              Ação principal
+            </span>
+          )}
+          <h3 className="text-sm font-semibold leading-snug text-foreground">
+            {recommendation.title}
+          </h3>
+        </div>
         <span
           className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${priorityDot[recommendation.priority] ?? 'bg-border'}`}
         />
