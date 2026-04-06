@@ -38,7 +38,9 @@ export function MentorScreen() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-6 py-6 lg:px-8 lg:py-7">
+    // Root: no padding/max-w here — PageLayout (wide) already handles px-4 lg:px-6 + py-8 + max-w-7xl
+    <div className="flex flex-col gap-8">
+
       {/* Zone 1 — Command bar */}
       <MentorHeader
         analysis={analysis}
@@ -46,11 +48,13 @@ export function MentorScreen() {
       />
 
       {error && (
-        <div className="flex items-start gap-3 rounded-[14px] border border-danger/20 bg-danger-soft px-5 py-4">
-          <AlertCircle size={15} className="mt-0.5 shrink-0 text-danger" />
+        <div className="flex items-start gap-4 rounded-[20px] border border-danger/20 bg-danger-soft px-7 py-6 shadow-[0_16px_40px_rgba(10,22,40,0.05)]">
+          <AlertCircle size={16} className="mt-0.5 shrink-0 text-danger" />
           <div>
-            <p className="text-sm font-semibold text-danger">Não foi possível atualizar o mentor.</p>
-            <p className="mt-0.5 text-xs leading-relaxed text-danger/80">{error}</p>
+            <p className="text-sm font-semibold text-danger">
+              Não foi possível atualizar o mentor.
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-danger/80">{error}</p>
           </div>
         </div>
       )}
@@ -63,8 +67,8 @@ export function MentorScreen() {
         onAskMentor={handleAskMentor}
       />
 
-      {/* Zone 3 — Secondary + Tertiary: chat + decision panel */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_360px]">
+      {/* Zone 3 — Secondary + Tertiary: chat (dominant left) + decision panel (right) */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
         <MentorChat
           key={queuedPrompt?.nonce ?? 0}
           messages={messages}

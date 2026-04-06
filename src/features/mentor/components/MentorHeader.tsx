@@ -20,11 +20,11 @@ export function MentorHeader({ analysis, onRefresh, refreshing }: MentorHeaderPr
 
   return (
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-secondary-soft text-secondary">
-          <Brain size={15} />
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary-soft text-secondary">
+          <Brain size={16} />
         </div>
-        <span className="text-sm font-semibold text-foreground">Mentor IA</span>
+        <span className="text-[15px] font-semibold text-foreground">Mentor IA</span>
         <Badge variant={config.variant}>{config.label}</Badge>
         <span className="hidden text-xs text-muted-foreground sm:block">· Atualizado agora</span>
       </div>
@@ -33,7 +33,7 @@ export function MentorHeader({ analysis, onRefresh, refreshing }: MentorHeaderPr
         size="sm"
         onClick={onRefresh}
         loading={refreshing}
-        className="shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
+        className="shrink-0 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
       >
         <RefreshCcw size={13} />
         Atualizar

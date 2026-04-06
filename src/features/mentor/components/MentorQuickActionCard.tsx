@@ -24,7 +24,7 @@ export function MentorQuickActionCard({
     recommendation.action.kind === 'route' && recommendation.action.href ? (
       <Link
         to={recommendation.action.href}
-        className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-secondary-soft px-4 text-xs font-semibold text-secondary transition-all duration-150 hover:bg-secondary hover:text-white active:scale-95"
+        className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-secondary-soft px-5 text-xs font-semibold text-secondary transition-all duration-150 hover:bg-secondary hover:text-white active:scale-95"
       >
         {recommendation.actionLabel}
         <ArrowRight size={12} />
@@ -32,7 +32,7 @@ export function MentorQuickActionCard({
     ) : recommendation.action.kind === 'question' && recommendation.action.prompt ? (
       <Button
         size="sm"
-        className="h-9 px-4 text-xs"
+        className="h-10 px-5 text-xs"
         onClick={() => onAskMentor(recommendation.action.prompt!)}
       >
         {recommendation.actionLabel}
@@ -41,7 +41,7 @@ export function MentorQuickActionCard({
       <Button
         size="sm"
         variant="outline"
-        className="h-9 px-4 text-xs"
+        className="h-10 px-5 text-xs"
         onClick={() => onAskMentor(`Quero executar agora: ${recommendation.title}.`)}
       >
         Abrir no mentor
@@ -50,14 +50,14 @@ export function MentorQuickActionCard({
 
   return (
     <div
-      className={`flex flex-col gap-4 rounded-[16px] border bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+      className={`flex flex-col gap-5 rounded-[20px] border bg-white p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-md lg:p-7 ${
         featured
           ? 'border-secondary/30 shadow-[0_12px_32px_rgba(37,99,235,0.12)]'
           : 'border-border shadow-[0_8px_24px_rgba(10,22,40,0.04)]'
       }`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-1.5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-2">
           {featured && (
             <span className="inline-flex rounded-full bg-secondary-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-secondary">
               Ação principal
@@ -68,11 +68,11 @@ export function MentorQuickActionCard({
           </h3>
         </div>
         <span
-          className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${priorityDot[recommendation.priority] ?? 'bg-border'}`}
+          className={`mt-1 h-2 w-2 shrink-0 rounded-full ${priorityDot[recommendation.priority] ?? 'bg-border'}`}
         />
       </div>
 
-      <p className="line-clamp-2 text-xs leading-relaxed text-text-secondary">
+      <p className="line-clamp-3 text-sm leading-relaxed text-text-secondary">
         {recommendation.message}
       </p>
 
