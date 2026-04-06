@@ -38,7 +38,8 @@ export function MentorScreen() {
   }
 
   return (
-    // Root: no padding/max-w here — PageLayout (wide) already handles px-4 lg:px-6 + py-8 + max-w-7xl
+    // PageLayout (wide) provides: max-w-7xl, px-4 lg:px-6, py-8
+    // No extra padding/max-w here — matches Dashboard's root pattern: flex flex-col gap-8
     <div className="flex flex-col gap-8">
 
       {/* Zone 1 — Command bar */}
@@ -67,8 +68,12 @@ export function MentorScreen() {
         onAskMentor={handleAskMentor}
       />
 
-      {/* Zone 3 — Secondary + Tertiary: chat (dominant left) + decision panel (right) */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
+      {/* Zone 3 — Chat (dominant) + Decision panel
+          lg: 2 cols with 360px sidebar (activates at 1024px)
+          xl: wider sidebar at 420px (activates at 1280px)
+          Below lg: single column, panel stacks below chat
+      */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px]">
         <MentorChat
           key={queuedPrompt?.nonce ?? 0}
           messages={messages}
