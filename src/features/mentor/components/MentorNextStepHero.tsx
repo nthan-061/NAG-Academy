@@ -9,10 +9,10 @@ interface MentorNextStepHeroProps {
   onAskMentor: (prompt: string) => void
 }
 
-function UrgencyChip({ score }: { score: number }) {
+function UrgencyBadge({ score }: { score: number }) {
   if (score >= 7) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white/90">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.14] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/80">
         <AlertTriangle size={10} />
         Urgente agora
       </span>
@@ -20,14 +20,14 @@ function UrgencyChip({ score }: { score: number }) {
   }
   if (score >= 4) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white/90">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.14] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/80">
         <Zap size={10} />
         Alta prioridade
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white/90">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.14] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/80">
       <TrendingUp size={10} />
       Próximo passo
     </span>
@@ -54,83 +54,94 @@ export function MentorNextStepHero({
 
   const primaryActionLabel = primaryRecommendation?.actionLabel ?? 'Definir próximo passo'
 
-  const primaryAction =
-    primaryRecommendation?.action.kind === 'route' && primaryRecommendation.action.href ? (
-      <Link
-        to={primaryRecommendation.action.href}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-[14px] font-bold text-[#1a2f6e] shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
-      >
-        {primaryActionLabel}
-        <ArrowRight size={14} />
-      </Link>
-    ) : (
-      <button
-        type="button"
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-[14px] font-bold text-[#1a2f6e] shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
-        onClick={() =>
-          onAskMentor(
-            primaryRecommendation?.action.prompt ?? `Quero executar agora: ${title}.`,
-          )
-        }
-      >
-        {primaryActionLabel}
-        <ArrowRight size={14} />
-      </button>
-    )
+  const hasPrimaryRoute =
+    primaryRecommendation?.action.kind === 'route' && primaryRecommendation.action.href
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0c1c50] via-[#1e3a8a] to-[#2563eb] shadow-[0_20px_56px_rgba(37,99,235,0.22)]">
-      {/* Decorative orb */}
-      <div className="pointer-events-none absolute -right-32 -top-32 h-[480px] w-[480px] rounded-full bg-white/[0.05] blur-[80px]" />
+    /*
+      Hero design rules:
+      - min-h-[340px] guarantees it never collapses to banner height
+      - xl:min-h-[400px] for bigger viewports
+      - Two clear zones: top (content) and bottom (actions), separated by border
+      - On xl, the two zones become side-by-side columns
+      - Title scales from 28px → 36px → 44px across breakpoints
+      - Generous padding so text never touches the card edge
+    */
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0b1b4d] via-[#1e3a8a] to-[#2563eb] shadow-[0_20px_60px_rgba(37,99,235,0.25)]">
 
-      {/*
-        Below xl  → single column: content on top, actions below (separated by border-t)
-        At xl     → two columns: content left (3fr) | actions right (2fr), divided by border
-      */}
-      <div className="relative xl:grid xl:grid-cols-[3fr_2fr] xl:divide-x xl:divide-white/[0.12]">
+      {/* Subtle decoration — doesn't crowd the content */}
+      <div className="pointer-events-none absolute -right-40 -top-40 h-[560px] w-[560px] rounded-full bg-white/[0.04] blur-[100px]" />
+      <div className="pointer-events-none absolute -bottom-20 -left-20 h-[300px] w-[300px] rounded-full bg-[#60a5fa]/[0.06] blur-[80px]" />
 
-        {/* ── LEFT: Eyebrow + Title + Description ─────────────────────── */}
-        <div className="px-8 pb-10 pt-10 lg:px-10 lg:pb-12 lg:pt-12 xl:px-12 xl:pb-14 xl:pt-14">
-          <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.22em] text-white/40">
-            ⚡ Seu próximo passo
-          </p>
-
-          <h2 className="mb-6 text-[24px] font-bold leading-[1.2] tracking-[-0.025em] text-white lg:text-[30px] xl:text-[38px]">
-            {title}
-          </h2>
-
-          <p className="text-[15px] leading-[1.8] text-white/65 xl:max-w-[440px]">
-            {message}
-          </p>
-        </div>
-
-        {/* ── RIGHT: Urgency chips + Action buttons ──────────────────── */}
+      <div className="relative">
         {/*
-          Mobile/lg  → horizontal strip: chips left, buttons right (flex-row with justify-between)
-          xl         → vertical stack: chips on top, buttons at bottom (flex-col with justify-between)
+          Layout:
+          - < xl  → vertical: content zone, then action bar below with border-t
+          - ≥ xl  → horizontal grid: content left (dominant), actions right (contained)
         */}
-        <div className="flex flex-col justify-between gap-7 border-t border-white/[0.12] px-8 py-8 sm:flex-row sm:items-center xl:flex-col xl:items-stretch xl:border-l xl:border-t-0 xl:px-10 xl:py-12">
+        <div className="xl:grid xl:min-h-[400px] xl:grid-cols-[1fr_380px] xl:divide-x xl:divide-white/[0.10]">
 
-          {/* Chips */}
-          <div className="flex flex-wrap gap-2">
-            <UrgencyChip score={urgencyScore} />
-            {topic && (
-              <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/70">
-                {topic}
-              </span>
-            )}
+          {/* ── Zone 1: Eyebrow + Title + Description ── */}
+          <div className="flex flex-col justify-center px-10 pb-10 pt-14 lg:px-12 lg:pb-12 lg:pt-16 xl:px-14 xl:py-0">
+            <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.22em] text-white/40">
+              ⚡ Seu próximo passo agora
+            </p>
+
+            <h2 className="mb-6 max-w-[540px] text-[28px] font-bold leading-[1.18] tracking-[-0.03em] text-white lg:text-[36px] xl:max-w-none xl:text-[44px]">
+              {title}
+            </h2>
+
+            <p className="max-w-[520px] text-[15px] leading-[1.85] text-white/60 xl:max-w-[480px]">
+              {message}
+            </p>
           </div>
 
-          {/* Buttons — stacked vertically */}
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[200px] xl:w-full">
-            {primaryAction}
-            <button
-              type="button"
-              className="flex w-full items-center justify-center rounded-xl border border-white/20 px-6 py-3.5 text-[14px] font-semibold text-white/90 transition-all duration-200 hover:bg-white/10 active:scale-95"
-              onClick={() => onAskMentor(mentorPrompt)}
-            >
-              Perguntar ao Mentor
-            </button>
+          {/* ── Zone 2: Context badges + Actions ── */}
+          <div className="flex flex-col justify-between gap-8 border-t border-white/[0.10] px-10 py-10 lg:px-12 xl:border-l xl:border-t-0 xl:px-12 xl:py-14">
+
+            {/* Badges row */}
+            <div className="flex flex-wrap gap-2.5">
+              <UrgencyBadge score={urgencyScore} />
+              {topic && (
+                <span className="inline-flex items-center rounded-full bg-white/[0.10] px-3.5 py-1.5 text-[11px] font-semibold text-white/65">
+                  {topic}
+                </span>
+              )}
+            </div>
+
+            {/* Action buttons — stacked, full width in this column */}
+            <div className="flex flex-col gap-3">
+              {hasPrimaryRoute ? (
+                <Link
+                  to={(primaryRecommendation!.action as { href: string }).href}
+                  className="flex items-center justify-center gap-2.5 rounded-xl bg-white px-7 py-4 text-[14px] font-bold text-[#1a2f6e] shadow-[0_4px_16px_rgba(0,0,0,0.15)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.2)] active:scale-95"
+                >
+                  {primaryActionLabel}
+                  <ArrowRight size={15} />
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className="flex items-center justify-center gap-2.5 rounded-xl bg-white px-7 py-4 text-[14px] font-bold text-[#1a2f6e] shadow-[0_4px_16px_rgba(0,0,0,0.15)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.2)] active:scale-95"
+                  onClick={() =>
+                    onAskMentor(
+                      primaryRecommendation?.action.prompt ?? `Quero executar agora: ${title}.`,
+                    )
+                  }
+                >
+                  {primaryActionLabel}
+                  <ArrowRight size={15} />
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="flex items-center justify-center rounded-xl border border-white/[0.22] px-7 py-4 text-[14px] font-semibold text-white/85 transition-all duration-200 hover:bg-white/[0.10] active:scale-95"
+                onClick={() => onAskMentor(mentorPrompt)}
+              >
+                Perguntar ao Mentor
+              </button>
+            </div>
           </div>
         </div>
       </div>
