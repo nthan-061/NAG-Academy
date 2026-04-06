@@ -45,8 +45,10 @@ export function AuthLeftColumn({ headline, subtitle, bullets }: AuthLeftColumnPr
         flexDirection: 'column',
         overflow: 'hidden',
         background: 'linear-gradient(180deg, #091327 0%, #0d1b3e 100%)',
-        // Generous outer padding at every edge
-        padding: '64px 72px',
+        // 56px horizontal — calibrated so centered 460px content
+        // sits ~58px from each panel edge on a typical 640px column.
+        // 64px vertical at top and bottom.
+        padding: '64px 56px',
       }}
     >
       {/* Subtle grid pattern */}
@@ -86,7 +88,8 @@ export function AuthLeftColumn({ headline, subtitle, bullets }: AuthLeftColumnPr
           flexDirection: 'column',
           justifyContent: 'center',
           width: '100%',
-          maxWidth: '420px',
+          maxWidth: '460px',
+          margin: '0 auto',  // ← was missing: content was left-aligned within padding
         }}
       >
         {/* Logo */}
@@ -125,7 +128,7 @@ export function AuthLeftColumn({ headline, subtitle, bullets }: AuthLeftColumnPr
             lineHeight: 1.85,
             color: 'rgba(255,255,255,0.70)',
             margin: '0 0 44px 0',
-            maxWidth: '360px',
+            maxWidth: '400px',
           }}
         >
           {subtitle}
@@ -168,7 +171,8 @@ export function AuthLeftColumn({ headline, subtitle, bullets }: AuthLeftColumnPr
           position: 'relative',
           zIndex: 10,
           width: '100%',
-          maxWidth: '420px',
+          maxWidth: '460px',
+          margin: '0 auto',  // ← centered to match main content wrapper
           paddingTop: '40px',
         }}
       >
