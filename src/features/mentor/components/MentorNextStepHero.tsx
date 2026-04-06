@@ -10,28 +10,10 @@ interface MentorNextStepHeroProps {
 }
 
 function UrgencyBadge({ score }: { score: number }) {
-  if (score >= 7) {
-    return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.14] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/80">
-        <AlertTriangle size={10} />
-        Urgente agora
-      </span>
-    )
-  }
-  if (score >= 4) {
-    return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.14] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/80">
-        <Zap size={10} />
-        Alta prioridade
-      </span>
-    )
-  }
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.14] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/80">
-      <TrendingUp size={10} />
-      Próximo passo
-    </span>
-  )
+  const base = 'inline-flex items-center gap-1.5 rounded-full bg-white/[0.14] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white/80'
+  if (score >= 7) return <span className={base}><AlertTriangle size={10} />Urgente agora</span>
+  if (score >= 4) return <span className={base}><Zap size={10} />Alta prioridade</span>
+  return <span className={base}><TrendingUp size={10} />Próximo passo</span>
 }
 
 export function MentorNextStepHero({
@@ -51,98 +33,194 @@ export function MentorNextStepHero({
   const mentorPrompt =
     primaryRecommendation?.action.prompt ??
     `Explica por que "${title}" é meu próximo passo mais importante agora.`
-
   const primaryActionLabel = primaryRecommendation?.actionLabel ?? 'Definir próximo passo'
-
   const hasPrimaryRoute =
     primaryRecommendation?.action.kind === 'route' && primaryRecommendation.action.href
 
   return (
-    /*
-      Hero design rules:
-      - min-h-[340px] guarantees it never collapses to banner height
-      - xl:min-h-[400px] for bigger viewports
-      - Two clear zones: top (content) and bottom (actions), separated by border
-      - On xl, the two zones become side-by-side columns
-      - Title scales from 28px → 36px → 44px across breakpoints
-      - Generous padding so text never touches the card edge
-    */
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0b1b4d] via-[#1e3a8a] to-[#2563eb] shadow-[0_20px_60px_rgba(37,99,235,0.25)]">
+    <div
+      style={{
+        background: 'linear-gradient(140deg, #0B1B4D 0%, #1E3A8A 55%, #2563EB 100%)',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        boxShadow: '0 20px 60px rgba(37,99,235,0.22)',
+        position: 'relative',
+      }}
+    >
+      {/* Subtle glow — doesn't compete with text */}
+      <div
+        style={{
+          position: 'absolute',
+          right: '-80px',
+          top: '-80px',
+          width: '400px',
+          height: '400px',
+          borderRadius: '50%',
+          background: 'rgba(255,255,255,0.04)',
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+        }}
+      />
 
-      {/* Subtle decoration — doesn't crowd the content */}
-      <div className="pointer-events-none absolute -right-40 -top-40 h-[560px] w-[560px] rounded-full bg-white/[0.04] blur-[100px]" />
-      <div className="pointer-events-none absolute -bottom-20 -left-20 h-[300px] w-[300px] rounded-full bg-[#60a5fa]/[0.06] blur-[80px]" />
+      {/* ── Content zone ── */}
+      {/*
+        Simple vertical layout: eyebrow → title → description.
+        No grid tricks. Height = content + explicit padding.
+        px-12 py-14 gives 48px / 56px — never compresses.
+      */}
+      <div style={{ padding: '56px 48px 48px', position: 'relative' }}>
+        <p
+          style={{
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.38)',
+            margin: '0 0 20px 0',
+          }}
+        >
+          ⚡ Seu próximo passo agora
+        </p>
 
-      <div className="relative">
-        {/*
-          Layout:
-          - < xl  → vertical: content zone, then action bar below with border-t
-          - ≥ xl  → horizontal grid: content left (dominant), actions right (contained)
-        */}
-        <div className="xl:grid xl:min-h-[400px] xl:grid-cols-[1fr_380px] xl:divide-x xl:divide-white/[0.10]">
+        <h2
+          style={{
+            fontSize: 'clamp(28px, 3.5vw, 42px)',
+            fontWeight: 800,
+            lineHeight: 1.15,
+            letterSpacing: '-0.03em',
+            color: '#FFFFFF',
+            margin: '0 0 20px 0',
+            maxWidth: '640px',
+          }}
+        >
+          {title}
+        </h2>
 
-          {/* ── Zone 1: Eyebrow + Title + Description ── */}
-          <div className="flex flex-col justify-center px-10 pb-10 pt-14 lg:px-12 lg:pb-12 lg:pt-16 xl:px-14 xl:py-0">
-            <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.22em] text-white/40">
-              ⚡ Seu próximo passo agora
-            </p>
+        <p
+          style={{
+            fontSize: '15px',
+            lineHeight: 1.85,
+            color: 'rgba(255,255,255,0.6)',
+            margin: 0,
+            maxWidth: '520px',
+          }}
+        >
+          {message}
+        </p>
+      </div>
 
-            <h2 className="mb-6 max-w-[540px] text-[28px] font-bold leading-[1.18] tracking-[-0.03em] text-white lg:text-[36px] xl:max-w-none xl:text-[44px]">
-              {title}
-            </h2>
+      {/* ── Action bar ── */}
+      {/*
+        Separated from content by a subtle border.
+        Badges on the left, CTAs on the right.
+        Never stacks content against buttons.
+      */}
+      <div
+        style={{
+          borderTop: '1px solid rgba(255,255,255,0.10)',
+          padding: '28px 48px 36px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '20px',
+          position: 'relative',
+        }}
+      >
+        {/* Left: context badges */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+          <UrgencyBadge score={urgencyScore} />
+          {topic && (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                borderRadius: '999px',
+                background: 'rgba(255,255,255,0.10)',
+                padding: '6px 14px',
+                fontSize: '11px',
+                fontWeight: 600,
+                color: 'rgba(255,255,255,0.65)',
+              }}
+            >
+              {topic}
+            </span>
+          )}
+        </div>
 
-            <p className="max-w-[520px] text-[15px] leading-[1.85] text-white/60 xl:max-w-[480px]">
-              {message}
-            </p>
-          </div>
+        {/* Right: action buttons */}
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+          {hasPrimaryRoute ? (
+            <Link
+              to={(primaryRecommendation!.action as { href: string }).href}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 24px',
+                borderRadius: '10px',
+                background: '#FFFFFF',
+                color: '#1A2F6E',
+                fontSize: '14px',
+                fontWeight: 700,
+                textDecoration: 'none',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
+                transition: 'transform 0.15s, box-shadow 0.15s',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 20px rgba(0,0,0,0.22)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 14px rgba(0,0,0,0.18)' }}
+            >
+              {primaryActionLabel}
+              <ArrowRight size={14} />
+            </Link>
+          ) : (
+            <button
+              type="button"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 24px',
+                borderRadius: '10px',
+                background: '#FFFFFF',
+                color: '#1A2F6E',
+                fontSize: '14px',
+                fontWeight: 700,
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
+                transition: 'transform 0.15s, box-shadow 0.15s',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 20px rgba(0,0,0,0.22)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 14px rgba(0,0,0,0.18)' }}
+              onClick={() => onAskMentor(primaryRecommendation?.action.prompt ?? `Quero executar agora: ${title}.`)}
+            >
+              {primaryActionLabel}
+              <ArrowRight size={14} />
+            </button>
+          )}
 
-          {/* ── Zone 2: Context badges + Actions ── */}
-          <div className="flex flex-col justify-between gap-8 border-t border-white/[0.10] px-10 py-10 lg:px-12 xl:border-l xl:border-t-0 xl:px-12 xl:py-14">
-
-            {/* Badges row */}
-            <div className="flex flex-wrap gap-2.5">
-              <UrgencyBadge score={urgencyScore} />
-              {topic && (
-                <span className="inline-flex items-center rounded-full bg-white/[0.10] px-3.5 py-1.5 text-[11px] font-semibold text-white/65">
-                  {topic}
-                </span>
-              )}
-            </div>
-
-            {/* Action buttons — stacked, full width in this column */}
-            <div className="flex flex-col gap-3">
-              {hasPrimaryRoute ? (
-                <Link
-                  to={(primaryRecommendation!.action as { href: string }).href}
-                  className="flex items-center justify-center gap-2.5 rounded-xl bg-white px-7 py-4 text-[14px] font-bold text-[#1a2f6e] shadow-[0_4px_16px_rgba(0,0,0,0.15)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.2)] active:scale-95"
-                >
-                  {primaryActionLabel}
-                  <ArrowRight size={15} />
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  className="flex items-center justify-center gap-2.5 rounded-xl bg-white px-7 py-4 text-[14px] font-bold text-[#1a2f6e] shadow-[0_4px_16px_rgba(0,0,0,0.15)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.2)] active:scale-95"
-                  onClick={() =>
-                    onAskMentor(
-                      primaryRecommendation?.action.prompt ?? `Quero executar agora: ${title}.`,
-                    )
-                  }
-                >
-                  {primaryActionLabel}
-                  <ArrowRight size={15} />
-                </button>
-              )}
-
-              <button
-                type="button"
-                className="flex items-center justify-center rounded-xl border border-white/[0.22] px-7 py-4 text-[14px] font-semibold text-white/85 transition-all duration-200 hover:bg-white/[0.10] active:scale-95"
-                onClick={() => onAskMentor(mentorPrompt)}
-              >
-                Perguntar ao Mentor
-              </button>
-            </div>
-          </div>
+          <button
+            type="button"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '12px 24px',
+              borderRadius: '10px',
+              background: 'transparent',
+              border: '1px solid rgba(255,255,255,0.22)',
+              color: 'rgba(255,255,255,0.85)',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'background 0.15s',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.10)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+            onClick={() => onAskMentor(mentorPrompt)}
+          >
+            Perguntar ao Mentor
+          </button>
         </div>
       </div>
     </div>

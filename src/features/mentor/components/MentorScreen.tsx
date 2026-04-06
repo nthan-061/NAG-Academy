@@ -6,6 +6,16 @@ import { MentorDecisionPanel } from './MentorDecisionPanel'
 import { MentorHeader } from './MentorHeader'
 import { MentorNextStepHero } from './MentorNextStepHero'
 
+/*
+  Page layout:
+  - Root: flex column, gap 32px (matches Dashboard's gap-8)
+  - Section order: header → hero → [chat | sidebar]
+  - Grid: single col by default, two cols at xl (1280px+)
+  - Sidebar: 400px — wide enough for comfortable card reading
+  - Chat column: flex-1 — takes all remaining space
+  - No extra padding: PageLayout (wide) provides px-4 lg:px-6 py-8
+*/
+
 export function MentorScreen() {
   const {
     profile,
@@ -31,44 +41,59 @@ export function MentorScreen() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '60vh',
+        }}
+      >
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#0D1B3E] border-t-transparent" />
       </div>
     )
   }
 
   return (
-    /*
-      Page structure (matches Dashboard's flex-col gap-8 root):
-      1. Command bar header
-      2. Error banner (when present)
-      3. Next-step hero — full width, premium block
-      4. Main content grid:
-         - Left (dominant): Chat
-         - Right (sidebar): Decision panel
-         Grid activates at xl (1280px+) only.
-         At xl: sidebar = 380px giving chat ~600-700px depending on viewport.
-         Below xl: single column, decision panel stacks below chat.
-    */
-    <div className="flex flex-col gap-8">
-
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '32px',
+      }}
+    >
+      {/* ── 1. Command bar ── */}
       <MentorHeader
         analysis={analysis}
         onRefresh={() => void refreshMentor()}
       />
 
+      {/* ── 2. Error banner ── */}
       {error && (
-        <div className="flex items-start gap-4 rounded-xl border border-red-100 bg-red-50 px-6 py-5">
-          <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-500" />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '14px',
+            padding: '18px 20px',
+            borderRadius: '10px',
+            border: '1px solid rgba(239,68,68,0.20)',
+            backgroundColor: '#FEF2F2',
+          }}
+        >
+          <AlertCircle size={16} style={{ marginTop: '2px', flexShrink: 0, color: '#EF4444' }} />
           <div>
-            <p className="text-[13px] font-semibold text-red-700">
+            <p style={{ fontSize: '13px', fontWeight: 600, color: '#DC2626', margin: '0 0 4px 0' }}>
               Não foi possível atualizar o mentor.
             </p>
-            <p className="mt-1 text-[13px] leading-relaxed text-red-600/80">{error}</p>
+            <p style={{ fontSize: '13px', lineHeight: 1.65, color: 'rgba(220,38,38,0.80)', margin: 0 }}>
+              {error}
+            </p>
           </div>
         </div>
       )}
 
+      {/* ── 3. Hero — full width ── */}
       <MentorNextStepHero
         primaryRecommendation={primaryRecommendation}
         analysis={analysis}
@@ -76,13 +101,13 @@ export function MentorScreen() {
         onAskMentor={handleAskMentor}
       />
 
+      {/* ── 4. Chat + Sidebar grid ── */}
       {/*
-        Grid layout:
-        - 1 col below xl (stacked vertically)
-        - 2 col at xl+: chat dominant (1fr), decision panel fixed at 380px
-        gap-8 (32px) between columns and between rows when stacked
+        Below xl: single column (sidebar stacks below chat)
+        At xl+: two columns — chat takes flex-1, sidebar fixed 400px
+        gap: 32px between columns
       */}
-      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_400px]">
         <MentorChat
           key={queuedPrompt?.nonce ?? 0}
           messages={messages}

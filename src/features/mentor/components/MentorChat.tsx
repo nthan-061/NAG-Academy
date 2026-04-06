@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Brain, Send, UserRound } from 'lucide-react'
-import { Button } from '@/components/ui'
 import type {
   MentorChatMessage,
   MentorPerformanceAnalysis,
@@ -28,35 +27,24 @@ function buildOpeningMessage(
   const topic = profile?.topicErrors[0]?.topic
   const pendingFlashcards = profile?.recentEngagement.pendingFlashcards ?? 0
   const nextFocus = analysis?.focusTopics[0]
-
-  if (topic && pendingFlashcards > 0) {
+  if (topic && pendingFlashcards > 0)
     return `Com base no seu desempenho recente, identifiquei que seu maior gargalo está em ${topic} e sua revisão está acumulando. Posso te ajudar a corrigir isso ou montar um plano de estudo agora.`
-  }
-  if (topic) {
+  if (topic)
     return `Analisei seu histórico e o principal ponto de atrito agora está em ${topic}. Posso te ajudar a corrigir os erros, revisar o conteúdo ou decidir seu próximo passo.`
-  }
-  if (nextFocus) {
+  if (nextFocus)
     return `Já li seu momento recente e o foco mais útil agora está em ${nextFocus}. Se quiser, eu transformo isso em um plano de estudo simples.`
-  }
   return 'Já estou com seu histórico em mãos. Posso resumir seu momento, sugerir a próxima ação ou montar um plano curto agora.'
 }
 
 const CHIP_LABELS = ['Corrigir erros', 'Revisar conteúdo', 'Montar plano', 'Definir objetivo']
 
-function MentorAvatar() {
-  return (
-    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
-      <Brain size={15} />
-    </div>
-  )
-}
-
-function UserAvatar() {
-  return (
-    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EBF0FA] text-[#2E5FD4]">
-      <UserRound size={15} />
-    </div>
-  )
+// Pixel-exact values from Dashboard benchmark
+const card: React.CSSProperties = {
+  backgroundColor: '#FFFFFF',
+  borderRadius: '12px',
+  border: '1px solid #E8ECF2',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+  overflow: 'hidden',
 }
 
 export function MentorChat({
@@ -72,28 +60,23 @@ export function MentorChat({
 }: MentorChatProps) {
   const [draft, setDraft] = useState(initialPrompt)
 
-  useEffect(() => {
-    setDraft(initialPrompt)
-  }, [initialPrompt])
+  useEffect(() => { setDraft(initialPrompt) }, [initialPrompt])
 
-  const openingMessage = useMemo(
-    () => buildOpeningMessage(profile, analysis),
-    [analysis, profile],
-  )
+  const openingMessage = useMemo(() => buildOpeningMessage(profile, analysis), [analysis, profile])
 
   const quickPrompts = useMemo(() => {
     const prompts = [
       profile?.topicErrors[0]?.topic
         ? `Quero corrigir meus erros em ${profile.topicErrors[0].topic}.`
         : 'Quero corrigir meus erros agora.',
-      recommendations.find((item) => item.type === 'review_flashcards')?.action.prompt ??
+      recommendations.find(r => r.type === 'review_flashcards')?.action.prompt ??
         'Quero revisar o conteúdo mais importante agora.',
       'Monte um plano de estudo curto para hoje.',
       mentorContext?.goal
         ? `Meu objetivo é ${mentorContext.goal}. Ajuste meu próximo passo.`
         : 'Quero definir meu objetivo para estudar melhor.',
     ]
-    return prompts.filter((value, index, array) => array.indexOf(value) === index).slice(0, 4)
+    return prompts.filter((v, i, a) => a.indexOf(v) === i).slice(0, 4)
   }, [mentorContext?.goal, profile?.topicErrors, recommendations])
 
   async function handleSubmit() {
@@ -104,57 +87,120 @@ export function MentorChat({
   }
 
   return (
-    /*
-      Chat design rules (from Dashboard benchmark):
-      - Section label OUTSIDE the card (same as Dashboard section titles)
-      - Outer card: white, clean border, no inner backgrounds competing
-      - Zone A (messages): min-h-[480px] so it never collapses; flat bg, generous padding
-      - Zone B (composer): border-t, white bg, generous padding — clearly separated
-      - Opening message: simple white bubble, not nested inside another card
-      - Quick prompts: row of chips below the opening bubble, associated but not nested
-      - Conversation history: each message gets its own bubble with consistent padding
-    */
-    <div className="flex flex-col gap-5">
-
-      {/* Section label — outside the card, same vocabulary as Dashboard headers */}
-      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">
+    <div>
+      {/* Section label — outside the card, exact Dashboard pattern */}
+      <p
+        style={{
+          fontSize: '13px',
+          fontWeight: 600,
+          color: '#6B7280',
+          letterSpacing: '0.05em',
+          textTransform: 'uppercase',
+          margin: '0 0 16px 0',
+        }}
+      >
         Chat do mentor
       </p>
 
       {/* Outer card */}
-      <div className="overflow-hidden rounded-xl border border-[#E8ECF2] bg-white shadow-[0_2px_12px_rgba(10,22,40,0.07)]">
+      <div style={card}>
 
-        {/* ── Zone A: Messages ────────────────────────────────────── */}
+        {/* ── Zone A: Messages ───────────────────────────── */}
         {/*
-          min-h-[480px] ensures this zone is never shallow.
-          bg-[#F7F9FD] is a very subtle blue-tint surface — same tone as a premium
-          macOS background — not a gradient, no drama.
+          Background: very light blue-tint surface (#F7F9FD).
+          Padding: 32px — same as Dashboard card body.
+          No artificial min-height. Content fills the space naturally.
+          Empty state is purposeful and fills the area.
         */}
-        <div className="flex min-h-[480px] flex-col gap-8 bg-[#F7F9FD] px-8 pb-10 pt-9 lg:px-10 lg:pb-12 lg:pt-10">
+        <div
+          style={{
+            backgroundColor: '#F7F9FD',
+            padding: '32px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '28px',
+          }}
+        >
+          {/* Opening mentor message */}
+          <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+            {/* Avatar */}
+            <div
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                backgroundColor: '#EBF0FA',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                color: '#2E5FD4',
+              }}
+            >
+              <Brain size={15} />
+            </div>
 
-          {/* Opening message from mentor */}
-          <div className="flex gap-4">
-            <MentorAvatar />
-
-            <div className="min-w-0 flex-1">
-              {/* Bubble */}
-              <div className="rounded-2xl border border-[#E8ECF2] bg-white px-7 py-6 shadow-sm">
-                <p className="text-[14px] leading-[1.85] text-[#374151]">
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {/* Message bubble */}
+              <div
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #E8ECF2',
+                  borderRadius: '12px',
+                  padding: '20px 24px',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                }}
+              >
+                <p style={{ fontSize: '14px', lineHeight: 1.85, color: '#374151', margin: 0 }}>
                   {openingMessage}
                 </p>
               </div>
 
-              {/* Quick prompts — below the bubble, clearly associated via mt */}
-              <div className="mt-6">
-                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#9CA3AF]">
+              {/* Quick prompts */}
+              <div style={{ marginTop: '20px' }}>
+                <p
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    color: '#9CA3AF',
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    margin: '0 0 10px 0',
+                  }}
+                >
                   Atalhos rápidos
                 </p>
-                <div className="flex flex-wrap gap-2.5">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {quickPrompts.map((prompt, index) => (
                     <button
-                      key={`${prompt}-${index}`}
+                      key={`${index}-${prompt.slice(0, 12)}`}
                       type="button"
-                      className="rounded-full border border-[#E8ECF2] bg-white px-4 py-2 text-[12px] font-semibold text-[#374151] shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-[#2E5FD4]/30 hover:text-[#2E5FD4] hover:shadow-md active:scale-95"
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: '999px',
+                        border: '1px solid #E8ECF2',
+                        backgroundColor: '#FFFFFF',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#374151',
+                        cursor: 'pointer',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                        transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={e => {
+                        const el = e.currentTarget as HTMLElement
+                        el.style.borderColor = 'rgba(46,95,212,0.35)'
+                        el.style.color = '#2E5FD4'
+                        el.style.transform = 'translateY(-1px)'
+                        el.style.boxShadow = '0 4px 10px rgba(0,0,0,0.10)'
+                      }}
+                      onMouseLeave={e => {
+                        const el = e.currentTarget as HTMLElement
+                        el.style.borderColor = '#E8ECF2'
+                        el.style.color = '#374151'
+                        el.style.transform = ''
+                        el.style.boxShadow = '0 1px 3px rgba(0,0,0,0.06)'
+                      }}
                       onClick={() => setDraft(prompt)}
                     >
                       {CHIP_LABELS[index] ?? prompt.slice(0, 18)}
@@ -169,21 +215,48 @@ export function MentorChat({
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
+              style={{
+                display: 'flex',
+                gap: '14px',
+                alignItems: 'flex-start',
+                flexDirection: message.role === 'user' ? 'row-reverse' : 'row',
+              }}
             >
-              {message.role === 'assistant' ? <MentorAvatar /> : <UserAvatar />}
-
               <div
-                className={`max-w-[80%] min-w-0 rounded-2xl px-7 py-6 shadow-sm ${
-                  message.role === 'assistant'
-                    ? 'border border-[#E8ECF2] bg-white'
-                    : 'bg-[#0D1B3E]'
-                }`}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  backgroundColor: '#EBF0FA',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  color: '#2E5FD4',
+                }}
+              >
+                {message.role === 'assistant' ? <Brain size={15} /> : <UserRound size={15} />}
+              </div>
+              <div
+                style={{
+                  maxWidth: '80%',
+                  minWidth: 0,
+                  borderRadius: '12px',
+                  padding: '16px 20px',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                  ...(message.role === 'assistant'
+                    ? { backgroundColor: '#FFFFFF', border: '1px solid #E8ECF2' }
+                    : { backgroundColor: '#0D1B3E' }),
+                }}
               >
                 <p
-                  className={`whitespace-pre-wrap text-[14px] leading-[1.85] ${
-                    message.role === 'assistant' ? 'text-[#374151]' : 'text-white'
-                  }`}
+                  style={{
+                    fontSize: '14px',
+                    lineHeight: 1.85,
+                    margin: 0,
+                    whiteSpace: 'pre-wrap',
+                    color: message.role === 'assistant' ? '#374151' : '#FFFFFF',
+                  }}
                 >
                   {message.content}
                 </p>
@@ -191,39 +264,77 @@ export function MentorChat({
             </div>
           ))}
 
-          {/* Empty state — guides the user without creating visual noise */}
+          {/* Empty state */}
           {messages.length === 0 && !loading && (
-            <div className="ml-[52px] rounded-xl border border-dashed border-[#D1D5DB] bg-white/60 px-6 py-5">
-              <p className="text-[13px] leading-[1.75] text-[#9CA3AF]">
-                Escolha um atalho acima ou escreva diretamente. Quanto mais específica a pergunta,
-                mais cirúrgica a resposta.
+            <div
+              style={{
+                marginLeft: '50px',
+                borderRadius: '10px',
+                border: '1px dashed #D1D5DB',
+                backgroundColor: 'rgba(255,255,255,0.6)',
+                padding: '18px 22px',
+              }}
+            >
+              <p style={{ fontSize: '13px', lineHeight: 1.75, color: '#9CA3AF', margin: 0 }}>
+                Escolha um atalho acima ou escreva diretamente. Quanto mais específica a
+                pergunta, mais cirúrgica a resposta.
               </p>
             </div>
           )}
 
           {/* Sending indicator */}
           {sending && (
-            <div className="flex gap-4">
-              <MentorAvatar />
-              <div className="rounded-2xl border border-[#E8ECF2] bg-white px-7 py-6 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-[#2E5FD4] [animation-delay:-0.3s]" />
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-[#2E5FD4] [animation-delay:-0.15s]" />
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-[#2E5FD4]" />
+            <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+              <div
+                style={{
+                  width: '36px', height: '36px', borderRadius: '50%',
+                  backgroundColor: '#EBF0FA', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0, color: '#2E5FD4',
+                }}
+              >
+                <Brain size={15} />
+              </div>
+              <div
+                style={{
+                  borderRadius: '12px', padding: '16px 20px',
+                  backgroundColor: '#FFFFFF', border: '1px solid #E8ECF2',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                }}
+              >
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  {['-0.3s', '-0.15s', '0s'].map((delay) => (
+                    <span
+                      key={delay}
+                      style={{
+                        display: 'block', width: '7px', height: '7px',
+                        borderRadius: '50%', backgroundColor: '#2E5FD4',
+                        animation: 'bounce 1s infinite',
+                        animationDelay: delay,
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* ── Zone B: Composer ──────────────────────────────────── */}
+        {/* ── Zone B: Composer ────────────────────────── */}
         {/*
-          Clean separation from messages area via border-t.
-          White background — distinct from the F7F9FD messages zone.
-          Textarea has sufficient min-height to feel comfortable to type in.
-          Footer row: hint text on the left, send button on the right.
+          White background — clearly different from Zone A.
+          Separated by border-top.
+          Generous padding: 32px.
+          Textarea: comfortable min-height, clear focus state.
+          Footer: hint text left, send button right.
         */}
-        <div className="border-t border-[#E8ECF2] bg-white px-8 py-8 lg:px-10 lg:py-9">
+        <div
+          style={{
+            backgroundColor: '#FFFFFF',
+            borderTop: '1px solid #E8ECF2',
+            padding: '28px 32px 32px',
+          }}
+        >
           <textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -232,20 +343,76 @@ export function MentorChat({
             }}
             rows={4}
             placeholder="Escreva sua dúvida ou a decisão que você quer tomar agora."
-            className="mb-6 min-h-[120px] w-full resize-none rounded-xl border border-[#E8ECF2] bg-[#F7F9FD] px-5 py-4 text-[14px] leading-[1.75] text-[#1A1F2E] outline-none transition-all duration-200 placeholder:text-[#9CA3AF] focus:border-[#2E5FD4] focus:bg-white focus:ring-2 focus:ring-[#2E5FD4]/10"
+            style={{
+              display: 'block',
+              width: '100%',
+              minHeight: '120px',
+              resize: 'none',
+              padding: '14px 16px',
+              borderRadius: '10px',
+              border: '1px solid #E8ECF2',
+              backgroundColor: '#F7F9FD',
+              fontSize: '14px',
+              lineHeight: 1.75,
+              color: '#1A1F2E',
+              outline: 'none',
+              fontFamily: 'inherit',
+              boxSizing: 'border-box',
+              transition: 'border-color 0.15s, background-color 0.15s',
+              marginBottom: '20px',
+            }}
+            onFocus={e => {
+              e.currentTarget.style.borderColor = '#2E5FD4'
+              e.currentTarget.style.backgroundColor = '#FFFFFF'
+              e.currentTarget.style.boxShadow = '0 0 0 3px rgba(46,95,212,0.08)'
+            }}
+            onBlur={e => {
+              e.currentTarget.style.borderColor = '#E8ECF2'
+              e.currentTarget.style.backgroundColor = '#F7F9FD'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
           />
 
-          <div className="flex items-center justify-between gap-6">
-            <p className="text-[12px] text-[#9CA3AF]">⌘ + Enter para enviar</p>
-            <Button
-              size="lg"
-              className="shrink-0 gap-2 px-8 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:scale-95"
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+            <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+              ⌘ + Enter para enviar
+            </p>
+            <button
+              type="button"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '11px 24px',
+                borderRadius: '8px',
+                backgroundColor: '#0D1B3E',
+                color: '#FFFFFF',
+                fontSize: '14px',
+                fontWeight: 600,
+                border: 'none',
+                cursor: sending ? 'not-allowed' : 'pointer',
+                opacity: sending ? 0.7 : 1,
+                transition: 'transform 0.15s, box-shadow 0.15s',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                flexShrink: 0,
+              }}
+              onMouseEnter={e => {
+                if (sending) return
+                const el = e.currentTarget as HTMLElement
+                el.style.transform = 'translateY(-1px)'
+                el.style.boxShadow = '0 4px 14px rgba(0,0,0,0.20)'
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget as HTMLElement
+                el.style.transform = ''
+                el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)'
+              }}
               onClick={() => void handleSubmit()}
-              loading={sending}
+              disabled={sending}
             >
               {!sending && <Send size={14} />}
-              Enviar
-            </Button>
+              {sending ? 'Enviando…' : 'Enviar'}
+            </button>
           </div>
         </div>
       </div>
