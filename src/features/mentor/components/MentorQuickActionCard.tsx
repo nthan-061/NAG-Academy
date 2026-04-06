@@ -26,16 +26,16 @@ export function MentorQuickActionCard({
     recommendation.action.kind === 'route' && recommendation.action.href ? (
       <Link
         to={recommendation.action.href}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-secondary-soft px-5 py-3 text-[14px] font-semibold text-secondary transition-all duration-150 hover:bg-secondary hover:text-white active:scale-95"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-secondary-soft px-5 py-3 text-[13px] font-semibold text-secondary transition-all duration-150 hover:bg-secondary hover:text-white active:scale-95"
       >
         {recommendation.actionLabel}
-        <ArrowRight size={14} />
+        <ArrowRight size={13} />
       </Link>
     ) : recommendation.action.kind === 'question' && recommendation.action.prompt ? (
       <Button
         size="sm"
         fullWidth
-        className="justify-center py-3 text-[14px]"
+        className="justify-center py-3 text-[13px]"
         onClick={() => onAskMentor(recommendation.action.prompt!)}
       >
         {recommendation.actionLabel}
@@ -45,7 +45,7 @@ export function MentorQuickActionCard({
         size="sm"
         variant="outline"
         fullWidth
-        className="justify-center py-3 text-[14px]"
+        className="justify-center py-3 text-[13px]"
         onClick={() => onAskMentor(`Quero executar agora: ${recommendation.title}.`)}
       >
         Abrir no mentor
@@ -54,36 +54,34 @@ export function MentorQuickActionCard({
 
   return (
     <div
-      className={`flex flex-col rounded-[20px] border bg-white transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${
+      className={`flex flex-col rounded-2xl border bg-white transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${
         featured
-          ? 'border-secondary/30 shadow-[0_12px_32px_rgba(37,99,235,0.12)]'
-          : 'border-border shadow-[0_8px_24px_rgba(10,22,40,0.05)]'
+          ? 'border-secondary/25 shadow-[0_8px_28px_rgba(37,99,235,0.10)]'
+          : 'border-border shadow-[0_4px_16px_rgba(10,22,40,0.05)]'
       }`}
     >
-      {/* Card header — label + title + priority */}
-      <div className="px-7 pb-5 pt-7">
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className={`h-2 w-2 shrink-0 rounded-full ${priority.dot}`} />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              {featured ? 'Ação principal' : priority.label}
-            </span>
-          </div>
+      {/* Header — label + title */}
+      <div className="px-6 pb-4 pt-6">
+        <div className="mb-3 flex items-center gap-2">
+          <span className={`h-2 w-2 shrink-0 rounded-full ${priority.dot}`} />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            {featured ? 'Ação principal' : priority.label}
+          </span>
         </div>
-        <h3 className="text-[15px] font-semibold leading-snug text-foreground">
+        <h3 className="text-[14px] font-semibold leading-snug text-foreground">
           {recommendation.title}
         </h3>
       </div>
 
-      {/* Card body — description with breathing room */}
-      <div className="px-7 pb-6">
-        <p className="text-[14px] leading-[1.8] text-text-secondary">
+      {/* Body — description */}
+      <div className="px-6 pb-6">
+        <p className="text-[13px] leading-[1.75] text-text-secondary">
           {recommendation.message}
         </p>
       </div>
 
-      {/* Card footer — CTA, visually separated */}
-      <div className="border-t border-border/60 px-7 pb-7 pt-5">
+      {/* Footer — CTA */}
+      <div className="mt-auto border-t border-border/60 px-6 pb-6 pt-5">
         {action}
       </div>
     </div>

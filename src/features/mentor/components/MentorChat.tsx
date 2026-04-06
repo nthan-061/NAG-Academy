@@ -41,6 +41,24 @@ function buildOpeningMessage(
   return 'Já estou com seu histórico em mãos. Posso resumir seu momento, sugerir a próxima ação ou montar um plano curto agora.'
 }
 
+const CHIP_LABELS = ['Corrigir erros', 'Revisar conteúdo', 'Montar plano', 'Definir objetivo']
+
+function MentorAvatar() {
+  return (
+    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+      <Brain size={15} />
+    </div>
+  )
+}
+
+function UserAvatar() {
+  return (
+    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary">
+      <UserRound size={15} />
+    </div>
+  )
+}
+
 export function MentorChat({
   messages,
   mentorContext,
@@ -78,8 +96,6 @@ export function MentorChat({
     return prompts.filter((value, index, array) => array.indexOf(value) === index).slice(0, 4)
   }, [mentorContext?.goal, profile?.topicErrors, recommendations])
 
-  const chipLabels = ['Corrigir erros', 'Revisar conteúdo', 'Montar plano', 'Definir objetivo']
-
   async function handleSubmit() {
     const content = draft.trim()
     if (!content) return
@@ -88,48 +104,47 @@ export function MentorChat({
   }
 
   return (
-    <section className="flex flex-col gap-6">
-      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+    <section className="flex flex-col gap-5">
+      {/* Section label — same pattern as Dashboard card headers */}
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         Chat do mentor
       </p>
 
-      <div className="overflow-hidden rounded-[20px] border border-border bg-white shadow-[0_16px_48px_rgba(10,22,40,0.08)]">
+      {/*
+        Outer card — matches Dashboard's card vocabulary:
+        white bg, subtle border, light shadow
+      */}
+      <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-[0_4px_20px_rgba(10,22,40,0.06)]">
 
-        {/* ── Zone A: Conversation ────────────────────────────────────── */}
-        <div className="flex flex-col gap-8 bg-surface px-6 pb-8 pt-8 lg:px-8 lg:pb-9 lg:pt-9 xl:px-10">
+        {/* ── Zone A: Messages ──────────────────────────────────────── */}
+        <div className="flex flex-col gap-7 bg-[#f7f9fd] px-7 pb-8 pt-8 lg:px-8 lg:pb-9 lg:pt-9">
 
-          {/*
-            Opening message from mentor + quick prompts as one integrated card.
-            The chips are a sub-section of the mentor's initial turn — not floating elements.
-          */}
-          <div className="flex gap-5">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
-              <Brain size={17} />
-            </div>
+          {/* Opening mentor message + quick prompts below */}
+          <div className="flex gap-4">
+            <MentorAvatar />
 
-            {/* Integrated card: message text + chips */}
-            <div className="flex-1 overflow-hidden rounded-[18px] border border-border bg-white shadow-[0_10px_28px_rgba(10,22,40,0.06)]">
-              {/* Message text */}
-              <div className="px-7 pb-6 pt-7">
-                <p className="text-[15px] leading-[1.8] text-text-secondary">
+            <div className="min-w-0 flex-1">
+              {/* Message bubble */}
+              <div className="rounded-2xl border border-border bg-white px-6 py-5 shadow-sm">
+                <p className="text-[14px] leading-[1.8] text-text-secondary">
                   {openingMessage}
                 </p>
               </div>
 
-              {/* Chips — visually distinct sub-section, connected to the message above */}
-              <div className="border-t border-border/60 bg-[#f8faff] px-7 py-5">
-                <p className="mb-3.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              {/* Quick prompts — below the bubble, clearly associated */}
+              <div className="mt-5">
+                <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                   Atalhos rápidos
                 </p>
-                <div className="flex flex-wrap gap-2.5">
+                <div className="flex flex-wrap gap-2">
                   {quickPrompts.map((prompt, index) => (
                     <button
                       key={`${prompt}-${index}`}
                       type="button"
-                      className="rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-foreground shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-secondary/40 hover:text-secondary hover:shadow-md active:scale-95"
+                      className="rounded-full border border-border bg-white px-4 py-2 text-[12px] font-semibold text-foreground shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-secondary/40 hover:text-secondary hover:shadow-md active:scale-95"
                       onClick={() => setDraft(prompt)}
                     >
-                      {chipLabels[index] ?? prompt.slice(0, 18)}
+                      {CHIP_LABELS[index] ?? prompt.slice(0, 18)}
                     </button>
                   ))}
                 </div>
@@ -141,23 +156,19 @@ export function MentorChat({
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex gap-5 ${message.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
+              className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : ''}`}
             >
-              {message.role === 'assistant' && (
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
-                  <Brain size={17} />
-                </div>
-              )}
+              {message.role === 'assistant' && <MentorAvatar />}
 
               <div
-                className={`max-w-[80%] rounded-[16px] px-7 py-6 shadow-[0_8px_24px_rgba(10,22,40,0.05)] ${
+                className={`max-w-[82%] rounded-2xl px-6 py-5 shadow-sm ${
                   message.role === 'assistant'
                     ? 'border border-border bg-white'
                     : 'bg-primary text-white'
                 }`}
               >
                 <p
-                  className={`whitespace-pre-wrap text-[15px] leading-[1.8] ${
+                  className={`whitespace-pre-wrap text-[14px] leading-[1.8] ${
                     message.role === 'assistant' ? 'text-text-secondary' : 'text-white'
                   }`}
                 >
@@ -165,18 +176,14 @@ export function MentorChat({
                 </p>
               </div>
 
-              {message.role === 'user' && (
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
-                  <UserRound size={17} />
-                </div>
-              )}
+              {message.role === 'user' && <UserAvatar />}
             </div>
           ))}
 
-          {/* Empty state — indented to align with bubble column */}
+          {/* Empty state */}
           {messages.length === 0 && !loading && (
-            <div className="ml-[64px] rounded-[16px] border border-dashed border-border/80 bg-white/70 px-7 py-7">
-              <p className="text-[14px] leading-[1.75] text-muted-foreground">
+            <div className="ml-[52px] rounded-xl border border-dashed border-border/70 bg-white/70 px-5 py-4">
+              <p className="text-[13px] leading-[1.7] text-muted-foreground">
                 Escolha um atalho acima ou escreva diretamente. Quanto mais específica a pergunta,
                 mais cirúrgica a resposta.
               </p>
@@ -185,12 +192,10 @@ export function MentorChat({
 
           {/* Sending indicator */}
           {sending && (
-            <div className="flex gap-5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
-                <Brain size={17} />
-              </div>
-              <div className="rounded-[16px] border border-border bg-white px-7 py-5 shadow-[0_8px_24px_rgba(10,22,40,0.05)]">
-                <div className="flex items-center gap-2">
+            <div className="flex gap-4">
+              <MentorAvatar />
+              <div className="rounded-2xl border border-border bg-white px-6 py-5 shadow-sm">
+                <div className="flex items-center gap-1.5">
                   <span className="h-2 w-2 animate-bounce rounded-full bg-secondary [animation-delay:-0.3s]" />
                   <span className="h-2 w-2 animate-bounce rounded-full bg-secondary [animation-delay:-0.15s]" />
                   <span className="h-2 w-2 animate-bounce rounded-full bg-secondary" />
@@ -200,34 +205,32 @@ export function MentorChat({
           )}
         </div>
 
-        {/* ── Zone B: Composer ─────────────────────────────────────────── */}
-        <div className="border-t border-border bg-white px-6 py-7 lg:px-8 xl:px-10 xl:py-8">
-          <div className="flex flex-col gap-4">
-            <div className="relative">
-              <textarea
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) void handleSubmit()
-                }}
-                rows={4}
-                placeholder="Escreva sua dúvida ou a decisão que você quer tomar agora."
-                className="min-h-[128px] w-full resize-none rounded-[16px] border border-border bg-[#f8faff] px-6 py-5 pr-40 text-[15px] leading-[1.7] text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-secondary focus:bg-white focus:ring-2 focus:ring-secondary/12"
-              />
-              <Button
-                size="lg"
-                className="absolute bottom-4 right-4 shrink-0 px-6 shadow-button transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:scale-95"
-                onClick={() => void handleSubmit()}
-                loading={sending}
-              >
-                {!sending && <Send size={15} />}
-                Enviar
-              </Button>
-            </div>
+        {/* ── Zone B: Composer ────────────────────────────────────── */}
+        <div className="border-t border-border bg-white px-7 py-7 lg:px-8 lg:py-8">
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) void handleSubmit()
+            }}
+            rows={4}
+            placeholder="Escreva sua dúvida ou a decisão que você quer tomar agora."
+            className="mb-5 min-h-[112px] w-full resize-none rounded-xl border border-border bg-[#f7f9fd] px-5 py-4 text-[14px] leading-[1.7] text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-secondary focus:bg-white focus:ring-2 focus:ring-secondary/10"
+          />
 
-            <p className="px-1 text-[12px] leading-relaxed text-muted-foreground">
-              ⌘ + Enter para enviar · Quanto mais direta a pergunta, mais acionável a resposta.
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-[12px] leading-relaxed text-muted-foreground">
+              ⌘ + Enter para enviar
             </p>
+            <Button
+              size="lg"
+              className="shrink-0 px-7 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:scale-95"
+              onClick={() => void handleSubmit()}
+              loading={sending}
+            >
+              {!sending && <Send size={14} />}
+              Enviar
+            </Button>
           </div>
         </div>
       </div>
