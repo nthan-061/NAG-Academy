@@ -13,7 +13,7 @@ interface MentorNextStepHeroProps {
 function UrgencyChip({ score }: { score: number }) {
   if (score >= 7) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/90">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white/90">
         <AlertTriangle size={10} />
         Urgente agora
       </span>
@@ -21,14 +21,14 @@ function UrgencyChip({ score }: { score: number }) {
   }
   if (score >= 4) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/90">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white/90">
         <Zap size={10} />
         Alta prioridade
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/90">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white/90">
       <TrendingUp size={10} />
       Próximo passo
     </span>
@@ -57,15 +57,15 @@ export function MentorNextStepHero({
     primaryRecommendation?.action.kind === 'route' && primaryRecommendation.action.href ? (
       <Link
         to={primaryRecommendation.action.href}
-        className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-[15px] font-bold text-[#1a2f6e] shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
+        className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-[14px] font-bold text-[#1a2f6e] shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
       >
         {primaryRecommendation.actionLabel}
-        <ArrowRight size={16} />
+        <ArrowRight size={14} />
       </Link>
     ) : (
       <Button
-        size="lg"
-        className="bg-white px-8 py-3.5 text-[15px] font-bold text-[#1a2f6e] shadow-lg hover:-translate-y-0.5 hover:bg-white/95 hover:shadow-xl active:scale-95"
+        size="md"
+        className="bg-white px-6 py-3 text-[14px] font-bold text-[#1a2f6e] shadow-md hover:-translate-y-0.5 hover:bg-white/95 hover:shadow-lg active:scale-95"
         onClick={() =>
           onAskMentor(
             primaryRecommendation?.action.prompt ?? `Quero executar agora: ${title}.`,
@@ -73,65 +73,70 @@ export function MentorNextStepHero({
         }
       >
         {primaryRecommendation?.actionLabel ?? 'Definir próximo passo'}
-        <ArrowRight size={16} />
+        <ArrowRight size={14} />
       </Button>
     )
 
   return (
-    <div className="relative overflow-hidden rounded-[24px] bg-[linear-gradient(140deg,#0f1f52_0%,#1d4ed8_55%,#3b82f6_100%)] shadow-[0_32px_72px_rgba(29,78,216,0.35)]">
+    <div className="relative overflow-hidden rounded-[16px] bg-[linear-gradient(140deg,#0f1f52_0%,#1d4ed8_55%,#3b82f6_100%)] shadow-[0_16px_48px_rgba(29,78,216,0.30)]">
 
-      {/* Decorative highlight — top-right glow */}
+      {/* Decorative glow — top right */}
       <div
-        className="pointer-events-none absolute -right-24 -top-24 h-[420px] w-[420px] rounded-full opacity-[0.08]"
-        style={{ background: 'radial-gradient(circle, white 0%, transparent 70%)' }}
-      />
-      {/* Decorative highlight — bottom-left subtle */}
-      <div
-        className="pointer-events-none absolute -bottom-16 -left-16 h-[280px] w-[280px] rounded-full opacity-[0.05]"
+        className="pointer-events-none absolute -right-20 -top-20 h-[360px] w-[360px] rounded-full opacity-[0.08]"
         style={{ background: 'radial-gradient(circle, white 0%, transparent 70%)' }}
       />
 
-      {/* ── Zone 1: Content — full width, generous vertical padding ── */}
-      <div className="relative px-10 pb-10 pt-14 lg:px-14 lg:pb-12 lg:pt-16">
+      {/* ── Zone 1: Content ──────────────────────────────────────────
+          Padding calibrated to real usable widths:
+          - lg (736px usable): px-6 → 688px content. Title max 580px = 84% width ✓
+          - xl (992px usable): px-8 → 928px content. Title max 640px = 69% width ✓
+      */}
+      <div className="relative px-6 pb-8 pt-10 lg:px-8 lg:pb-9 lg:pt-11 xl:px-10 xl:pb-10 xl:pt-12">
 
-        {/* Eyebrow */}
-        <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.22em] text-white/45">
+        <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-white/45">
           ⚡ Seu próximo passo agora
         </p>
 
-        {/* Title — large, dominant, constrained for readability */}
-        <h2 className="mb-6 max-w-[720px] text-[26px] font-bold leading-[1.18] tracking-[-0.025em] text-white md:text-[34px] lg:text-[40px]">
+        {/* Title — responsive, never fills past ~70% of container width */}
+        <h2 className="mb-4 max-w-[520px] text-[22px] font-bold leading-[1.22] tracking-[-0.02em] text-white md:text-[28px] xl:max-w-[640px] xl:text-[34px]">
           {title}
         </h2>
 
-        {/* Description — breathing room, capped width for comfortable line-length */}
-        <p className="mb-8 max-w-[600px] text-[15px] leading-[1.85] text-white/65">
+        {/* Description — stays well within line-length comfort zone */}
+        <p className="max-w-[480px] text-[14px] leading-[1.8] text-white/65 xl:max-w-[560px] xl:text-[15px]">
           {message}
         </p>
-
-        {/* Context chips */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <UrgencyChip score={urgencyScore} />
-          {topic && (
-            <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-[11px] font-semibold tracking-[0.06em] text-white/70">
-              {topic}
-            </span>
-          )}
-        </div>
       </div>
 
-      {/* ── Zone 2: Action bar — own zone, border-top, no competition with content ── */}
-      <div className="relative border-t border-white/10 px-10 py-8 lg:px-14">
-        <div className="flex flex-wrap items-center gap-3">
-          {primaryActionNode}
-          <Button
-            variant="ghost"
-            size="lg"
-            className="border border-white/20 px-8 py-3.5 text-[15px] font-semibold text-white hover:bg-white/10 hover:text-white active:scale-95"
-            onClick={() => onAskMentor(mentorPrompt)}
-          >
-            Perguntar ao Mentor
-          </Button>
+      {/* ── Zone 2: Action bar ───────────────────────────────────────
+          Left: context chips   Right: action buttons
+          Chips and buttons in the same row = balanced, no wasted space
+      */}
+      <div className="relative border-t border-white/10 px-6 py-5 lg:px-8 xl:px-10">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+          {/* Context — urgency + topic */}
+          <div className="flex flex-wrap items-center gap-2">
+            <UrgencyChip score={urgencyScore} />
+            {topic && (
+              <span className="inline-flex items-center rounded-full bg-white/10 px-3.5 py-1.5 text-[11px] font-semibold text-white/70">
+                {topic}
+              </span>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            {primaryActionNode}
+            <Button
+              variant="ghost"
+              size="md"
+              className="border border-white/20 px-5 py-3 text-[14px] font-semibold text-white hover:bg-white/10 hover:text-white active:scale-95"
+              onClick={() => onAskMentor(mentorPrompt)}
+            >
+              Perguntar ao Mentor
+            </Button>
+          </div>
         </div>
       </div>
     </div>

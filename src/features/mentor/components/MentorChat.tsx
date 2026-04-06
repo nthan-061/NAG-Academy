@@ -96,7 +96,7 @@ export function MentorChat({
       <div className="overflow-hidden rounded-[20px] border border-border bg-white shadow-[0_16px_48px_rgba(10,22,40,0.08)]">
 
         {/* ── Zone A: Conversation ────────────────────────────────────── */}
-        <div className="flex flex-col gap-8 bg-[linear-gradient(180deg,#f8fbff_0%,#f4f8fe_100%)] px-8 pb-8 pt-9 lg:px-10 lg:pb-10 lg:pt-11">
+        <div className="flex flex-col gap-8 bg-surface px-6 pb-8 pt-8 lg:px-8 lg:pb-9 lg:pt-9 xl:px-10">
 
           {/*
             Opening message from mentor + quick prompts as one integrated card.
@@ -201,7 +201,7 @@ export function MentorChat({
         </div>
 
         {/* ── Zone B: Composer ─────────────────────────────────────────── */}
-        <div className="border-t border-border bg-white px-8 py-8 lg:px-10 lg:py-9">
+        <div className="border-t border-border bg-white px-6 py-7 lg:px-8 xl:px-10 xl:py-8">
           <div className="flex flex-col gap-4">
             <div className="relative">
               <textarea
