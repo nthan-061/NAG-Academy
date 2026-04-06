@@ -78,7 +78,7 @@ export function MentorChat({
     return prompts.filter((value, index, array) => array.indexOf(value) === index).slice(0, 4)
   }, [mentorContext?.goal, profile?.topicErrors, recommendations])
 
-  const chipLabels = ['corrigir erros', 'revisar conteúdo', 'montar plano', 'definir objetivo']
+  const chipLabels = ['Corrigir erros', 'Revisar conteúdo', 'Montar plano', 'Definir objetivo']
 
   async function handleSubmit() {
     const content = draft.trim()
@@ -87,59 +87,61 @@ export function MentorChat({
     await onSendMessage(content)
   }
 
-  // Avatar size: h-11 w-11 = 44px, gap-4 = 16px → indent = 60px
-  const avatarIndent = 'pl-[60px]'
-
   return (
     <section className="flex flex-col gap-6">
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         Chat do mentor
       </p>
 
-      {/*
-        Outer card: single rounded surface, no overflow-hidden so content breathes.
-        Internal structure: 3 clearly separated zones.
-        1. Message zone — gradient bg, flex-col, generous padding
-        2. Chips zone — inset, visually distinct tray
-        3. Input zone — white, border-top separator, composer area
-      */}
-      <div className="rounded-[20px] border border-border bg-white shadow-[0_16px_40px_rgba(10,22,40,0.07)]">
+      <div className="overflow-hidden rounded-[20px] border border-border bg-white shadow-[0_16px_48px_rgba(10,22,40,0.08)]">
 
-        {/* ── Zone A: Message area ─────────────────────────────── */}
-        <div className="flex flex-col gap-7 bg-[linear-gradient(180deg,#fcfdff_0%,#f7faff_100%)] p-8 lg:p-10">
+        {/* ── Zone A: Conversation ────────────────────────────────────── */}
+        <div className="flex flex-col gap-8 bg-[linear-gradient(180deg,#f8fbff_0%,#f4f8fe_100%)] px-8 pb-8 pt-9 lg:px-10 lg:pb-10 lg:pt-11">
 
-          {/* Opening message from mentor */}
-          <div className="flex gap-4">
+          {/*
+            Opening message from mentor + quick prompts as one integrated card.
+            The chips are a sub-section of the mentor's initial turn — not floating elements.
+          */}
+          <div className="flex gap-5">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
               <Brain size={17} />
             </div>
-            <div className="max-w-[82%] rounded-[16px] border border-border bg-white px-7 py-6 shadow-[0_8px_24px_rgba(10,22,40,0.05)]">
-              <p className="text-[15px] leading-[1.75] text-text-secondary">
-                {openingMessage}
-              </p>
-            </div>
-          </div>
 
-          {/* Quick prompt chips — indented to align with message bubble */}
-          <div className={`${avatarIndent} flex flex-wrap gap-2.5`}>
-            {quickPrompts.map((prompt, index) => (
-              <Button
-                key={`${prompt}-${index}`}
-                variant="outline"
-                size="sm"
-                className="h-auto rounded-full border-border bg-white px-5 py-2.5 text-xs font-semibold shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:scale-95"
-                onClick={() => setDraft(prompt)}
-              >
-                {chipLabels[index] ?? prompt.slice(0, 18)}
-              </Button>
-            ))}
+            {/* Integrated card: message text + chips */}
+            <div className="flex-1 overflow-hidden rounded-[18px] border border-border bg-white shadow-[0_10px_28px_rgba(10,22,40,0.06)]">
+              {/* Message text */}
+              <div className="px-7 pb-6 pt-7">
+                <p className="text-[15px] leading-[1.8] text-text-secondary">
+                  {openingMessage}
+                </p>
+              </div>
+
+              {/* Chips — visually distinct sub-section, connected to the message above */}
+              <div className="border-t border-border/60 bg-[#f8faff] px-7 py-5">
+                <p className="mb-3.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  Atalhos rápidos
+                </p>
+                <div className="flex flex-wrap gap-2.5">
+                  {quickPrompts.map((prompt, index) => (
+                    <button
+                      key={`${prompt}-${index}`}
+                      type="button"
+                      className="rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-foreground shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-secondary/40 hover:text-secondary hover:shadow-md active:scale-95"
+                      onClick={() => setDraft(prompt)}
+                    >
+                      {chipLabels[index] ?? prompt.slice(0, 18)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Conversation history */}
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex gap-4 ${message.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
+              className={`flex gap-5 ${message.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
             >
               {message.role === 'assistant' && (
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
@@ -148,14 +150,14 @@ export function MentorChat({
               )}
 
               <div
-                className={`max-w-[82%] rounded-[16px] px-7 py-6 shadow-[0_8px_24px_rgba(10,22,40,0.05)] ${
+                className={`max-w-[80%] rounded-[16px] px-7 py-6 shadow-[0_8px_24px_rgba(10,22,40,0.05)] ${
                   message.role === 'assistant'
                     ? 'border border-border bg-white'
                     : 'bg-primary text-white'
                 }`}
               >
                 <p
-                  className={`whitespace-pre-wrap text-[15px] leading-[1.75] ${
+                  className={`whitespace-pre-wrap text-[15px] leading-[1.8] ${
                     message.role === 'assistant' ? 'text-text-secondary' : 'text-white'
                   }`}
                 >
@@ -171,26 +173,24 @@ export function MentorChat({
             </div>
           ))}
 
-          {/* Empty state — intentional, not "leftover" space */}
+          {/* Empty state — indented to align with bubble column */}
           {messages.length === 0 && !loading && (
-            <div className={`${avatarIndent}`}>
-              <div className="rounded-[16px] border border-dashed border-border bg-white px-7 py-8">
-                <p className="text-[15px] leading-[1.75] text-text-secondary">
-                  O mentor não espera contexto extra para começar. Escolha uma ação rápida acima
-                  ou descreva a decisão que você quer tomar.
-                </p>
-              </div>
+            <div className="ml-[64px] rounded-[16px] border border-dashed border-border/80 bg-white/70 px-7 py-7">
+              <p className="text-[14px] leading-[1.75] text-muted-foreground">
+                Escolha um atalho acima ou escreva diretamente. Quanto mais específica a pergunta,
+                mais cirúrgica a resposta.
+              </p>
             </div>
           )}
 
           {/* Sending indicator */}
           {sending && (
-            <div className="flex gap-4">
+            <div className="flex gap-5">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary shadow-sm">
                 <Brain size={17} />
               </div>
               <div className="rounded-[16px] border border-border bg-white px-7 py-5 shadow-[0_8px_24px_rgba(10,22,40,0.05)]">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
                   <span className="h-2 w-2 animate-bounce rounded-full bg-secondary [animation-delay:-0.3s]" />
                   <span className="h-2 w-2 animate-bounce rounded-full bg-secondary [animation-delay:-0.15s]" />
                   <span className="h-2 w-2 animate-bounce rounded-full bg-secondary" />
@@ -200,9 +200,9 @@ export function MentorChat({
           )}
         </div>
 
-        {/* ── Zone B: Composer / Input area ────────────────────── */}
-        <div className="rounded-b-[20px] border-t border-border bg-white p-8 lg:p-10">
-          <div className="flex flex-col gap-5">
+        {/* ── Zone B: Composer ─────────────────────────────────────────── */}
+        <div className="border-t border-border bg-white px-8 py-8 lg:px-10 lg:py-9">
+          <div className="flex flex-col gap-4">
             <div className="relative">
               <textarea
                 value={draft}
@@ -212,7 +212,7 @@ export function MentorChat({
                 }}
                 rows={4}
                 placeholder="Escreva sua dúvida ou a decisão que você quer tomar agora."
-                className="min-h-[128px] w-full resize-none rounded-[16px] border border-border bg-background-elevated px-7 py-5 pr-40 text-[15px] leading-relaxed text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-secondary focus:ring-2 focus:ring-secondary/15"
+                className="min-h-[128px] w-full resize-none rounded-[16px] border border-border bg-[#f8faff] px-6 py-5 pr-40 text-[15px] leading-[1.7] text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-secondary focus:bg-white focus:ring-2 focus:ring-secondary/12"
               />
               <Button
                 size="lg"
@@ -225,8 +225,7 @@ export function MentorChat({
               </Button>
             </div>
 
-            {/* Hint — plain text, no border box */}
-            <p className="px-1 text-xs leading-relaxed text-muted-foreground">
+            <p className="px-1 text-[12px] leading-relaxed text-muted-foreground">
               ⌘ + Enter para enviar · Quanto mais direta a pergunta, mais acionável a resposta.
             </p>
           </div>

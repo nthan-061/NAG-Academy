@@ -9,10 +9,10 @@ interface MentorQuickActionCardProps {
   onAskMentor: (prompt: string) => void
 }
 
-const priorityDot: Record<string, string> = {
-  high: 'bg-danger',
-  medium: 'bg-warning',
-  low: 'bg-border',
+const priorityConfig: Record<string, { dot: string; label: string }> = {
+  high:   { dot: 'bg-danger',  label: 'Urgente' },
+  medium: { dot: 'bg-warning', label: 'Relevante' },
+  low:    { dot: 'bg-border',  label: 'Sugerido' },
 }
 
 export function MentorQuickActionCard({
@@ -20,20 +20,22 @@ export function MentorQuickActionCard({
   featured = false,
   onAskMentor,
 }: MentorQuickActionCardProps) {
+  const priority = priorityConfig[recommendation.priority] ?? priorityConfig.low
+
   const action =
     recommendation.action.kind === 'route' && recommendation.action.href ? (
       <Link
         to={recommendation.action.href}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-secondary-soft px-5 py-3 text-sm font-semibold text-secondary transition-all duration-150 hover:bg-secondary hover:text-white active:scale-95"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-secondary-soft px-5 py-3 text-[14px] font-semibold text-secondary transition-all duration-150 hover:bg-secondary hover:text-white active:scale-95"
       >
         {recommendation.actionLabel}
-        <ArrowRight size={13} />
+        <ArrowRight size={14} />
       </Link>
     ) : recommendation.action.kind === 'question' && recommendation.action.prompt ? (
       <Button
         size="sm"
         fullWidth
-        className="justify-center py-3 text-sm"
+        className="justify-center py-3 text-[14px]"
         onClick={() => onAskMentor(recommendation.action.prompt!)}
       >
         {recommendation.actionLabel}
@@ -43,7 +45,7 @@ export function MentorQuickActionCard({
         size="sm"
         variant="outline"
         fullWidth
-        className="justify-center py-3 text-sm"
+        className="justify-center py-3 text-[14px]"
         onClick={() => onAskMentor(`Quero executar agora: ${recommendation.title}.`)}
       >
         Abrir no mentor
@@ -52,36 +54,38 @@ export function MentorQuickActionCard({
 
   return (
     <div
-      className={`flex flex-col gap-6 rounded-[20px] border bg-white p-7 transition-all duration-200 hover:-translate-y-1 hover:shadow-md ${
+      className={`flex flex-col rounded-[20px] border bg-white transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${
         featured
           ? 'border-secondary/30 shadow-[0_12px_32px_rgba(37,99,235,0.12)]'
-          : 'border-border shadow-[0_8px_24px_rgba(10,22,40,0.04)]'
+          : 'border-border shadow-[0_8px_24px_rgba(10,22,40,0.05)]'
       }`}
     >
-      {/* Header: label (if featured) + title + priority dot */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1 space-y-2">
-          {featured && (
-            <span className="inline-flex rounded-full bg-secondary-soft px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-secondary">
-              Ação principal
+      {/* Card header — label + title + priority */}
+      <div className="px-7 pb-5 pt-7">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className={`h-2 w-2 shrink-0 rounded-full ${priority.dot}`} />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+              {featured ? 'Ação principal' : priority.label}
             </span>
-          )}
-          <h3 className="text-[15px] font-semibold leading-snug text-foreground">
-            {recommendation.title}
-          </h3>
+          </div>
         </div>
-        <span
-          className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${priorityDot[recommendation.priority] ?? 'bg-border'}`}
-        />
+        <h3 className="text-[15px] font-semibold leading-snug text-foreground">
+          {recommendation.title}
+        </h3>
       </div>
 
-      {/* Description — natural text, no clamp on narrow sidebar */}
-      <p className="text-sm leading-[1.75] text-text-secondary">
-        {recommendation.message}
-      </p>
+      {/* Card body — description with breathing room */}
+      <div className="px-7 pb-6">
+        <p className="text-[14px] leading-[1.8] text-text-secondary">
+          {recommendation.message}
+        </p>
+      </div>
 
-      {/* CTA — full-width for proper breathing in narrow column */}
-      {action}
+      {/* Card footer — CTA, visually separated */}
+      <div className="border-t border-border/60 px-7 pb-7 pt-5">
+        {action}
+      </div>
     </div>
   )
 }

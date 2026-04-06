@@ -73,7 +73,7 @@ export function MentorScreen() {
           xl: wider sidebar at 420px (activates at 1280px)
           Below lg: single column, panel stacks below chat
       */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px]">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_440px]">
         <MentorChat
           key={queuedPrompt?.nonce ?? 0}
           messages={messages}

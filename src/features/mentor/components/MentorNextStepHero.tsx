@@ -13,23 +13,23 @@ interface MentorNextStepHeroProps {
 function UrgencyChip({ score }: { score: number }) {
   if (score >= 7) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-white/90">
-        <AlertTriangle size={11} />
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/90">
+        <AlertTriangle size={10} />
         Urgente agora
       </span>
     )
   }
   if (score >= 4) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-white/90">
-        <Zap size={11} />
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/90">
+        <Zap size={10} />
         Alta prioridade
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-white/90">
-      <TrendingUp size={11} />
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/90">
+      <TrendingUp size={10} />
       Próximo passo
     </span>
   )
@@ -57,15 +57,15 @@ export function MentorNextStepHero({
     primaryRecommendation?.action.kind === 'route' && primaryRecommendation.action.href ? (
       <Link
         to={primaryRecommendation.action.href}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-[#1a2f6e] shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 sm:w-auto"
+        className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-[15px] font-bold text-[#1a2f6e] shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
       >
         {primaryRecommendation.actionLabel}
-        <ArrowRight size={15} />
+        <ArrowRight size={16} />
       </Link>
     ) : (
       <Button
         size="lg"
-        className="w-full justify-center bg-white py-3.5 text-sm font-bold text-[#1a2f6e] shadow-lg hover:-translate-y-0.5 hover:bg-white/95 hover:shadow-xl active:scale-95 sm:w-auto"
+        className="bg-white px-8 py-3.5 text-[15px] font-bold text-[#1a2f6e] shadow-lg hover:-translate-y-0.5 hover:bg-white/95 hover:shadow-xl active:scale-95"
         onClick={() =>
           onAskMentor(
             primaryRecommendation?.action.prompt ?? `Quero executar agora: ${title}.`,
@@ -73,52 +73,61 @@ export function MentorNextStepHero({
         }
       >
         {primaryRecommendation?.actionLabel ?? 'Definir próximo passo'}
-        <ArrowRight size={15} />
+        <ArrowRight size={16} />
       </Button>
     )
 
   return (
-    <div className="relative overflow-hidden rounded-[20px] bg-[linear-gradient(135deg,#1a2f6e_0%,#2563eb_60%,#3b82f6_100%)] shadow-[0_24px_56px_rgba(37,99,235,0.28)]">
-      {/* Background decoration */}
+    <div className="relative overflow-hidden rounded-[24px] bg-[linear-gradient(140deg,#0f1f52_0%,#1d4ed8_55%,#3b82f6_100%)] shadow-[0_32px_72px_rgba(29,78,216,0.35)]">
+
+      {/* Decorative highlight — top-right glow */}
       <div
-        className="pointer-events-none absolute right-0 top-0 h-full w-1/2 opacity-[0.07]"
-        style={{ background: 'radial-gradient(circle at 75% 30%, white 0%, transparent 65%)' }}
+        className="pointer-events-none absolute -right-24 -top-24 h-[420px] w-[420px] rounded-full opacity-[0.08]"
+        style={{ background: 'radial-gradient(circle, white 0%, transparent 70%)' }}
+      />
+      {/* Decorative highlight — bottom-left subtle */}
+      <div
+        className="pointer-events-none absolute -bottom-16 -left-16 h-[280px] w-[280px] rounded-full opacity-[0.05]"
+        style={{ background: 'radial-gradient(circle, white 0%, transparent 70%)' }}
       />
 
-      {/* Zone 1 — Eyebrow + Title (full width, top) */}
-      <div className="relative border-b border-white/10 px-8 pb-7 pt-10 lg:px-12 lg:pb-8 lg:pt-12">
-        <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-white/50">
+      {/* ── Zone 1: Content — full width, generous vertical padding ── */}
+      <div className="relative px-10 pb-10 pt-14 lg:px-14 lg:pb-12 lg:pt-16">
+
+        {/* Eyebrow */}
+        <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.22em] text-white/45">
           ⚡ Seu próximo passo agora
         </p>
-        <h2 className="max-w-3xl text-[22px] font-bold leading-[1.2] tracking-[-0.02em] text-white md:text-[28px] lg:text-[32px]">
+
+        {/* Title — large, dominant, constrained for readability */}
+        <h2 className="mb-6 max-w-[720px] text-[26px] font-bold leading-[1.18] tracking-[-0.025em] text-white md:text-[34px] lg:text-[40px]">
           {title}
         </h2>
+
+        {/* Description — breathing room, capped width for comfortable line-length */}
+        <p className="mb-8 max-w-[600px] text-[15px] leading-[1.85] text-white/65">
+          {message}
+        </p>
+
+        {/* Context chips */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <UrgencyChip score={urgencyScore} />
+          {topic && (
+            <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-[11px] font-semibold tracking-[0.06em] text-white/70">
+              {topic}
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Zone 2 — Description + Context (left) | CTAs (right) */}
-      <div className="relative flex flex-col gap-8 px-8 pb-10 pt-8 lg:flex-row lg:items-center lg:justify-between lg:px-12 lg:pb-12 lg:pt-8">
-        {/* Left: description + chips */}
-        <div className="max-w-2xl space-y-6">
-          <p className="text-[15px] leading-[1.75] text-white/70">
-            {message}
-          </p>
-          <div className="flex flex-wrap items-center gap-2.5">
-            <UrgencyChip score={urgencyScore} />
-            {topic && (
-              <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-[11px] font-semibold text-white/75">
-                {topic}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Right: CTA stack — vertically stacked for clarity */}
-        <div className="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col lg:items-stretch xl:flex-row xl:items-center">
+      {/* ── Zone 2: Action bar — own zone, border-top, no competition with content ── */}
+      <div className="relative border-t border-white/10 px-10 py-8 lg:px-14">
+        <div className="flex flex-wrap items-center gap-3">
           {primaryActionNode}
           <Button
             variant="ghost"
             size="lg"
-            className="w-full justify-center border border-white/20 py-3.5 text-sm font-semibold text-white hover:bg-white/10 hover:text-white active:scale-95 sm:w-auto lg:w-auto"
+            className="border border-white/20 px-8 py-3.5 text-[15px] font-semibold text-white hover:bg-white/10 hover:text-white active:scale-95"
             onClick={() => onAskMentor(mentorPrompt)}
           >
             Perguntar ao Mentor
