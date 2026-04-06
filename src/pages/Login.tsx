@@ -58,7 +58,11 @@ export function Login() {
         bullets={LEFT_BULLETS}
       />
 
-      {/* Right side — authentication panel */}
+      {/* Right side — authentication panel
+          Panel padding: 64px vertical, 48px horizontal on desktop.
+          This gives the card room to breathe INSIDE the half-screen column
+          before we even think about the card's own padding.
+      */}
       <main
         style={{
           display: 'flex',
@@ -66,20 +70,19 @@ export function Login() {
           width: '100%',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '40px 20px',
+          padding: '48px 24px',
         }}
-        className="lg:w-1/2"
+        className="lg:w-1/2 lg:px-16"
       >
         {/*
-          Card — same vocabulary as Dashboard cards but adapted for auth:
-          white bg, clean border, strong shadow.
-          max-w 480px — wide enough for comfortable form, contained for focus.
-          No nested Card component: plain div with explicit inline styles.
+          Card: max-w 520px — wider than before (was 480px) so inputs
+          have real horizontal room. All three zones use 52px horizontal
+          padding, ensuring content never feels close to the card edges.
         */}
         <div
           style={{
             width: '100%',
-            maxWidth: '480px',
+            maxWidth: '520px',
             backgroundColor: '#FFFFFF',
             borderRadius: '20px',
             border: '1px solid #E8ECF2',
@@ -87,14 +90,8 @@ export function Login() {
             overflow: 'hidden',
           }}
         >
-          {/* ── Header section ── */}
-          <div
-            style={{
-              padding: '36px 40px 28px',
-              borderBottom: '1px solid #E8ECF2',
-            }}
-          >
-            {/* Kicker */}
+          {/* ── Header zone: 44px top, 52px sides, 36px bottom ── */}
+          <div style={{ padding: '44px 52px 36px', borderBottom: '1px solid #E8ECF2' }}>
             <span
               style={{
                 display: 'inline-flex',
@@ -107,7 +104,7 @@ export function Login() {
                 fontWeight: 700,
                 letterSpacing: '0.10em',
                 textTransform: 'uppercase',
-                marginBottom: '16px',
+                marginBottom: '20px',
               }}
             >
               NAG Academy
@@ -115,74 +112,65 @@ export function Login() {
 
             <h2
               style={{
-                fontSize: '24px',
+                fontSize: '26px',
                 fontWeight: 700,
                 lineHeight: 1.2,
                 color: '#1A1F2E',
-                margin: '0 0 8px 0',
+                margin: '0 0 10px 0',
               }}
             >
               Entrar na plataforma
             </h2>
 
-            <p
-              style={{
-                fontSize: '14px',
-                lineHeight: 1.7,
-                color: '#6B7280',
-                margin: 0,
-              }}
-            >
+            <p style={{ fontSize: '14px', lineHeight: 1.75, color: '#6B7280', margin: 0 }}>
               Bem-vindo de volta à NAG Academy
             </p>
           </div>
 
-          {/* ── Form section ── */}
-          <div style={{ padding: '28px 40px 32px' }}>
+          {/* ── Form zone: 36px top, 52px sides, 40px bottom ── */}
+          <div style={{ padding: '36px 52px 40px' }}>
 
-            {/* Success alert */}
             {confirmed && (
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
                   gap: '10px',
-                  padding: '12px 16px',
+                  padding: '14px 18px',
                   borderRadius: '10px',
                   border: '1px solid rgba(22,163,74,0.20)',
                   backgroundColor: '#F0FDF4',
-                  marginBottom: '24px',
+                  marginBottom: '28px',
                 }}
               >
                 <CheckCircle size={16} style={{ color: '#16A34A', marginTop: '2px', flexShrink: 0 }} />
-                <p style={{ fontSize: '13px', lineHeight: 1.6, color: '#16A34A', margin: 0 }}>
+                <p style={{ fontSize: '13px', lineHeight: 1.65, color: '#16A34A', margin: 0 }}>
                   Email confirmado! Faça login para continuar.
                 </p>
               </div>
             )}
 
-            {/* Error alert */}
             {error && (
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
                   gap: '10px',
-                  padding: '12px 16px',
+                  padding: '14px 18px',
                   borderRadius: '10px',
                   border: '1px solid rgba(220,38,38,0.15)',
                   backgroundColor: '#FEF2F2',
-                  marginBottom: '24px',
+                  marginBottom: '28px',
                 }}
               >
                 <AlertCircle size={16} style={{ color: '#DC2626', marginTop: '2px', flexShrink: 0 }} />
-                <p style={{ fontSize: '13px', lineHeight: 1.6, color: '#DC2626', margin: 0 }}>
+                <p style={{ fontSize: '13px', lineHeight: 1.65, color: '#DC2626', margin: 0 }}>
                   {error}
                 </p>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <Input
                 type="email"
                 label="Email"
@@ -193,7 +181,7 @@ export function Login() {
                 autoComplete="email"
               />
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <Input
                   type="password"
                   label="Senha"
@@ -206,12 +194,7 @@ export function Login() {
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <Link
                     to="/forgot-password"
-                    style={{
-                      fontSize: '13px',
-                      fontWeight: 500,
-                      color: '#2E5FD4',
-                      textDecoration: 'none',
-                    }}
+                    style={{ fontSize: '13px', fontWeight: 500, color: '#2E5FD4', textDecoration: 'none' }}
                   >
                     Esqueci minha senha
                   </Link>
@@ -224,11 +207,11 @@ export function Login() {
             </form>
           </div>
 
-          {/* ── Footer section ── */}
+          {/* ── Footer zone: 24px top, 52px sides, 36px bottom ── */}
           <div
             style={{
               borderTop: '1px solid #E8ECF2',
-              padding: '20px 40px 28px',
+              padding: '24px 52px 36px',
               textAlign: 'center',
             }}
           >
@@ -236,12 +219,7 @@ export function Login() {
               Não tem uma conta?{' '}
               <Link
                 to="/register"
-                style={{
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  color: '#2E5FD4',
-                  textDecoration: 'none',
-                }}
+                style={{ fontSize: '14px', fontWeight: 600, color: '#2E5FD4', textDecoration: 'none' }}
               >
                 Criar conta
               </Link>
