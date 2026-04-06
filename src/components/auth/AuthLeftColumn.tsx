@@ -26,11 +26,32 @@ function LockIcon() {
   )
 }
 
+/*
+  Spacing system for this column:
+  - Outer panel:  px 72px, py 64px  — real distance from all four edges
+  - Content wrapper: max-w 420px, centered, fills the vertical space
+  - Internal gaps:  logo → title 52px, title → subtitle 20px, subtitle → bullets 44px
+  - Bottom seal:  its own pt 40px separates it from bullets; panel pb 64px gives
+    the seal 64px from the bottom edge — never looks stuck
+*/
 export function AuthLeftColumn({ headline, subtitle, bullets }: AuthLeftColumnProps) {
   return (
-    <aside className="auth-column relative hidden min-h-screen w-1/2 flex-col justify-between overflow-hidden bg-[linear-gradient(180deg,#091327_0%,#0d1b3e_100%)] px-14 py-12 lg:flex">
+    <aside
+      className="hidden lg:flex"
+      style={{
+        position: 'relative',
+        width: '50%',
+        minHeight: '100vh',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        background: 'linear-gradient(180deg, #091327 0%, #0d1b3e 100%)',
+        // Generous outer padding at every edge
+        padding: '64px 72px',
+      }}
+    >
+      {/* Subtle grid pattern */}
       <svg
-        className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.04]"
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.04, pointerEvents: 'none' }}
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
@@ -41,31 +62,95 @@ export function AuthLeftColumn({ headline, subtitle, bullets }: AuthLeftColumnPr
         <rect width="100%" height="100%" fill="url(#auth-grid)" />
       </svg>
 
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(46,95,212,0.18),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.05),transparent_28%)]" />
+      {/* Radial glow accents */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'radial-gradient(circle at top left, rgba(46,95,212,0.18), transparent 34%), radial-gradient(circle at bottom left, rgba(255,255,255,0.05), transparent 28%)',
+          pointerEvents: 'none',
+        }}
+      />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[28rem] flex-1 flex-col justify-center">
+      {/*
+        Main content block — vertically centered, max-w 420px.
+        flex-1 + justify-center ensures it takes all available height
+        and sits in the middle regardless of viewport height.
+      */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          width: '100%',
+          maxWidth: '420px',
+        }}
+      >
+        {/* Logo */}
         <img
           src="/logo-white.png"
           alt="Nathan Alves Group"
-          className="mb-12 h-20 w-auto object-contain opacity-95"
+          style={{
+            height: '72px',
+            width: 'auto',
+            objectFit: 'contain',
+            objectPosition: 'left',
+            opacity: 0.95,
+            marginBottom: '52px',
+          }}
         />
 
-        <h1 className="mb-5 whitespace-pre-line text-[3.25rem] font-bold leading-[1.02] tracking-[-0.05em] !text-white">
+        {/* Headline */}
+        <h1
+          style={{
+            fontSize: '3.25rem',
+            fontWeight: 700,
+            lineHeight: 1.02,
+            letterSpacing: '-0.05em',
+            color: '#FFFFFF',
+            whiteSpace: 'pre-line',
+            margin: '0 0 20px 0',
+          }}
+        >
           {headline}
         </h1>
 
-        <p className="mb-10 max-w-[24rem] text-[1.02rem] leading-8 text-white/72">
+        {/* Subtitle */}
+        <p
+          style={{
+            fontSize: '1rem',
+            lineHeight: 1.85,
+            color: 'rgba(255,255,255,0.70)',
+            margin: '0 0 44px 0',
+            maxWidth: '360px',
+          }}
+        >
           {subtitle}
         </p>
 
-        <div className="flex flex-col gap-4">
+        {/* Bullets */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {bullets.map((bullet) => (
-            <div key={bullet.text} className="flex items-center gap-3.5">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/12 bg-white/10">
+            <div key={bullet.text} style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div
+                style={{
+                  width: '28px',
+                  height: '28px',
+                  flexShrink: 0,
+                  borderRadius: '50%',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  backgroundColor: 'rgba(255,255,255,0.10)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
                 {bullet.icon === 'lock' ? <LockIcon /> : <CheckIcon />}
               </div>
-
-              <span className="text-[1rem] font-medium leading-7 text-white/84">
+              <span style={{ fontSize: '1rem', fontWeight: 500, lineHeight: 1.6, color: 'rgba(255,255,255,0.82)' }}>
                 {bullet.text}
               </span>
             </div>
@@ -73,13 +158,43 @@ export function AuthLeftColumn({ headline, subtitle, bullets }: AuthLeftColumnPr
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto hidden w-full max-w-[28rem] lg:block">
-        <div className="rounded-[1.4rem] border border-white/10 bg-white/6 px-5 py-5 backdrop-blur">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/48">
+      {/*
+        Bottom seal — sits below the main block.
+        pt-40px = clear breathing gap from bullets above.
+        The panel's pb-64px gives 64px from the bottom edge.
+      */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          width: '100%',
+          maxWidth: '420px',
+          paddingTop: '40px',
+        }}
+      >
+        <div
+          style={{
+            borderRadius: '16px',
+            border: '1px solid rgba(255,255,255,0.10)',
+            backgroundColor: 'rgba(255,255,255,0.06)',
+            padding: '20px 24px',
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          <p
+            style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.45)',
+              margin: '0 0 10px 0',
+            }}
+          >
             NAG Academy
           </p>
-          <p className="mt-3 text-sm leading-7 text-white/78">
-            Um ambiente de estudo pensado para transformar conteudo em pratica, repeticao e progresso visivel.
+          <p style={{ fontSize: '13px', lineHeight: 1.75, color: 'rgba(255,255,255,0.72)', margin: 0 }}>
+            Um ambiente de estudo pensado para transformar conteúdo em prática, repetição e progresso visível.
           </p>
         </div>
       </div>
