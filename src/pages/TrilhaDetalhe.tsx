@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { ChevronDown, ChevronUp, CheckCircle, PlayCircle, Circle, ArrowLeft } from 'lucide-react'
+import { ChevronDown, ChevronUp, CheckCircle, PlayCircle, Circle, ArrowLeft, Lock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import type { Trilha, Modulo, Aula, UserProgresso } from '@/types'
+
+function isAulaCompleta(p?: UserProgresso): boolean {
+  return Boolean(p?.assistida && p?.quiz_completado && p?.reflexao_completada)
+}
 
 const NIVEL_LABEL = { iniciante: 'Iniciante', intermediario: 'Intermediário', avancado: 'Avançado' }
 
@@ -51,36 +55,46 @@ function CircularProgress({ pct }: { pct: number }) {
 interface AulaItemProps {
   aula: Aula
   progresso?: UserProgresso
+  locked?: boolean
 }
 
-function AulaItem({ aula, progresso }: AulaItemProps) {
+function AulaItem({ aula, progresso, locked = false }: AulaItemProps) {
   const navigate = useNavigate()
+  const completa = isAulaCompleta(progresso)
   const assistida = progresso?.assistida ?? false
-  const quizFeito = progresso?.quiz_completado ?? false
 
   let icon = <Circle size={18} style={{ color: '#9CA3AF', flexShrink: 0 }} strokeWidth={1.5} />
-  if (assistida && quizFeito)
+  if (locked)
+    icon = <Lock size={18} style={{ color: '#C4C9D4', flexShrink: 0 }} strokeWidth={1.5} />
+  else if (completa)
     icon = <CheckCircle size={18} style={{ color: '#16A34A', flexShrink: 0 }} strokeWidth={1.5} />
   else if (assistida)
     icon = <PlayCircle size={18} style={{ color: '#2E5FD4', flexShrink: 0 }} strokeWidth={1.5} />
 
   return (
     <button
-      onClick={() => navigate(`/aula/${aula.id}`)}
+      onClick={() => { if (!locked) navigate(`/aula/${aula.id}`) }}
+      disabled={locked}
+      title={locked ? 'Conclua a aula anterior para desbloquear' : undefined}
       style={{
         width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
-        padding: '14px 20px', textAlign: 'left', cursor: 'pointer',
-        border: 'none', borderBottom: '1px solid #F5F6FA', backgroundColor: 'transparent',
+        padding: '14px 20px', textAlign: 'left', cursor: locked ? 'not-allowed' : 'pointer',
+        border: 'none', borderBottom: '1px solid #F5F6FA',
+        backgroundColor: locked ? '#FAFBFC' : 'transparent',
         fontFamily: 'inherit', transition: 'background-color 0.15s', borderRadius: '8px',
+        opacity: locked ? 0.6 : 1,
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#EBF0FA' }}
-      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+      onMouseEnter={(e) => { if (!locked) e.currentTarget.style.backgroundColor = '#EBF0FA' }}
+      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = locked ? '#FAFBFC' : 'transparent' }}
     >
       {icon}
-      <span style={{ flex: 1, fontSize: '14px', fontWeight: 500, color: '#1A1F2E' }}>
+      <span style={{ flex: 1, fontSize: '14px', fontWeight: 500, color: locked ? '#9CA3AF' : '#1A1F2E' }}>
         {aula.titulo}
       </span>
-      {aula.duracao_segundos && (
+      {locked && (
+        <span style={{ fontSize: '11px', color: '#C4C9D4', flexShrink: 0 }}>bloqueada</span>
+      )}
+      {!locked && aula.duracao_segundos && (
         <span style={{ fontSize: '12px', flexShrink: 0, color: '#9CA3AF' }}>
           {Math.floor(aula.duracao_segundos / 60)}min
         </span>
@@ -92,15 +106,14 @@ function AulaItem({ aula, progresso }: AulaItemProps) {
 interface ModuloAccordionProps {
   modulo: ModuloComAulas
   progressoMap: Record<string, UserProgresso>
+  lockedSet: Set<string>
   defaultOpen?: boolean
 }
 
-function ModuloAccordion({ modulo, progressoMap, defaultOpen = false }: ModuloAccordionProps) {
+function ModuloAccordion({ modulo, progressoMap, lockedSet, defaultOpen = false }: ModuloAccordionProps) {
   const [open, setOpen] = useState(defaultOpen)
 
-  const completas = modulo.aulas.filter(
-    (a) => progressoMap[a.id]?.assistida && progressoMap[a.id]?.quiz_completado
-  ).length
+  const completas = modulo.aulas.filter((a) => isAulaCompleta(progressoMap[a.id])).length
 
   return (
     <div
@@ -134,7 +147,7 @@ function ModuloAccordion({ modulo, progressoMap, defaultOpen = false }: ModuloAc
       {open && (
         <div style={{ padding: '8px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
           {modulo.aulas.map((aula) => (
-            <AulaItem key={aula.id} aula={aula} progresso={progressoMap[aula.id]} />
+            <AulaItem key={aula.id} aula={aula} progresso={progressoMap[aula.id]} locked={lockedSet.has(aula.id)} />
           ))}
         </div>
       )}
@@ -229,10 +242,23 @@ export function TrilhaDetalhe() {
   }
 
   const totalAulas = modulos.reduce((s, m) => s + m.aulas.length, 0)
-  const aulasCompletas = Object.values(progressoMap).filter(
-    (p) => p.assistida && p.quiz_completado
-  ).length
+  const aulasCompletas = Object.values(progressoMap).filter(isAulaCompleta).length
   const pct = totalAulas > 0 ? Math.round((aulasCompletas / totalAulas) * 100) : 0
+
+  // Build sequential lock set: a lesson is locked if the previous lesson in the
+  // global order is not fully completed. The very first lesson is always unlocked.
+  const orderedAulaIds = modulos.flatMap((m) => m.aulas.map((a) => a.id))
+  const lockedSet = new Set<string>()
+  for (let i = 1; i < orderedAulaIds.length; i++) {
+    const prevId = orderedAulaIds[i - 1]
+    if (!isAulaCompleta(progressoMap[prevId])) {
+      // All lessons from i onward are locked
+      for (let j = i; j < orderedAulaIds.length; j++) {
+        lockedSet.add(orderedAulaIds[j])
+      }
+      break
+    }
+  }
   const limiteDescricao = 280
   const descricaoCompleta = trilha.descricao?.trim() ?? ''
   const precisaExpandirDescricao = descricaoCompleta.length > limiteDescricao
@@ -324,6 +350,7 @@ export function TrilhaDetalhe() {
               key={m.id}
               modulo={m}
               progressoMap={progressoMap}
+              lockedSet={lockedSet}
               defaultOpen={i === 0}
             />
           ))}

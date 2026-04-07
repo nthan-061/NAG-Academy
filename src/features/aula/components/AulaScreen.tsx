@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, CheckCircle, Circle } from 'lucide-react'
+import { ChevronLeft, ChevronRight, CheckCircle, Circle, Lock } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AulaPlayer } from './AulaPlayer'
 import { AulaTabs } from './AulaTabs'
@@ -7,6 +7,7 @@ import { AulaSummaryPanel } from './AulaSummaryPanel'
 import { AulaChatPanel } from './AulaChatPanel'
 import { AulaNotesPanel } from './AulaNotesPanel'
 import { useAula } from '../hooks/useAula'
+import { isAulaCompleta } from '../utils'
 
 export function AulaScreen() {
   const { id } = useParams<{ id: string }>()
@@ -89,6 +90,13 @@ export function AulaScreen() {
   const { aula, modulo, trilha, aulaAnterior, proximaAula, progresso } = data
   const assistida = progresso?.assistida ?? false
   const quizCompletado = progresso?.quiz_completado ?? false
+  const reflexaoCompleta = progresso?.reflexao_completada ?? false
+  const aulaCompleta = isAulaCompleta(progresso)
+
+  const missingSteps: string[] = []
+  if (!assistida) missingSteps.push('Marcar aula como assistida')
+  else if (!quizCompletado) missingSteps.push('Concluir o quiz')
+  else if (!reflexaoCompleta) missingSteps.push('Concluir a reflexão escrita')
 
   return (
     <div style={pageWrap}>
@@ -216,26 +224,35 @@ export function AulaScreen() {
               )}
 
               {proximaAula && (
-                <button
-                  onClick={() => navigate(`/aula/${proximaAula.id}`)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '10px 18px',
-                    borderRadius: '10px',
-                    border: 'none',
-                    backgroundColor: '#0D1B3E',
-                    color: '#FFFFFF',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    marginLeft: 'auto',
-                    fontFamily: 'inherit',
-                  }}
-                >
-                  Proxima <ChevronRight size={14} strokeWidth={1.5} />
-                </button>
+                <div style={{ marginLeft: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                  <button
+                    onClick={() => { if (aulaCompleta) navigate(`/aula/${proximaAula.id}`) }}
+                    disabled={!aulaCompleta}
+                    title={aulaCompleta ? undefined : missingSteps[0]}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '10px 18px',
+                      borderRadius: '10px',
+                      border: 'none',
+                      backgroundColor: aulaCompleta ? '#0D1B3E' : '#E8ECF2',
+                      color: aulaCompleta ? '#FFFFFF' : '#9CA3AF',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      cursor: aulaCompleta ? 'pointer' : 'not-allowed',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    {!aulaCompleta && <Lock size={13} strokeWidth={1.5} />}
+                    Proxima {aulaCompleta && <ChevronRight size={14} strokeWidth={1.5} />}
+                  </button>
+                  {!aulaCompleta && (
+                    <span style={{ fontSize: '11px', color: '#9CA3AF', textAlign: 'right' }}>
+                      {missingSteps[0]}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
 
@@ -255,12 +272,16 @@ export function AulaScreen() {
               >
                 <div>
                   <p style={{ fontSize: '16px', fontWeight: 700, color: '#0D1B3E', margin: '0 0 4px 0' }}>
-                    {quizCompletado ? 'Quiz concluido' : 'Quiz disponivel'}
+                    {aulaCompleta ? 'Aula concluida' : quizCompletado && !reflexaoCompleta ? 'Reflexao pendente' : quizCompletado ? 'Quiz concluido' : 'Quiz disponivel'}
                   </p>
                   <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>
-                    {quizCompletado
-                      ? `Voce acertou ${progresso?.acertos ?? 0} de ${progresso?.total_perguntas ?? 0}, clique para refazer`
-                      : 'Teste seu conhecimento sobre esta aula'}
+                    {aulaCompleta
+                      ? `Acertos: ${progresso?.acertos ?? 0}/${progresso?.total_perguntas ?? 0} · reflexao aprovada`
+                      : quizCompletado && !reflexaoCompleta
+                        ? 'Faca o quiz novamente para concluir a reflexao escrita'
+                        : quizCompletado
+                          ? `Voce acertou ${progresso?.acertos ?? 0} de ${progresso?.total_perguntas ?? 0}, clique para refazer`
+                          : 'Teste seu conhecimento sobre esta aula'}
                   </p>
                 </div>
 
@@ -270,7 +291,7 @@ export function AulaScreen() {
                     padding: '12px 20px',
                     borderRadius: '10px',
                     border: 'none',
-                    backgroundColor: '#0D1B3E',
+                    backgroundColor: aulaCompleta ? '#16A34A' : '#0D1B3E',
                     color: '#FFFFFF',
                     fontSize: '14px',
                     fontWeight: 600,
@@ -280,7 +301,7 @@ export function AulaScreen() {
                     fontFamily: 'inherit',
                   }}
                 >
-                  {quizCompletado ? 'Refazer quiz' : 'Fazer quiz'}
+                  {aulaCompleta ? 'Refazer' : quizCompletado ? 'Refazer quiz' : 'Fazer quiz'}
                 </button>
               </div>
             )}

@@ -1,4 +1,10 @@
+import type { UserProgresso } from '@/types'
 import type { AulaChatMessage, AulaTabItem } from './types'
+
+export function isAulaCompleta(progresso: UserProgresso | null | undefined): boolean {
+  if (!progresso) return false
+  return Boolean(progresso.assistida && progresso.quiz_completado && progresso.reflexao_completada)
+}
 
 export interface AulaChatLine {
   kind: 'paragraph' | 'bullet' | 'space'
