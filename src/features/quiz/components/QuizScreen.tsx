@@ -119,7 +119,6 @@ export function QuizScreen() {
         >
           {status === 'resultado' && resultado ? (
             <QuizResult
-              aulaId={id!}
               result={resultado}
               onShowToast={() => setShowToast(true)}
               onContinueToReflexao={goToReflexao}

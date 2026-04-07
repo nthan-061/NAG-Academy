@@ -27,6 +27,7 @@ export async function toggleAulaAssistida(userId: string, aulaId: string, progre
       user_id: userId,
       aula_id: aulaId,
       quiz_completado: false,
+      reflexao_completada: false,
       acertos: 0,
       total_perguntas: 0,
       percentual_acerto: null,

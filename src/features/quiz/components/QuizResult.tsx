@@ -7,13 +7,12 @@ import type { QuizFinalizeResult } from '../types'
 import { getQuizResultTitle } from '../utils'
 
 interface QuizResultProps {
-  aulaId: string
   result: QuizFinalizeResult
   onShowToast: () => void
   onContinueToReflexao: () => void
 }
 
-export function QuizResult({ aulaId, result, onShowToast, onContinueToReflexao }: QuizResultProps) {
+export function QuizResult({ result, onShowToast, onContinueToReflexao }: QuizResultProps) {
   const [score, setScore] = useState(0)
   const navigate = useNavigate()
   const triggerToast = useEffectEvent(onShowToast)
