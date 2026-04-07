@@ -187,7 +187,6 @@ export async function getMentorData(userId: string): Promise<MentorDataSnapshot 
     dominioResult,
     flashcardsResult,
     contextResult,
-    chatHistoryResult,
     trilhasResult,
     aulasResult,
   ] = await Promise.all([
@@ -252,7 +251,6 @@ export async function getMentorData(userId: string): Promise<MentorDataSnapshot 
     supabase.from('user_dominio').select('*').eq('user_id', userId).order('percentual', { ascending: false }),
     supabase.from('flashcards').select('*').eq('user_id', userId),
     supabase.from('mentor_user_context').select('*').eq('user_id', userId).maybeSingle(),
-    supabase.from('mentor_chat_messages').select('*').eq('user_id', userId).order('created_at', { ascending: true }).limit(20),
     supabase.from('trilhas').select('*').eq('publicada', true).order('ordem'),
     supabase
       .from('aulas')
@@ -305,7 +303,6 @@ export async function getMentorData(userId: string): Promise<MentorDataSnapshot 
     answers: normalizeAnswers((answersResult.data ?? []) as unknown as RawAnswerRow[]),
     dominio: dominioResult.data ?? [],
     flashcards: flashcardsResult.data ?? [],
-    chatHistory: (chatHistoryResult.data ?? []) as MentorChatMessage[],
     publishedLessons,
     publishedTrilhas: trilhasResult.data ?? [],
   }

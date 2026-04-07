@@ -72,7 +72,6 @@ export interface MentorDataSnapshot {
   answers: MentorQuizAnswer[]
   dominio: UserDominio[]
   flashcards: Flashcard[]
-  chatHistory: MentorChatMessage[]
   publishedLessons: MentorResolvedLesson[]
   publishedTrilhas: Trilha[]
 }

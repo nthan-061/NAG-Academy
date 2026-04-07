@@ -72,7 +72,6 @@ export function useMentor(): UseMentorState {
     setAnalysis(performance)
     setInsights(nextInsights)
     setRecommendations(nextRecommendations)
-    setMessages(nextSnapshot.chatHistory)
     setMentorContext(nextSnapshot.mentorContext)
   }, [])
 
@@ -105,6 +104,11 @@ export function useMentor(): UseMentorState {
       }
     }
   }, [computeMentorState, user?.id])
+
+  // Messages are session-ephemeral: always start empty on mount.
+  // They are never populated from the database — only from the current session's sends.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setMessages([]) }, [])
 
   useEffect(() => {
     void refreshMentor()
