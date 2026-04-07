@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { Aula, QuizPergunta } from '@/types'
 import { finalizeQuizAttempt, getQuizSetupData } from '../services/quizService'
-import type { QuizAnswerRecord, QuizFinalizeResult, QuizStatus } from '../types'
+import type { QuizAnswerRecord, QuizFinalizeResult, QuizStatus, ReflexaoAvaliacaoResult } from '../types'
 
 export function useQuiz(aulaId?: string) {
   const [aula, setAula] = useState<Aula | null>(null)
@@ -13,6 +13,7 @@ export function useQuiz(aulaId?: string) {
   const [selecionada, setSelecionada] = useState<number | null>(null)
   const [respostas, setRespostas] = useState<QuizAnswerRecord[]>([])
   const [resultado, setResultado] = useState<QuizFinalizeResult | null>(null)
+  const [reflexaoResult, setReflexaoResult] = useState<ReflexaoAvaliacaoResult | null>(null)
   const [showToast, setShowToast] = useState(false)
 
   useEffect(() => {
@@ -75,6 +76,15 @@ export function useQuiz(aulaId?: string) {
     setStatus('resultado')
   }
 
+  const goToReflexao = useCallback(() => {
+    setStatus('reflexao')
+  }, [])
+
+  const handleReflexaoApproved = useCallback((result: ReflexaoAvaliacaoResult) => {
+    setReflexaoResult(result)
+    // XP toast for reflexao is shown via the approved result UI; quiz toast already fired
+  }, [])
+
   return {
     aula,
     perguntas,
@@ -89,9 +99,12 @@ export function useQuiz(aulaId?: string) {
     ultimaResposta,
     totalPerguntas,
     resultado,
+    reflexaoResult,
     showToast,
     setShowToast,
     confirmAnswer,
     advanceQuiz,
+    goToReflexao,
+    handleReflexaoApproved,
   }
 }

@@ -252,13 +252,44 @@ export async function buildUserProfile(snapshot: MentorDataSnapshot): Promise<Us
     mentorContext: snapshot.mentorContext,
   } satisfies Omit<UserLearningProfile, 'behavioralPatterns'>
 
+  // ── Enrich with reflexao signals ───────────────────────────────────
+  // Aggregate learning/risk signals from written reflections so the mentor
+  // has explicit, qualitative evidence of what the user understands or struggles with.
+  const approvedReflexoes = snapshot.reflexoes.filter((r) => r.approved)
+  const rejectedReflexoes = snapshot.reflexoes.filter((r) => !r.approved)
+
+  const reflexaoLearningSignals: string[] = [
+    ...new Set(
+      approvedReflexoes.flatMap((r) => r.extracted_learning_signals ?? []),
+    ),
+  ].slice(0, 8)
+
+  const reflexaoRiskSignals: string[] = [
+    ...new Set([
+      ...rejectedReflexoes.flatMap((r) => r.extracted_risk_signals ?? []),
+      ...approvedReflexoes.flatMap((r) => r.extracted_risk_signals ?? []),
+    ]),
+  ].slice(0, 6)
+
+  // Merge reflexao evidence into base strengths/weakPoints
+  const enrichedStrengths = [
+    ...baseProfile.strengths,
+    ...reflexaoLearningSignals,
+  ]
+
   const weakPoints = buildWeakPoints(baseProfile)
+  const enrichedWeakPoints = [
+    ...weakPoints,
+    ...reflexaoRiskSignals,
+  ]
+
   const profile: UserLearningProfile = {
     ...baseProfile,
-    weakPoints,
+    strengths: enrichedStrengths,
+    weakPoints: enrichedWeakPoints,
     behavioralPatterns: buildBehaviorPatterns({
       ...baseProfile,
-      weakPoints,
+      weakPoints: enrichedWeakPoints,
       behavioralPatterns: [],
     }),
   }

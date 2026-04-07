@@ -1,4 +1,4 @@
-import type { Flashcard, Profile, QuizPergunta, Trilha, UserDominio, UserProgresso } from '@/types'
+import type { Flashcard, Profile, QuizPergunta, Trilha, UserDominio, UserProgresso, UserReflexao } from '@/types'
 
 export type MentorEstimatedLevel = 'iniciante' | 'intermediario' | 'avancado'
 export type MentorAnalysisStatus = 'good' | 'attention' | 'critical'
@@ -72,6 +72,7 @@ export interface MentorDataSnapshot {
   answers: MentorQuizAnswer[]
   dominio: UserDominio[]
   flashcards: Flashcard[]
+  reflexoes: UserReflexao[]
   publishedLessons: MentorResolvedLesson[]
   publishedTrilhas: Trilha[]
 }

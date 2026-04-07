@@ -1,6 +1,6 @@
 import { useEffect, useEffectEvent, useState } from 'react'
-import { BookOpen, ChevronRight, Layers, Sparkles } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { ChevronRight, Layers, PenLine, Sparkles } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import type { QuizFinalizeResult } from '../types'
@@ -10,9 +10,10 @@ interface QuizResultProps {
   aulaId: string
   result: QuizFinalizeResult
   onShowToast: () => void
+  onContinueToReflexao: () => void
 }
 
-export function QuizResult({ aulaId, result, onShowToast }: QuizResultProps) {
+export function QuizResult({ aulaId, result, onShowToast, onContinueToReflexao }: QuizResultProps) {
   const [score, setScore] = useState(0)
   const navigate = useNavigate()
   const triggerToast = useEffectEvent(onShowToast)
@@ -89,14 +90,23 @@ export function QuizResult({ aulaId, result, onShowToast }: QuizResultProps) {
           </Button>
         )}
 
-        <Link to={`/aula/${aulaId}`} className="min-w-[220px] flex-1">
-          <Button className="min-h-[56px] w-full rounded-[14px] bg-[linear-gradient(135deg,#16254F_0%,#0D1B3E_100%)] px-5 text-sm font-bold shadow-[0_18px_34px_rgba(13,27,62,0.22)]">
-            <BookOpen size={16} strokeWidth={1.5} />
-            Voltar para a aula
+        <div className="min-w-[220px] flex-1">
+          <Button
+            type="button"
+            onClick={onContinueToReflexao}
+            className="min-h-[56px] w-full rounded-[14px] bg-[linear-gradient(135deg,#16254F_0%,#0D1B3E_100%)] px-5 text-sm font-bold shadow-[0_18px_34px_rgba(13,27,62,0.22)]"
+          >
+            <PenLine size={16} strokeWidth={1.5} />
+            Próxima etapa: Reflexão
             <ChevronRight size={16} strokeWidth={1.5} />
           </Button>
-        </Link>
+        </div>
       </div>
+
+      {/* Micro-hint about the mandatory reflection step */}
+      <p className="text-center text-[12px] text-[#9CA3AF]">
+        Etapa obrigatória · A IA avalia sua compreensão do conteúdo específico desta aula
+      </p>
     </div>
   )
 }

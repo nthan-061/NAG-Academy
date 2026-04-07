@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import type { UserReflexao } from '@/types'
 import { MENTOR_TOPIC_FALLBACK } from '../constants'
 import type {
   MentorChatMessage,
@@ -187,6 +188,7 @@ export async function getMentorData(userId: string): Promise<MentorDataSnapshot 
     dominioResult,
     flashcardsResult,
     contextResult,
+    reflexoesResult,
     trilhasResult,
     aulasResult,
   ] = await Promise.all([
@@ -251,6 +253,12 @@ export async function getMentorData(userId: string): Promise<MentorDataSnapshot 
     supabase.from('user_dominio').select('*').eq('user_id', userId).order('percentual', { ascending: false }),
     supabase.from('flashcards').select('*').eq('user_id', userId),
     supabase.from('mentor_user_context').select('*').eq('user_id', userId).maybeSingle(),
+    supabase
+      .from('user_reflexoes')
+      .select('id,aula_id,approved,score,summary,strengths,gaps,topic_match,extracted_learning_signals,extracted_risk_signals,word_count,created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50),
     supabase.from('trilhas').select('*').eq('publicada', true).order('ordem'),
     supabase
       .from('aulas')
@@ -303,6 +311,7 @@ export async function getMentorData(userId: string): Promise<MentorDataSnapshot 
     answers: normalizeAnswers((answersResult.data ?? []) as unknown as RawAnswerRow[]),
     dominio: dominioResult.data ?? [],
     flashcards: flashcardsResult.data ?? [],
+    reflexoes: (reflexoesResult.data ?? []) as UserReflexao[],
     publishedLessons,
     publishedTrilhas: trilhasResult.data ?? [],
   }

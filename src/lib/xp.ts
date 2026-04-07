@@ -5,6 +5,7 @@ export const XP = {
   flashcard_revisado: 5,
   streak_bonus: 15,
   quiz_perfeito: 50,
+  reflexao_aprovada: 25,
 } as const
 
 export const NIVEIS = [

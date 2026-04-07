@@ -98,3 +98,24 @@ export interface UserDominio {
   percentual: number
   updated_at: string
 }
+
+export interface UserReflexao {
+  id: string
+  user_id: string
+  aula_id: string
+  texto: string
+  word_count: number
+  approved: boolean
+  score: number
+  summary: string
+  strengths: string[]
+  gaps: string[]
+  recommended_action: string | null
+  topic_match: 'baixo' | 'medio' | 'alto' | null
+  specificity_assessment: string | null
+  extracted_learning_signals: string[]
+  extracted_risk_signals: string[]
+  xp_ganho: number
+  metadata: Record<string, unknown>
+  created_at: string
+}

@@ -6,6 +6,7 @@ import { QuizHeader } from './QuizHeader'
 import { QuizOption } from './QuizOption'
 import { QuizFeedback } from './QuizFeedback'
 import { QuizResult } from './QuizResult'
+import { ReflexaoEtapa } from './ReflexaoEtapa'
 import { useQuiz } from '../hooks/useQuiz'
 import { getQuizProgressPercent } from '../utils'
 
@@ -31,6 +32,8 @@ export function QuizScreen() {
     setShowToast,
     confirmAnswer,
     advanceQuiz,
+    goToReflexao,
+    handleReflexaoApproved,
   } = useQuiz(id)
 
   useEffect(() => {
@@ -80,9 +83,13 @@ export function QuizScreen() {
         aulaTitulo={aula.titulo}
         indice={indice}
         totalPerguntas={totalPerguntas}
-        statusLabel={status === 'resultado' ? 'Resultado final' : ''}
+        statusLabel={
+          status === 'resultado' ? 'Resultado final'
+          : status === 'reflexao' ? 'Reflexão obrigatória'
+          : ''
+        }
         progressPercent={progressPercent}
-        showProgress={status !== 'resultado'}
+        showProgress={status !== 'resultado' && status !== 'reflexao'}
         onExit={() => {
           if (confirm('Sair do quiz? Seu progresso sera perdido.')) navigate(`/aula/${id}`)
         }}
@@ -93,11 +100,11 @@ export function QuizScreen() {
           className="animate-slideUp"
           style={{
             width: '100%',
-            maxWidth: status === 'resultado' ? '640px' : '760px',
+            maxWidth: status === 'resultado' || status === 'reflexao' ? '640px' : '760px',
             borderRadius: '24px',
             padding: mobileLayout
-              ? (status === 'resultado' ? '26px 18px' : '24px 18px')
-              : (status === 'resultado' ? '34px 32px' : '40px'),
+              ? (status === 'resultado' || status === 'reflexao' ? '26px 18px' : '24px 18px')
+              : (status === 'resultado' || status === 'reflexao' ? '34px 32px' : '40px'),
             backgroundColor: '#FFFFFF',
             boxShadow: '0 20px 50px rgba(10,22,40,0.08)',
             border: '1px solid #E8ECF2',
@@ -108,6 +115,16 @@ export function QuizScreen() {
               aulaId={id!}
               result={resultado}
               onShowToast={() => setShowToast(true)}
+              onContinueToReflexao={goToReflexao}
+            />
+          ) : status === 'reflexao' && resultado ? (
+            <ReflexaoEtapa
+              aulaId={id!}
+              aulaTitle={aula.titulo}
+              quizAcertos={resultado.acertos}
+              quizTotal={resultado.total}
+              onApproved={handleReflexaoApproved}
+              onBackToAula={() => navigate(`/aula/${id}`)}
             />
           ) : (
             <>
