@@ -18,6 +18,11 @@ function countWords(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length
 }
 
+class RetryLimitError extends Error {
+  code = 'RETRY_LIMIT_REACHED'
+  constructor(message: string) { super(message) }
+}
+
 async function submitReflexao(
   aulaId: string,
   texto: string,
@@ -39,13 +44,16 @@ async function submitReflexao(
     }),
   })
 
-  const json = await response.json().catch(() => ({}))
+  const json = await response.json().catch(() => ({})) as { error?: string; code?: string }
 
   if (!response.ok) {
-    throw new Error((json as { error?: string }).error ?? 'Erro ao avaliar reflexao.')
+    if (json.code === 'RETRY_LIMIT_REACHED') {
+      throw new RetryLimitError(json.error ?? 'Limite de tentativas atingido.')
+    }
+    throw new Error(json.error ?? 'Erro ao avaliar reflexao.')
   }
 
-  return json as ReflexaoAvaliacaoResult
+  return json as unknown as ReflexaoAvaliacaoResult
 }
 
 // ── Sub-components ──────────────────────────────────────────────────
@@ -382,6 +390,7 @@ export function ReflexaoEtapa({
   const [texto, setTexto] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [limitReached, setLimitReached] = useState(false)
   const [result, setResult] = useState<ReflexaoAvaliacaoResult | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -410,7 +419,11 @@ export function ReflexaoEtapa({
         onApproved(evaluation)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao enviar reflexao. Tente novamente.')
+      if (err instanceof RetryLimitError) {
+        setLimitReached(true)
+      } else {
+        setError(err instanceof Error ? err.message : 'Erro ao enviar reflexao. Tente novamente.')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -421,6 +434,75 @@ export function ReflexaoEtapa({
     setTexto('')
     setError(null)
     setTimeout(() => textareaRef.current?.focus(), 100)
+  }
+
+  // Retry limit reached — no more attempts allowed
+  if (limitReached) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '14px',
+            padding: '20px 24px',
+            borderRadius: '14px',
+            backgroundColor: '#FEF2F2',
+            border: '1px solid rgba(220,38,38,0.18)',
+          }}
+        >
+          <AlertTriangle size={28} style={{ color: '#DC2626', flexShrink: 0, marginTop: '2px' }} />
+          <div>
+            <p style={{ fontSize: '16px', fontWeight: 700, color: '#B91C1C', margin: '0 0 6px 0' }}>
+              Limite de tentativas atingido
+            </p>
+            <p style={{ fontSize: '13px', lineHeight: 1.65, color: '#DC2626', margin: 0 }}>
+              Você usou todas as 3 tentativas disponíveis para esta aula sem atingir a aprovação.
+              Reveja o conteúdo da aula com atenção antes de tentar novamente.
+            </p>
+          </div>
+        </div>
+
+        <div
+          style={{
+            padding: '16px 18px',
+            borderRadius: '12px',
+            backgroundColor: '#F7F9FD',
+            border: '1px solid #E8ECF2',
+          }}
+        >
+          <p style={{ fontSize: '13px', lineHeight: 1.7, color: '#374151', margin: 0 }}>
+            <strong style={{ color: '#1A1F2E' }}>O que fazer agora:</strong> volte para a aula, assista novamente
+            com foco nos conceitos principais e, se precisar de ajuda, converse com o Mentor IA.
+            Novas tentativas podem ser liberadas pelo seu mentor.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={onBackToAula}
+          style={{
+            width: '100%',
+            height: '52px',
+            borderRadius: '14px',
+            border: 'none',
+            backgroundColor: '#0D1B3E',
+            color: '#FFFFFF',
+            fontSize: '15px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            fontFamily: 'inherit',
+          }}
+        >
+          <BookOpen size={15} />
+          Rever a aula
+        </button>
+      </div>
+    )
   }
 
   // Show result if evaluation is done

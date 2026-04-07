@@ -66,6 +66,7 @@ export interface UserProgresso {
   aula_id: string
   assistida: boolean
   quiz_completado: boolean
+  reflexao_completada: boolean
   acertos: number
   total_perguntas: number
   percentual_acerto: number | null

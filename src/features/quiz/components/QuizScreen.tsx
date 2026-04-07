@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, Link, useParams } from 'react-router-dom'
-import { Target } from 'lucide-react'
+import { useNavigate, Link, useParams, useBlocker } from 'react-router-dom'
+import { AlertTriangle, Target } from 'lucide-react'
 import { XPToast } from '@/components/ui/Toast'
 import { QuizHeader } from './QuizHeader'
 import { QuizOption } from './QuizOption'
@@ -35,6 +35,13 @@ export function QuizScreen() {
     goToReflexao,
     handleReflexaoApproved,
   } = useQuiz(id)
+
+  // Block all in-app navigation while the user is in the mandatory reflection step.
+  // The browser back button and <Link> clicks are both intercepted.
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      status === 'reflexao' && currentLocation.pathname !== nextLocation.pathname,
+  )
 
   useEffect(() => {
     function handleResize() {
@@ -197,6 +204,101 @@ export function QuizScreen() {
 
       {showToast && resultado && (
         <XPToast xp={resultado.xpGanho} onDone={() => setShowToast(false)} />
+      )}
+
+      {/* Back-button / in-app navigation blocker during mandatory reflection */}
+      {blocker.state === 'blocked' && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(10,22,40,0.55)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '20px',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '20px',
+              padding: '32px 28px',
+              maxWidth: '420px',
+              width: '100%',
+              boxShadow: '0 24px 64px rgba(10,22,40,0.20)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
+                  backgroundColor: '#FEF2F2',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <AlertTriangle size={20} style={{ color: '#DC2626' }} />
+              </div>
+              <div>
+                <p style={{ fontSize: '16px', fontWeight: 700, color: '#1A1F2E', margin: '0 0 6px 0' }}>
+                  Etapa obrigatória não concluída
+                </p>
+                <p style={{ fontSize: '13px', lineHeight: 1.65, color: '#6B7280', margin: 0 }}>
+                  Você ainda não completou a reflexão escrita. Esta etapa é obrigatória para concluir a aula.
+                  Se sair agora, precisará refazê-la quando voltar.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={() => blocker.reset?.()}
+                style={{
+                  width: '100%',
+                  height: '48px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  backgroundColor: '#0D1B3E',
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Continuar a reflexão
+              </button>
+              <button
+                type="button"
+                onClick={() => blocker.proceed?.()}
+                style={{
+                  width: '100%',
+                  height: '44px',
+                  borderRadius: '12px',
+                  border: '1px solid #E8ECF2',
+                  backgroundColor: '#FFFFFF',
+                  color: '#6B7280',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Sair mesmo assim (reflexão ficará pendente)
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

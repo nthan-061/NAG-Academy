@@ -210,6 +210,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: `Minimo de 100 palavras. Seu texto tem ${wordCount}.` })
   }
 
+  // Enforce retry limit: max 3 attempts per (user, aula)
+  const MAX_ATTEMPTS = 3
+  const { count: attemptCount } = await auth.serviceClient
+    .from('user_reflexoes')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', auth.user.id)
+    .eq('aula_id', aula_id)
+
+  if ((attemptCount ?? 0) >= MAX_ATTEMPTS) {
+    return res.status(429).json({
+      error: `Voce atingiu o limite de ${MAX_ATTEMPTS} tentativas para esta aula. Reveja o conteudo e entre em contato com seu mentor.`,
+      code: 'RETRY_LIMIT_REACHED',
+    })
+  }
+
   // Fetch aula data (title, transcript, topics, summary)
   const { data: aula, error: aulaError } = await auth.serviceClient
     .from('aulas')
@@ -303,20 +318,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Nao foi possivel salvar a reflexao.' })
   }
 
-  // Award XP if approved
-  if (evaluation.approved && xpGanho > 0) {
-    const { data: profile } = await auth.serviceClient
-      .from('profiles')
-      .select('xp')
-      .eq('id', auth.user.id)
-      .single()
-
-    if (profile) {
-      await auth.serviceClient
-        .from('profiles')
-        .update({ xp: (profile.xp ?? 0) + xpGanho })
-        .eq('id', auth.user.id)
-    }
+  // Award XP and mark reflexao_completada if approved
+  if (evaluation.approved) {
+    await Promise.all([
+      // XP
+      xpGanho > 0
+        ? auth.serviceClient
+            .from('profiles')
+            .select('xp')
+            .eq('id', auth.user.id)
+            .single()
+            .then(({ data: profile }) => {
+              if (profile) {
+                return auth.serviceClient
+                  .from('profiles')
+                  .update({ xp: (profile.xp ?? 0) + xpGanho })
+                  .eq('id', auth.user.id)
+              }
+            })
+        : Promise.resolve(),
+      // Mark the lesson as reflexao_completada so Aula page can reflect completion
+      auth.serviceClient
+        .from('user_progresso')
+        .update({ reflexao_completada: true })
+        .eq('user_id', auth.user.id)
+        .eq('aula_id', aula_id),
+    ])
   }
 
   return res.status(200).json({
