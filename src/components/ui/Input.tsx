@@ -34,8 +34,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             className={cn(
               theme.tailwind.input.field,
-              !!leftIcon && 'pl-11',
-              !!rightIcon && 'pr-11',
+              !leftIcon && 'pl-6',
+              !!leftIcon && 'pl-[3.25rem]',
+              !!rightIcon && 'pr-[3.25rem]',
               !!error && 'border-danger text-danger focus:border-danger focus:shadow-[0_0_0_4px_rgba(220,38,38,0.10)]',
               className,
             )}

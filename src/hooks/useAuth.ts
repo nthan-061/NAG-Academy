@@ -3,6 +3,8 @@ import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { AuthState, UserRole } from '@/features/auth/types'
 
+const AUTH_BOOTSTRAP_TIMEOUT_MS = 10000
+
 function normalizeRole(value: unknown): UserRole | null {
   return value === 'admin' || value === 'user' ? value : null
 }
@@ -37,6 +39,12 @@ export function useAuth(): AuthState {
   useEffect(() => {
     let active = true
 
+    function finishLoading() {
+      if (active) {
+        setLoading(false)
+      }
+    }
+
     async function syncRole(user: User | null) {
       if (!user) {
         if (active) setRole(null)
@@ -54,16 +62,35 @@ export function useAuth(): AuthState {
       setRole(profileRole ?? claimedRole ?? 'user')
     }
 
+    async function getSessionWithTimeout() {
+      return await Promise.race([
+        supabase.auth.getSession(),
+        new Promise<never>((_, reject) => {
+          window.setTimeout(() => {
+            reject(new Error('Timed out while restoring the auth session.'))
+          }, AUTH_BOOTSTRAP_TIMEOUT_MS)
+        }),
+      ])
+    }
+
     async function loadInitialState() {
-      const { data } = await supabase.auth.getSession()
-      if (!active) return
+      try {
+        const { data } = await getSessionWithTimeout()
+        if (!active) return
 
-      setSession(data.session)
-      setIsPasswordRecovery(false)
-      await syncRole(data.session?.user ?? null)
+        setSession(data.session)
+        setIsPasswordRecovery(false)
+        await syncRole(data.session?.user ?? null)
+      } catch (error) {
+        console.error('[useAuth] failed to restore session:', error)
 
-      if (active) {
-        setLoading(false)
+        if (!active) return
+
+        setSession(null)
+        setRole(null)
+        setIsPasswordRecovery(false)
+      } finally {
+        finishLoading()
       }
     }
 
@@ -81,7 +108,7 @@ export function useAuth(): AuthState {
         setRole(null)
       }
 
-      setLoading(false)
+      finishLoading()
       void syncRole(nextSession?.user ?? null)
     })
 

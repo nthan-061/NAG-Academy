@@ -47,19 +47,19 @@ export function ForgotPassword() {
 
       <main className="auth-content">
         <Card className="auth-surface" padding="none">
-          <div className="flex flex-col gap-7">
+          <div className="flex flex-col gap-8">
             <Link to="/login" className="inline-flex items-center gap-2 text-sm font-medium text-text-secondary transition hover:text-primary">
               <ArrowLeft size={16} />
               Voltar para o login
             </Link>
 
             {sent ? (
-              <div className="flex flex-col items-center gap-5 text-center">
+              <div className="flex flex-col items-center gap-6 text-center">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success-soft text-success">
                   <CheckCircle size={28} />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Text as="h2" variant="h2">
                     Email enviado!
                   </Text>
@@ -70,7 +70,7 @@ export function ForgotPassword() {
               </div>
             ) : (
               <>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Text as="h2" variant="h2">
                     Esqueceu a senha?
                   </Text>
@@ -88,7 +88,7 @@ export function ForgotPassword() {
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-5 pt-1">
                   <Input
                     type="email"
                     label="Email"

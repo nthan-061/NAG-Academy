@@ -45,9 +45,13 @@ export function Dashboard({ profile }: { profile: Profile | null }) {
   const nome = profile?.full_name?.split(' ')[0] ?? 'você'
 
   useEffect(() => {
-    if (!profile) return
+    if (!profile) {
+      setLoading(false)
+      return
+    }
 
     async function load() {
+      try {
       // Última aula assistida
       const { data: progressos } = await supabase
         .from('user_progresso')
@@ -98,7 +102,11 @@ export function Dashboard({ profile }: { profile: Profile | null }) {
         .eq('user_id', profile!.id).lte('proxima_revisao', hoje)
       setFlashcardsPendentes(count ?? 0)
 
-      setLoading(false)
+      } catch (error) {
+        console.error('[Dashboard] failed to load dashboard data:', error)
+      } finally {
+        setLoading(false)
+      }
     }
 
     load()

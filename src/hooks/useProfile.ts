@@ -14,29 +14,45 @@ export function useProfile(user?: User | null) {
     let active = true
 
     async function load() {
-      let uid: string | null
+      try {
+        let uid: string | null
 
-      if (explicitId !== undefined) {
-        uid = explicitId
-      } else {
-        const { data } = await supabase.auth.getUser()
-        uid = data.user?.id ?? null
-      }
+        if (explicitId !== undefined) {
+          uid = explicitId
+        } else {
+          const { data } = await supabase.auth.getUser()
+          uid = data.user?.id ?? null
+        }
 
-      if (!uid) {
-        if (active) { setProfile(null); setLoading(false) }
-        return
-      }
+        if (!uid) {
+          if (active) {
+            setProfile(null)
+          }
+          return
+        }
 
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', uid)
-        .single()
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', uid)
+          .single()
 
-      if (active) {
-        setProfile(data)
-        setLoading(false)
+        if (error) {
+          console.error('[useProfile] failed to load profile:', error.message)
+        }
+
+        if (active) {
+          setProfile(data ?? null)
+        }
+      } catch (error) {
+        console.error('[useProfile] unexpected error:', error)
+        if (active) {
+          setProfile(null)
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
       }
     }
 

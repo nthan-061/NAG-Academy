@@ -64,12 +64,12 @@ export function ResetPassword() {
       <main className="auth-content">
         <Card className="auth-surface" padding="none">
           {success ? (
-            <div className="flex flex-col items-center gap-5 text-center">
+            <div className="flex flex-col items-center gap-6 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success-soft text-success">
                 <CheckCircle size={28} />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Text as="h2" variant="h2">
                   Senha redefinida!
                 </Text>
@@ -79,8 +79,8 @@ export function ResetPassword() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col gap-7">
-              <div className="space-y-2">
+            <div className="flex flex-col gap-8">
+              <div className="space-y-3">
                 <Text as="h2" variant="h2">
                   Redefinir senha
                 </Text>
@@ -98,7 +98,7 @@ export function ResetPassword() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-5 pt-1">
                 <Input
                   type="password"
                   label="Nova senha"
