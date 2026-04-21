@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { AuthLeftColumn } from '@/components/auth/AuthLeftColumn'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { getAuthErrorMessage } from '@/features/auth/utils'
 
 const LEFT_BULLETS = [
   { icon: 'check' as const, text: 'Trilhas de conteudo estruturadas' },
@@ -28,16 +29,10 @@ export function Login() {
     setLoading(true)
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
 
       if (signInError) {
-        if (signInError.message.includes('Email not confirmed')) {
-          setError('Confirme seu email antes de fazer login. Verifique sua caixa de entrada.')
-        } else if (signInError.message.includes('Invalid login credentials')) {
-          setError('Email ou senha incorretos.')
-        } else {
-          setError(signInError.message || 'Ocorreu um erro. Tente novamente.')
-        }
+        setError(getAuthErrorMessage(signInError, 'Ocorreu um erro ao entrar. Tente novamente.'))
         setLoading(false)
         return
       }

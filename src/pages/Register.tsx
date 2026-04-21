@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Text } from '@/components/ui/Text'
+import { getAuthErrorMessage } from '@/features/auth/utils'
 
 const LEFT_BULLETS = [
   { icon: 'check' as const, text: 'Trilhas de conteudo estruturadas' },
@@ -41,7 +42,7 @@ export function Register() {
 
     try {
       const { error: signUpError } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
           data: { full_name: name },
@@ -53,13 +54,13 @@ export function Register() {
         if (signUpError.message.includes('already registered') || signUpError.message.includes('User already registered')) {
           setError('Este email ja esta cadastrado. Tente fazer login.')
         } else {
-          setError(signUpError.message || 'Ocorreu um erro ao criar sua conta. Tente novamente.')
+          setError(getAuthErrorMessage(signUpError, 'Ocorreu um erro ao criar sua conta. Tente novamente.'))
         }
         setLoading(false)
         return
       }
 
-      navigate(`/verify-email?email=${encodeURIComponent(email)}`)
+      navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`)
     } catch (registerError) {
       console.error('[Register] unexpected error:', registerError)
       setError('Erro de conexao. Verifique sua internet e tente novamente.')

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Text } from '@/components/ui/Text'
+import { getAuthErrorMessage } from '@/features/auth/utils'
 
 const LEFT_BULLETS = [
   { icon: 'lock' as const, text: 'Link expira em 24 horas por seguranca' },
@@ -22,19 +23,25 @@ export function ForgotPassword() {
     event.preventDefault()
     setError('')
     setLoading(true)
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
 
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    })
+      if (resetError) {
+        console.error('[ForgotPassword] reset password error:', resetError)
+        setError(getAuthErrorMessage(resetError, 'Nao foi possivel enviar o link de recuperacao.'))
+        setLoading(false)
+        return
+      }
 
-    if (resetError) {
-      setError('Ocorreu um erro. Verifique o email e tente novamente.')
+      setSent(true)
       setLoading(false)
-      return
+    } catch (forgotPasswordError) {
+      console.error('[ForgotPassword] unexpected error:', forgotPasswordError)
+      setError(getAuthErrorMessage(forgotPasswordError, 'Nao foi possivel enviar o link de recuperacao.'))
+      setLoading(false)
     }
-
-    setSent(true)
-    setLoading(false)
   }
 
   return (

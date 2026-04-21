@@ -12,8 +12,28 @@ import path from 'path'
 
 const { Client } = pg
 
-const PROJECT_REF = 'qifhlragrnqiscocabyv'
+function getProjectRef() {
+  const explicitRef = process.env.SUPABASE_PROJECT_REF?.trim()
+  if (explicitRef) return explicitRef
+
+  const supabaseUrl = (process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? '').trim()
+  if (!supabaseUrl) return ''
+
+  try {
+    return new URL(supabaseUrl).hostname.split('.')[0] ?? ''
+  } catch {
+    return ''
+  }
+}
+
+const PROJECT_REF = getProjectRef()
 const DB_PASSWORD = process.env.DB_PASSWORD
+
+if (!PROJECT_REF) {
+  console.error('Project ref do Supabase nao definido.')
+  console.error('Defina SUPABASE_PROJECT_REF ou SUPABASE_URL/VITE_SUPABASE_URL.')
+  process.exit(1)
+}
 
 if (!DB_PASSWORD) {
   console.error('❌  Variável DB_PASSWORD não definida.')

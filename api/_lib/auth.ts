@@ -19,9 +19,9 @@ interface AuthenticatedRequest {
 }
 
 function getServerAuthContext(req: VercelRequest, res: VercelResponse): ServerAuthContext | null {
-  const supabaseUrl = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL
-  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const supabaseUrl = (process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? '').trim()
+  const supabaseAnonKey = (process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY ?? '').trim()
+  const supabaseServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY ?? '').trim()
   const authHeader = req.headers.authorization
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : ''
 
