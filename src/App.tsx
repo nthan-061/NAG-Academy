@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import type { Session } from '@supabase/supabase-js'
-import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
+import { useAuth } from '@/hooks/useAuth'
+import type { UserRole } from '@/features/auth/types'
 import { RequireAdminRoute } from '@/components/auth/RequireAdminRoute'
 import { Header } from '@/components/layout/Header'
 import { Sidebar } from '@/components/layout/Sidebar'
@@ -44,9 +45,18 @@ function SplashScreen() {
 }
 
 // ---------- Rotas protegidas com layout ----------
-function AppRoutes({ session, isPasswordRecovery }: { session: Session; isPasswordRecovery: boolean }) {
+function AppRoutes({
+  session,
+  isPasswordRecovery,
+  role,
+  authLoading,
+}: {
+  session: Session
+  isPasswordRecovery: boolean
+  role: UserRole | null
+  authLoading: boolean
+}) {
   const { profile } = useProfile(session.user)
-  const { role, loading: authLoading } = useAuth()
 
   return (
     <>
@@ -96,14 +106,14 @@ function PublicRoutes({ session }: { session: Session | null }) {
 
 // ---------- Root ----------
 export default function App() {
-  const { session, loading, isPasswordRecovery } = useAuth()
+  const { session, role, loading, isPasswordRecovery } = useAuth()
 
   if (loading) return <SplashScreen />
 
   return (
     <BrowserRouter>
       {session && !isPasswordRecovery
-        ? <AppRoutes session={session} isPasswordRecovery={isPasswordRecovery} />
+        ? <AppRoutes session={session} isPasswordRecovery={isPasswordRecovery} role={role} authLoading={loading} />
         : <PublicRoutes session={session} />
       }
     </BrowserRouter>

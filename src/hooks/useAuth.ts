@@ -3,7 +3,7 @@ import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { AuthState, UserRole } from '@/features/auth/types'
 
-const AUTH_BOOTSTRAP_TIMEOUT_MS = 10000
+const AUTH_BOOTSTRAP_GUARD_MS = 1200
 
 function normalizeRole(value: unknown): UserRole | null {
   return value === 'admin' || value === 'user' ? value : null
@@ -38,10 +38,19 @@ export function useAuth(): AuthState {
 
   useEffect(() => {
     let active = true
+    let initialStateResolved = false
+    let bootstrapGuard: number | null = null
 
-    function finishLoading() {
-      if (active) {
+    function finishLoading(force = false) {
+      if (!active) return
+      if (force || !initialStateResolved) {
+        initialStateResolved = true
         setLoading(false)
+      }
+
+      if (bootstrapGuard !== null) {
+        window.clearTimeout(bootstrapGuard)
+        bootstrapGuard = null
       }
     }
 
@@ -62,27 +71,26 @@ export function useAuth(): AuthState {
       setRole(profileRole ?? claimedRole ?? 'user')
     }
 
-    async function getSessionWithTimeout() {
-      return await Promise.race([
-        supabase.auth.getSession(),
-        new Promise<never>((_, reject) => {
-          window.setTimeout(() => {
-            reject(new Error('Timed out while restoring the auth session.'))
-          }, AUTH_BOOTSTRAP_TIMEOUT_MS)
-        }),
-      ])
+    async function applyAuthState(nextSession: Session | null, options?: { isPasswordRecovery?: boolean }) {
+      if (!active) return
+
+      setSession(nextSession)
+      setIsPasswordRecovery(options?.isPasswordRecovery ?? false)
+
+      if (!nextSession) {
+        setRole(null)
+      }
+
+      finishLoading()
+      await syncRole(nextSession?.user ?? null)
     }
 
-    async function loadInitialState() {
+    async function bootstrapSession() {
       try {
-        const { data } = await getSessionWithTimeout()
-        if (!active) return
-
-        setSession(data.session)
-        setIsPasswordRecovery(false)
-        await syncRole(data.session?.user ?? null)
+        const { data } = await supabase.auth.getSession()
+        await applyAuthState(data.session)
       } catch (error) {
-        console.error('[useAuth] failed to restore session:', error)
+        console.error('[useAuth] failed to bootstrap session:', error)
 
         if (!active) return
 
@@ -94,26 +102,24 @@ export function useAuth(): AuthState {
       }
     }
 
-    void loadInitialState()
+    bootstrapGuard = window.setTimeout(() => {
+      console.warn('[useAuth] auth bootstrap guard released the splash screen')
+      finishLoading(true)
+    }, AUTH_BOOTSTRAP_GUARD_MS)
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, nextSession) => {
-      setSession(nextSession)
-
-      if (event === 'PASSWORD_RECOVERY') {
-        setIsPasswordRecovery(true)
-      }
-
-      if (event === 'SIGNED_OUT') {
-        setIsPasswordRecovery(false)
-        setRole(null)
-      }
-
-      finishLoading()
-      void syncRole(nextSession?.user ?? null)
+      void applyAuthState(nextSession, {
+        isPasswordRecovery: event === 'PASSWORD_RECOVERY',
+      })
     })
+
+    void bootstrapSession()
 
     return () => {
       active = false
+      if (bootstrapGuard !== null) {
+        window.clearTimeout(bootstrapGuard)
+      }
       listener.subscription.unsubscribe()
     }
   }, [])

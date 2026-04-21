@@ -79,8 +79,8 @@ export function ResetPassword() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col gap-8">
-              <div className="space-y-3">
+            <div className="flex flex-col gap-9">
+              <div className="space-y-4">
                 <Text as="h2" variant="h2">
                   Redefinir senha
                 </Text>
@@ -98,7 +98,7 @@ export function ResetPassword() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5 pt-1">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-6 pt-2">
                 <Input
                   type="password"
                   label="Nova senha"
