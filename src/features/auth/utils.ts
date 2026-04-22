@@ -30,3 +30,26 @@ export function getAuthErrorMessage(error: unknown, fallback: string) {
 
   return message || fallback
 }
+
+const DEFAULT_PUBLIC_APP_URL = 'https://nag-academy.vercel.app'
+
+export function getPublicAppUrl() {
+  const configuredUrl = (import.meta.env.VITE_APP_URL as string | undefined)?.trim()
+  if (configuredUrl) {
+    return configuredUrl.replace(/\/+$/, '')
+  }
+
+  if (typeof window !== 'undefined') {
+    const { origin, hostname } = window.location
+    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return origin.replace(/\/+$/, '')
+    }
+  }
+
+  return DEFAULT_PUBLIC_APP_URL
+}
+
+export function getAuthRedirectUrl(path: string) {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+  return `${getPublicAppUrl()}${normalizedPath}`
+}

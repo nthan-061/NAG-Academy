@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Lock, AlertCircle, CheckCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -20,6 +20,24 @@ export function ResetPassword() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : ''
+    const params = new URLSearchParams(hash)
+    const errorCode = params.get('error_code')
+    const errorDescription = params.get('error_description')
+
+    if (errorCode === 'otp_expired') {
+      setError('Este link de redefinicao expirou. Solicite um novo email de recuperacao.')
+      return
+    }
+
+    if (errorDescription) {
+      setError(errorDescription.replace(/\+/g, ' '))
+    }
+  }, [])
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()

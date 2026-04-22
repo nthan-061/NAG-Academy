@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Text } from '@/components/ui/Text'
-import { getAuthErrorMessage } from '@/features/auth/utils'
+import { getAuthErrorMessage, getAuthRedirectUrl } from '@/features/auth/utils'
 
 const LEFT_BULLETS = [
   { icon: 'lock' as const, text: 'Link expira em 24 horas por seguranca' },
@@ -25,7 +25,7 @@ export function ForgotPassword() {
     setLoading(true)
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: getAuthRedirectUrl('/reset-password'),
       })
 
       if (resetError) {

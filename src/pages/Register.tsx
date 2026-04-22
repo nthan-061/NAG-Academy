@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Text } from '@/components/ui/Text'
-import { getAuthErrorMessage } from '@/features/auth/utils'
+import { getAuthErrorMessage, getAuthRedirectUrl } from '@/features/auth/utils'
 
 const LEFT_BULLETS = [
   { icon: 'check' as const, text: 'Trilhas de conteudo estruturadas' },
@@ -46,7 +46,7 @@ export function Register() {
         password,
         options: {
           data: { full_name: name },
-          emailRedirectTo: `${window.location.origin}/login?confirmed=true`,
+          emailRedirectTo: getAuthRedirectUrl('/login?confirmed=true'),
         },
       })
 
