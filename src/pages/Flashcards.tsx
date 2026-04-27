@@ -2,11 +2,17 @@ import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { RotateCw, CheckCircle, Layers } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { calcularProximaRevisao } from '@/lib/sm2'
 import { XP as XP_VALUES } from '@/lib/xp'
 import { XPToast } from '@/components/ui/Toast'
 import type { Flashcard } from '@/types'
-import type { Qualidade } from '@/lib/sm2'
+
+const MAX_FLASHCARD_REVIEWS = 3
+
+function getDateAfterDays(days: number) {
+  const date = new Date()
+  date.setDate(date.getDate() + days)
+  return date.toISOString().split('T')[0]
+}
 
 // ---------- Card com flip 3D ----------
 function FlashcardFlip({
@@ -90,7 +96,7 @@ function FlashcardFlip({
 }
 
 // ---------- Tela final ----------
-function TelaFinal({ revisados, proximaDias }: { revisados: number; proximaDias: number }) {
+function TelaFinal({ revisados }: { revisados: number }) {
   return (
     /*
       Completion state treated as a premium final screen — not a placeholder.
@@ -176,17 +182,17 @@ function TelaFinal({ revisados, proximaDias }: { revisados: number; proximaDias:
         <div style={{ padding: '20px 24px', textAlign: 'center' }}>
           <p
             style={{
-              fontSize: '32px',
+              fontSize: '18px',
               fontWeight: 700,
               color: '#0D1B3E',
               margin: '0 0 4px 0',
-              lineHeight: 1,
+              lineHeight: 1.25,
             }}
           >
-            {proximaDias > 0 ? proximaDias : '—'}
+            3 revisões
           </p>
           <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
-            {proximaDias === 1 ? 'dia até a próxima' : proximaDias > 1 ? 'dias até a próxima' : 'revisão agendada'}
+            ciclo padrão
           </p>
         </div>
       </div>
@@ -235,7 +241,6 @@ export function Flashcards() {
   const [concluido, setConcluido] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [revisados, setRevisados] = useState(0)
-  const [proximaDias, setProximaDias] = useState(1)
   const [showToast, setShowToast] = useState(false)
   const [xpTotal, setXpTotal] = useState(0)
 
@@ -251,6 +256,7 @@ export function Flashcards() {
         .from('flashcards')
         .select('*')
         .eq('user_id', user.id)
+        .lt('repeticoes', MAX_FLASHCARD_REVIEWS)
         .lte('proxima_revisao', hoje)
         .order('proxima_revisao')
 
@@ -260,27 +266,49 @@ export function Flashcards() {
     load()
   }, [])
 
-  const avaliar = useCallback(async (qualidade: Qualidade) => {
+  const avaliar = useCallback(async () => {
     if (!userId) return
     const card = cards[indice]
+    if (!card) return
 
-    const resultado = calcularProximaRevisao(
-      { intervalo: card.intervalo_dias, facilidade: card.facilidade, repeticoes: card.repeticoes },
-      qualidade
+    const nextRepeticoes = (card.repeticoes ?? 0) + 1
+
+    if (nextRepeticoes >= MAX_FLASHCARD_REVIEWS) {
+      let deleteQuery = supabase.from('flashcards').delete().eq('user_id', userId)
+      deleteQuery = card.pergunta_id
+        ? deleteQuery.eq('pergunta_id', card.pergunta_id)
+        : deleteQuery.eq('id', card.id)
+      await deleteQuery
+    } else {
+      const reviewUpdate = {
+        repeticoes: nextRepeticoes,
+        intervalo_dias: 1,
+        proxima_revisao: getDateAfterDays(1),
+        ultima_revisao: getDateAfterDays(0),
+      }
+
+      let updateQuery = supabase
+        .from('flashcards')
+        .update(reviewUpdate)
+        .eq('user_id', userId)
+        .eq('id', card.id)
+      await updateQuery
+
+      if (card.pergunta_id) {
+        await supabase
+          .from('flashcards')
+          .delete()
+          .eq('user_id', userId)
+          .eq('pergunta_id', card.pergunta_id)
+          .neq('id', card.id)
+      }
+    }
+
+    const remainingCards = cards.filter((currentCard) =>
+      card.pergunta_id
+        ? currentCard.pergunta_id !== card.pergunta_id
+        : currentCard.id !== card.id
     )
-
-    const proximaData = resultado.proxima_data.toISOString().split('T')[0]
-
-    await supabase
-      .from('flashcards')
-      .update({
-        intervalo_dias: resultado.intervalo,
-        facilidade: resultado.facilidade,
-        repeticoes: resultado.repeticoes,
-        proxima_revisao: proximaData,
-        ultima_revisao: new Date().toISOString().split('T')[0],
-      })
-      .eq('id', card.id)
 
     // XP por flashcard revisado
     await supabase
@@ -297,11 +325,13 @@ export function Flashcards() {
 
     setXpTotal((prev) => prev + XP_VALUES.flashcard_revisado)
     setRevisados((prev) => prev + 1)
-    setProximaDias(resultado.intervalo)
+    setCards(remainingCards)
 
-    if (indice < cards.length - 1) {
+    if (remainingCards.length > 0) {
       setFlipped(false)
-      setTimeout(() => setIndice((i) => i + 1), 300)
+      if (indice >= remainingCards.length) {
+        setIndice(remainingCards.length - 1)
+      }
     } else {
       setConcluido(true)
       setShowToast(true)
@@ -532,7 +562,7 @@ export function Flashcards() {
       {/* Área central */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {concluido ? (
-          <TelaFinal revisados={revisados} proximaDias={proximaDias} />
+          <TelaFinal revisados={revisados} />
         ) : (
           <>
             <FlashcardFlip card={card} flipped={flipped} onFlip={() => setFlipped((v) => !v)} />
@@ -544,13 +574,13 @@ export function Flashcards() {
               </p>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
                 {[
-                  { label: 'Difícil', cor: '#DC2626', bg: '#FEF2F2', q: 0 },
-                  { label: 'Médio',   cor: '#D97706', bg: '#FFFBEB', q: 1 },
-                  { label: 'Fácil',   cor: '#16A34A', bg: '#F0FDF4', q: 2 },
-                ].map(({ label, cor, bg, q }) => (
+                  { label: 'Difícil', cor: '#DC2626', bg: '#FEF2F2' },
+                  { label: 'Médio',   cor: '#D97706', bg: '#FFFBEB' },
+                  { label: 'Fácil',   cor: '#16A34A', bg: '#F0FDF4' },
+                ].map(({ label, cor, bg }) => (
                   <button
                     key={label}
-                    onClick={() => avaliar(q as 0 | 1 | 2)}
+                    onClick={() => avaliar()}
                     style={{
                       height: '44px', padding: '0 28px', borderRadius: '8px',
                       border: `1px solid ${cor}`, backgroundColor: bg,

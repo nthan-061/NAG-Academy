@@ -142,10 +142,42 @@ export async function finalizeQuizAttempt(
         proxima_revisao: new Date().toISOString().split('T')[0],
       }
     })
-    .filter(Boolean)
+    .filter((flashcard): flashcard is NonNullable<typeof flashcard> => flashcard !== null)
 
-  if (flashcards.length > 0) {
-    await supabase.from('flashcards').insert(flashcards)
+  for (const flashcard of flashcards) {
+    const { data: existingCards } = await supabase
+      .from('flashcards')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('pergunta_id', flashcard.pergunta_id)
+
+    const existingCard = existingCards?.[0]
+    const duplicateCardIds = existingCards?.slice(1).map((card) => card.id) ?? []
+
+    if (existingCard) {
+      await supabase
+        .from('flashcards')
+        .update({
+          frente: flashcard.frente,
+          verso: flashcard.verso,
+          topico: flashcard.topico,
+          intervalo_dias: 1,
+          facilidade: 2.5,
+          repeticoes: 0,
+          proxima_revisao: flashcard.proxima_revisao,
+          ultima_revisao: null,
+        })
+        .eq('id', existingCard.id)
+
+      if (duplicateCardIds.length > 0) {
+        await supabase
+          .from('flashcards')
+          .delete()
+          .in('id', duplicateCardIds)
+      }
+    } else {
+      await supabase.from('flashcards').insert(flashcard)
+    }
   }
 
   return {

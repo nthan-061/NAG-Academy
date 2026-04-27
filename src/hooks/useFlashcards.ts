@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
+const MAX_FLASHCARD_REVIEWS = 3
+
 export function useFlashcards() {
   const [pendingCount, setPendingCount] = useState(0)
 
@@ -13,6 +15,7 @@ export function useFlashcards() {
         .from('flashcards')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id)
+        .lt('repeticoes', MAX_FLASHCARD_REVIEWS)
         .lte('proxima_revisao', hoje)
       setPendingCount(count ?? 0)
     }
