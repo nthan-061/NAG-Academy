@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import type { Aula } from '@/types'
+import type { Aula, UserProgresso } from '@/types'
 import type { AulaPageData } from '../types'
 
 export async function getAulaPageData(aulaId: string, userId: string | null): Promise<AulaPageData | null> {
@@ -30,6 +30,22 @@ export async function getAulaPageData(aulaId: string, userId: string | null): Pr
 
   const lessons = aulasDoModulo ?? []
   const lessonIndex = lessons.findIndex((item) => item.id === aulaId)
+  let progresso = progressoResult.data as UserProgresso | null
+
+  if (userId && !progresso?.reflexao_completada) {
+    const { data: approvedReflexao } = await supabase
+      .from('user_reflexoes')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('aula_id', aulaId)
+      .eq('approved', true)
+      .limit(1)
+      .maybeSingle()
+
+    if (approvedReflexao && progresso) {
+      progresso = { ...progresso, reflexao_completada: true }
+    }
+  }
 
   return {
     aula,
@@ -37,6 +53,6 @@ export async function getAulaPageData(aulaId: string, userId: string | null): Pr
     trilha: trilha ?? null,
     aulaAnterior: lessonIndex > 0 ? lessons[lessonIndex - 1] : null,
     proximaAula: lessonIndex >= 0 && lessonIndex < lessons.length - 1 ? lessons[lessonIndex + 1] : null,
-    progresso: progressoResult.data ?? null,
+    progresso,
   }
 }

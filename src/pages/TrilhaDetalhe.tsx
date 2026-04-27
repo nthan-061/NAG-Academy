@@ -205,8 +205,20 @@ export function TrilhaDetalhe() {
             .eq('user_id', user.user.id)
             .in('aula_id', aulaIds)
 
+          const { data: reflexoesAprovadas } = await supabase
+            .from('user_reflexoes')
+            .select('aula_id')
+            .eq('user_id', user.user.id)
+            .eq('approved', true)
+            .in('aula_id', aulaIds)
+
+          const aulasComReflexaoAprovada = new Set(reflexoesAprovadas?.map((r) => r.aula_id) ?? [])
           const map: Record<string, UserProgresso> = {}
-          progressoData?.forEach((p) => { map[p.aula_id] = p })
+          progressoData?.forEach((p) => {
+            map[p.aula_id] = aulasComReflexaoAprovada.has(p.aula_id)
+              ? { ...p, reflexao_completada: true }
+              : p
+          })
           setProgressoMap(map)
         }
       }

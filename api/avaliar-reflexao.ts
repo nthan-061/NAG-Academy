@@ -337,12 +337,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               }
             })
         : Promise.resolve(),
-      // Mark the lesson as reflexao_completada so Aula page can reflect completion
+      // Mark the lesson as complete in an idempotent way. A plain update can
+      // silently affect zero rows if progress was not created yet.
       auth.serviceClient
         .from('user_progresso')
-        .update({ reflexao_completada: true })
-        .eq('user_id', auth.user.id)
-        .eq('aula_id', aula_id),
+        .upsert(
+          {
+            user_id: auth.user.id,
+            aula_id,
+            assistida: true,
+            quiz_completado: true,
+            reflexao_completada: true,
+            acertos: quiz_acertos ?? 0,
+            total_perguntas: quiz_total ?? 0,
+            percentual_acerto: quiz_total && quiz_total > 0
+              ? Math.round(((quiz_acertos ?? 0) / quiz_total) * 100)
+              : 0,
+            completed_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id,aula_id' },
+        ),
     ])
   }
 
