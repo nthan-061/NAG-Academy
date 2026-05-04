@@ -57,6 +57,7 @@ export interface QuizPergunta {
   explicacao: string
   topico: string | null
   dificuldade: 'facil' | 'medio' | 'dificil'
+  ativa?: boolean
   created_at: string
 }
 

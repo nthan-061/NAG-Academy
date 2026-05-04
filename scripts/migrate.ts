@@ -112,8 +112,12 @@ CREATE TABLE IF NOT EXISTS quiz_perguntas (
   explicacao TEXT NOT NULL,
   topico TEXT,
   dificuldade TEXT CHECK (dificuldade IN ('facil', 'medio', 'dificil')) DEFAULT 'medio',
+  ativa BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE quiz_perguntas
+ADD COLUMN IF NOT EXISTS ativa BOOLEAN NOT NULL DEFAULT true;
 
 -- Progresso do usuário por aula
 CREATE TABLE IF NOT EXISTS user_progresso (

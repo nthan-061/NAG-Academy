@@ -11,10 +11,25 @@ export async function getQuizSetupData(aulaId: string): Promise<QuizSetupData | 
 
   if (!aula) return null
 
-  const { data: perguntasData } = await supabase
+  let { data: perguntasData, error: perguntasError } = await supabase
     .from('quiz_perguntas')
     .select('*')
     .eq('aula_id', aulaId)
+    .eq('ativa', true)
+
+  if (perguntasError && perguntasError.message.toLowerCase().includes('ativa')) {
+    const fallback = await supabase
+      .from('quiz_perguntas')
+      .select('*')
+      .eq('aula_id', aulaId)
+
+    perguntasData = fallback.data
+    perguntasError = fallback.error
+  }
+
+  if (perguntasError) {
+    throw new Error(`Erro ao carregar perguntas: ${perguntasError.message}`)
+  }
 
   const perguntas = [...(perguntasData ?? [])]
     .sort(() => Math.random() - 0.5)

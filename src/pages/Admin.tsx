@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Plus, Trash2, ToggleLeft, ToggleRight, ShieldAlert, Star, Flame, Zap, ChevronDown, ChevronUp, CheckCircle, XCircle, Pencil, Save, X } from 'lucide-react'
+import { Plus, Trash2, ToggleLeft, ToggleRight, ShieldAlert, Star, Flame, Zap, ChevronDown, ChevronUp, CheckCircle, XCircle, Pencil, Save, X, RefreshCw } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Input } from '@/components/ui/Input'
 import type { Trilha, Modulo, Aula } from '@/types'
@@ -243,6 +243,185 @@ function AbaAdicionarAula() {
           </button>
         )
       })()}
+
+      <RegenerarPerguntasCard />
+    </div>
+  )
+}
+
+function RegenerarPerguntasCard() {
+  const [trilhaId, setTrilhaId] = useState('')
+  const [moduloId, setModuloId] = useState('')
+  const [aulaId, setAulaId] = useState('')
+  const [trilhas, setTrilhas] = useState<Trilha[]>([])
+  const [modulos, setModulos] = useState<Modulo[]>([])
+  const [aulas, setAulas] = useState<Aula[]>([])
+  const [loading, setLoading] = useState(false)
+  const [resultado, setResultado] = useState<{ ok: boolean; msg: string } | null>(null)
+
+  useEffect(() => {
+    supabase.from('trilhas').select('*').order('ordem').then(({ data }) => {
+      setTrilhas(data ?? [])
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!trilhaId) {
+      setModulos([])
+      setModuloId('')
+      return
+    }
+
+    supabase
+      .from('modulos')
+      .select('*')
+      .eq('trilha_id', trilhaId)
+      .order('ordem')
+      .then(({ data }) => {
+        setModulos(data ?? [])
+        setModuloId('')
+      })
+  }, [trilhaId])
+
+  useEffect(() => {
+    if (!moduloId) {
+      setAulas([])
+      setAulaId('')
+      return
+    }
+
+    supabase
+      .from('aulas')
+      .select('*')
+      .eq('modulo_id', moduloId)
+      .order('ordem')
+      .then(({ data }) => {
+        setAulas(data ?? [])
+        setAulaId('')
+      })
+  }, [moduloId])
+
+  async function regenerarPerguntas() {
+    if (!aulaId) return
+
+    setLoading(true)
+    setResultado(null)
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        setResultado({ ok: false, msg: 'Sua sessao expirou. Faca login novamente.' })
+        return
+      }
+
+      const res = await fetch('/api/regenerar-perguntas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ aula_id: aulaId }),
+      })
+
+      const json = await res.json().catch(() => ({ error: 'Falha ao processar resposta do servidor.' })) as {
+        success?: boolean
+        error?: string
+        perguntas_antigas_desativadas?: number
+        perguntas_novas_criadas?: number
+        usou_transcricao?: boolean
+      }
+
+      if (!res.ok || !json.success) {
+        setResultado({ ok: false, msg: json.error ?? 'Erro ao regenerar perguntas.' })
+        return
+      }
+
+      setResultado({
+        ok: true,
+        msg: `${json.perguntas_novas_criadas ?? 0} novas perguntas criadas. ${json.perguntas_antigas_desativadas ?? 0} antigas desativadas. Base: ${json.usou_transcricao ? 'transcricao' : 'metadados'}.`,
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Erro de conexao.'
+      setResultado({ ok: false, msg: message })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const podeRegenerar = !!aulaId && !loading
+
+  return (
+    <div
+      style={{
+        marginTop: '28px',
+        paddingTop: '28px',
+        borderTop: '1px solid #E8ECF2',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+      }}
+    >
+      <div>
+        <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#1A1F2E' }}>
+          Regenerar perguntas
+        </h2>
+        <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#6B7280', lineHeight: 1.5 }}>
+          Cria novas perguntas para uma aula e desativa as antigas sem apagar historico, respostas ou flashcards.
+        </p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
+        <SelectField label="Trilha" value={trilhaId} onChange={setTrilhaId}>
+          <option value="">Selecionar trilha</option>
+          {trilhas.map((trilha) => <option key={trilha.id} value={trilha.id}>{trilha.titulo}</option>)}
+        </SelectField>
+
+        <SelectField label="Modulo" value={moduloId} onChange={setModuloId} disabled={!trilhaId}>
+          <option value="">Selecionar modulo</option>
+          {modulos.map((modulo) => <option key={modulo.id} value={modulo.id}>{modulo.titulo}</option>)}
+        </SelectField>
+
+        <SelectField label="Aula" value={aulaId} onChange={setAulaId} disabled={!moduloId}>
+          <option value="">Selecionar aula</option>
+          {aulas.map((aula) => <option key={aula.id} value={aula.id}>{aula.titulo}</option>)}
+        </SelectField>
+      </div>
+
+      {resultado && (
+        <div style={{
+          fontSize: '14px', padding: '12px 16px', borderRadius: '8px', fontWeight: 500,
+          backgroundColor: resultado.ok ? '#F0FDF4' : '#FEF2F2',
+          color: resultado.ok ? '#16A34A' : '#DC2626',
+        }}>
+          {resultado.msg}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={podeRegenerar ? () => { void regenerarPerguntas() } : undefined}
+        disabled={!podeRegenerar}
+        style={{
+          width: '100%',
+          height: '44px',
+          borderRadius: '8px',
+          border: 'none',
+          backgroundColor: podeRegenerar ? '#0D1B3E' : '#E8ECF2',
+          color: podeRegenerar ? '#FFFFFF' : '#9CA3AF',
+          fontSize: '14px',
+          fontWeight: 500,
+          cursor: podeRegenerar ? 'pointer' : 'not-allowed',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+        }}
+      >
+        {loading
+          ? <><span style={{ width: '16px', height: '16px', border: '2px solid currentColor', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite', display: 'inline-block' }} /> Regenerando...</>
+          : <><RefreshCw size={16} strokeWidth={1.6} /> Regenerar perguntas</>
+        }
+      </button>
     </div>
   )
 }
