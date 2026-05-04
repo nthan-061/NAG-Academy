@@ -20,6 +20,7 @@ interface UserRow {
 interface ToastMsg { ok: boolean; msg: string }
 
 type AulasPorModuloMap = Record<string, Aula[]>
+type RegenerarPerguntasErrorCode = 'AI_RATE_LIMIT' | 'AI_QUALITY_FAILED' | 'AI_NOT_CONFIGURED' | 'UNKNOWN'
 
 function Toast({ toast, onClose }: { toast: ToastMsg; onClose: () => void }) {
   useEffect(() => {
@@ -257,7 +258,7 @@ function RegenerarPerguntasCard() {
   const [modulos, setModulos] = useState<Modulo[]>([])
   const [aulas, setAulas] = useState<Aula[]>([])
   const [loading, setLoading] = useState(false)
-  const [resultado, setResultado] = useState<{ ok: boolean; msg: string } | null>(null)
+  const [resultado, setResultado] = useState<{ ok: boolean; msg: string; detail?: string } | null>(null)
 
   useEffect(() => {
     supabase.from('trilhas').select('*').order('ordem').then(({ data }) => {
@@ -326,13 +327,27 @@ function RegenerarPerguntasCard() {
       const json = await res.json().catch(() => ({ error: 'Falha ao processar resposta do servidor.' })) as {
         success?: boolean
         error?: string
+        code?: RegenerarPerguntasErrorCode
         perguntas_antigas_desativadas?: number
         perguntas_novas_criadas?: number
         usou_transcricao?: boolean
       }
 
       if (!res.ok || !json.success) {
-        setResultado({ ok: false, msg: json.error ?? 'Erro ao regenerar perguntas.' })
+        const fallbackByCode: Record<RegenerarPerguntasErrorCode, string> = {
+          AI_RATE_LIMIT: 'Limite temporario da IA atingido. Aguarde alguns minutos e tente novamente.',
+          AI_QUALITY_FAILED: 'A IA nao conseguiu gerar perguntas especificas o suficiente para esta aula.',
+          AI_NOT_CONFIGURED: 'Servico de IA nao configurado.',
+          UNKNOWN: 'Nao foi possivel regenerar as perguntas agora.',
+        }
+        const code = json.code ?? 'UNKNOWN'
+        setResultado({
+          ok: false,
+          msg: json.error && json.error.length <= 180 ? json.error : fallbackByCode[code],
+          detail: code === 'AI_QUALITY_FAILED'
+            ? 'A aula talvez nao tenha transcricao ou contexto suficiente. As perguntas antigas continuam ativas; nada foi alterado.'
+            : 'As perguntas antigas continuam ativas; nada foi alterado.',
+        })
         return
       }
 
@@ -341,8 +356,12 @@ function RegenerarPerguntasCard() {
         msg: `${json.perguntas_novas_criadas ?? 0} novas perguntas criadas. ${json.perguntas_antigas_desativadas ?? 0} antigas desativadas. Base: ${json.usou_transcricao ? 'transcricao' : 'metadados'}.`,
       })
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro de conexao.'
-      setResultado({ ok: false, msg: message })
+      console.warn('[Admin] Falha ao regenerar perguntas:', error)
+      setResultado({
+        ok: false,
+        msg: 'Nao foi possivel regenerar as perguntas agora.',
+        detail: 'As perguntas antigas continuam ativas; nada foi alterado.',
+      })
     } finally {
       setLoading(false)
     }
@@ -389,11 +408,23 @@ function RegenerarPerguntasCard() {
 
       {resultado && (
         <div style={{
-          fontSize: '14px', padding: '12px 16px', borderRadius: '8px', fontWeight: 500,
+          fontSize: '14px',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          fontWeight: 500,
+          lineHeight: 1.5,
           backgroundColor: resultado.ok ? '#F0FDF4' : '#FEF2F2',
           color: resultado.ok ? '#16A34A' : '#DC2626',
+          maxHeight: '132px',
+          overflow: 'auto',
+          overflowWrap: 'anywhere',
         }}>
-          {resultado.msg}
+          <div>{resultado.msg}</div>
+          {resultado.detail && (
+            <div style={{ marginTop: '6px', fontSize: '12px', color: resultado.ok ? '#15803D' : '#991B1B' }}>
+              {resultado.detail}
+            </div>
+          )}
         </div>
       )}
 

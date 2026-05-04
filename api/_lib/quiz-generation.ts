@@ -25,6 +25,28 @@ export interface QuizResult {
 
 type ValidatedQuizPergunta = QuizResult['perguntas'][number]
 
+export type PublicAiErrorCode = 'AI_RATE_LIMIT' | 'AI_QUALITY_FAILED' | 'AI_NOT_CONFIGURED' | 'UNKNOWN'
+
+export interface PublicAiError {
+  code: PublicAiErrorCode
+  message: string
+  status: number
+}
+
+class QuizGenerationError extends Error {
+  code: PublicAiErrorCode
+  status: number
+  internalMessage: string
+
+  constructor(code: PublicAiErrorCode, message: string, status = 500, internalMessage?: string) {
+    super(message)
+    this.name = 'QuizGenerationError'
+    this.code = code
+    this.status = status
+    this.internalMessage = internalMessage ?? message
+  }
+}
+
 const QUIZ_PROMPT_SYSTEM = `Voce e um designer instrucional senior especializado em avaliacoes praticas de marketing digital.
 Sua tarefa e criar quizzes especificos da aula, com perguntas que comprovem compreensao real do conteudo apresentado.
 Responda apenas com JSON valido, sem markdown, sem comentarios e sem texto extra.`
@@ -66,7 +88,7 @@ export function prepararQuizPromptPayload(payload: {
   }
 }
 
-function buildQuizUserPrompt(payload: QuizPromptPayload) {
+function buildQuizUserPrompt(payload: QuizPromptPayload, repairMode = false) {
   const { conteudo, titulo, descricao, origemConteudo } = payload
   const avisoContextoLimitado = origemConteudo === 'metadados'
     ? `
@@ -104,6 +126,10 @@ Antes de responder, faca uma revisao silenciosa:
 - Remova perguntas parecidas.
 - Substitua perguntas genericas por situacoes concretas.
 - Confira se todas as perguntas podem ser respondidas a partir do conteudo fornecido.
+${repairMode ? `
+MODO REPARO: a tentativa anterior gerou perguntas curtas, genericas ou parecidas demais.
+Agora priorize perguntas com contexto especifico da aula, usando cenario pratico no enunciado e alternativas mais distintas.
+Evite com rigor perguntas sobre "publico-alvo da aula", "objetivo da aula", "ano da atualizacao" ou relacoes obvias com o titulo.` : ''}
 
 Formato JSON obrigatorio:
 {
@@ -179,9 +205,10 @@ function sanitizeOptions(opcoes: unknown) {
   return cleaned
 }
 
-export function validarQuizGerado(quiz: QuizResult): QuizResult {
+export function validarQuizGerado(quiz: QuizResult, options?: { minQuestions?: number }): QuizResult {
   const perguntasValidas: ValidatedQuizPergunta[] = []
   const rejeicoes: string[] = []
+  const minQuestions = options?.minQuestions ?? 10
 
   for (const pergunta of quiz.perguntas ?? []) {
     const textoPergunta = String(pergunta.pergunta ?? '').replace(/\s+/g, ' ').trim()
@@ -236,9 +263,14 @@ export function validarQuizGerado(quiz: QuizResult): QuizResult {
     })
   }
 
-  if (perguntasValidas.length < 10) {
+  if (perguntasValidas.length < minQuestions) {
     const details = rejeicoes.slice(0, 5).join(' | ')
-    throw new Error(`Quiz gerado com poucas perguntas validas (${perguntasValidas.length}/10). ${details}`)
+    throw new QuizGenerationError(
+      'AI_QUALITY_FAILED',
+      'A IA nao conseguiu gerar perguntas especificas o suficiente para esta aula. Tente novamente ou use uma aula com transcricao melhor.',
+      422,
+      `Quiz gerado com poucas perguntas validas (${perguntasValidas.length}/${minQuestions}). ${details}`,
+    )
   }
 
   return {
@@ -250,13 +282,13 @@ export function validarQuizGerado(quiz: QuizResult): QuizResult {
   }
 }
 
-async function gerarQuizGroq(promptPayload: QuizPromptPayload, apiKey: string): Promise<QuizResult> {
+async function gerarQuizGroq(promptPayload: QuizPromptPayload, apiKey: string, repairMode = false): Promise<QuizResult> {
   const groq = new Groq({ apiKey })
   const completion = await groq.chat.completions.create({
     model: 'llama-3.3-70b-versatile',
     messages: [
       { role: 'system', content: QUIZ_PROMPT_SYSTEM },
-      { role: 'user', content: buildQuizUserPrompt(promptPayload) },
+      { role: 'user', content: buildQuizUserPrompt(promptPayload, repairMode) },
     ],
     temperature: 0.55,
     max_tokens: 8192,
@@ -266,7 +298,7 @@ async function gerarQuizGroq(promptPayload: QuizPromptPayload, apiKey: string): 
   return JSON.parse(raw) as QuizResult
 }
 
-async function gerarQuizGemini(promptPayload: QuizPromptPayload, apiKey: string): Promise<QuizResult> {
+async function gerarQuizGemini(promptPayload: QuizPromptPayload, apiKey: string, repairMode = false): Promise<QuizResult> {
   const genai = new GoogleGenerativeAI(apiKey)
   const model = genai.getGenerativeModel({
     model: 'gemini-2.0-flash',
@@ -275,7 +307,7 @@ async function gerarQuizGemini(promptPayload: QuizPromptPayload, apiKey: string)
       maxOutputTokens: 8192,
     },
   })
-  const prompt = `${QUIZ_PROMPT_SYSTEM}\n\n${buildQuizUserPrompt(promptPayload)}`
+  const prompt = `${QUIZ_PROMPT_SYSTEM}\n\n${buildQuizUserPrompt(promptPayload, repairMode)}`
   const result = await model.generateContent(prompt)
   const raw = result.response.text().replace(/```json\n?|```/g, '').trim()
   return JSON.parse(raw) as QuizResult
@@ -286,20 +318,125 @@ export async function gerarQuizComFallback(payload: {
   groqKey?: string
   geminiKey?: string
 }) {
-  let groqError = ''
+  const minQuestions = payload.promptPayload.origemConteudo === 'metadados' ? 8 : 10
 
-  try {
-    if (!payload.groqKey) throw new Error('GROQ_API_KEY ausente')
-    return validarQuizGerado(await gerarQuizGroq(payload.promptPayload, payload.groqKey))
-  } catch (error) {
-    groqError = error instanceof Error ? error.message : String(error)
+  if (!payload.groqKey && !payload.geminiKey) {
+    throw new QuizGenerationError('AI_NOT_CONFIGURED', 'Servico de IA nao configurado.', 500)
   }
 
   try {
-    if (!payload.geminiKey) throw new Error('GEMINI_API_KEY ausente')
-    return validarQuizGerado(await gerarQuizGemini(payload.promptPayload, payload.geminiKey))
+    if (!payload.groqKey) throw new Error('GROQ_API_KEY ausente')
+    return validarQuizGerado(await gerarQuizGroq(payload.promptPayload, payload.groqKey), { minQuestions })
   } catch (error) {
-    const geminiError = error instanceof Error ? error.message : String(error)
-    throw new Error(`Groq: ${groqError} | Gemini: ${geminiError}`)
+    console.warn('[quiz-generation] Groq initial attempt failed:', getInternalAiError(error))
+
+    if (classifyAiError(error) === 'AI_QUALITY_FAILED' && payload.groqKey) {
+      try {
+        return validarQuizGerado(await gerarQuizGroq(payload.promptPayload, payload.groqKey, true), { minQuestions })
+      } catch (repairError) {
+        console.warn('[quiz-generation] Groq repair attempt failed:', getInternalAiError(repairError))
+        throw toPublicAiError(repairError)
+      }
+    }
+
+    if (!payload.geminiKey) {
+      throw toPublicAiError(error)
+    }
+  }
+
+  try {
+    return validarQuizGerado(await gerarQuizGemini(payload.promptPayload, payload.geminiKey), { minQuestions })
+  } catch (error) {
+    console.warn('[quiz-generation] Gemini attempt failed:', getInternalAiError(error))
+    throw toPublicAiError(error)
+  }
+}
+
+function getInternalAiError(error: unknown) {
+  if (error instanceof QuizGenerationError) return error.internalMessage
+  if (error instanceof Error) return error.message
+  return String(error)
+}
+
+export function classifyAiError(error: unknown): PublicAiErrorCode {
+  if (error instanceof QuizGenerationError) return error.code
+
+  const message = getInternalAiError(error).toLowerCase()
+  if (
+    message.includes('quota')
+    || message.includes('rate limit')
+    || message.includes('too many requests')
+    || message.includes('429')
+    || message.includes('resource_exhausted')
+  ) {
+    return 'AI_RATE_LIMIT'
+  }
+
+  if (
+    message.includes('api_key ausente')
+    || message.includes('api key')
+    || message.includes('chave')
+    || message.includes('not configured')
+  ) {
+    return 'AI_NOT_CONFIGURED'
+  }
+
+  if (
+    message.includes('poucas perguntas validas')
+    || message.includes('perguntas validas')
+    || message.includes('quality')
+  ) {
+    return 'AI_QUALITY_FAILED'
+  }
+
+  return 'UNKNOWN'
+}
+
+export function toPublicAiError(error: unknown): PublicAiError {
+  if (
+    typeof error === 'object'
+    && error !== null
+    && 'code' in error
+    && 'message' in error
+    && 'status' in error
+  ) {
+    const publicError = error as PublicAiError
+    return {
+      code: publicError.code,
+      message: publicError.message,
+      status: publicError.status,
+    }
+  }
+
+  const code = classifyAiError(error)
+
+  if (code === 'AI_RATE_LIMIT') {
+    return {
+      code,
+      status: 429,
+      message: 'Limite temporario da IA atingido. Aguarde alguns minutos e tente novamente.',
+    }
+  }
+
+  if (code === 'AI_QUALITY_FAILED') {
+    return {
+      code,
+      status: 422,
+      message: 'A IA nao conseguiu gerar perguntas especificas o suficiente para esta aula. Tente novamente ou use uma aula com transcricao melhor.',
+    }
+  }
+
+  if (code === 'AI_NOT_CONFIGURED') {
+    return {
+      code,
+      status: 500,
+      message: 'Servico de IA nao configurado.',
+    }
+  }
+
+  return {
+    code: 'UNKNOWN',
+    status: 500,
+    message: 'Nao foi possivel regenerar as perguntas agora.',
   }
 }

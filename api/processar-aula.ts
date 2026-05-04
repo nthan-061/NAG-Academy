@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
 import { logAdminAction, requireAdmin } from './_lib/auth.js'
-import { gerarQuizComFallback, prepararQuizPromptPayload } from './_lib/quiz-generation.js'
+import { gerarQuizComFallback, prepararQuizPromptPayload, toPublicAiError } from './_lib/quiz-generation.js'
 
 function extrairYoutubeId(url: string): string | null {
   const patterns = [
@@ -170,9 +170,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         geminiKey: GEMINI_KEY,
       })
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      return res.status(422).json({
-        error: `Falha ao gerar quiz com qualidade suficiente. ${message}`,
+      const publicError = toPublicAiError(error)
+      console.warn('[processar-aula] falha na IA:', error)
+      return res.status(publicError.status).json({
+        success: false,
+        code: publicError.code,
+        error: publicError.message,
         usou_transcricao: usouTranscricao,
       })
     }
